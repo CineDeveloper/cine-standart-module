@@ -1,0 +1,3 @@
+group StringReader
+//require
+//fromString(a, [UInt8]) -> Box(a)

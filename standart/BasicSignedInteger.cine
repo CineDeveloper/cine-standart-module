@@ -1,0 +1,197 @@
+group BasicSignedInteger
+//toUnsigned(a) -> b
+
+rules
+    1 = type > BasicSignedInteger
+    join 1 BasicInteger
+    join 1 SignedInteger
+
+func abs(a) #4
+    rules
+        final = a > BasicSignedInteger
+        result = a
+    result = select(a < #a, a.neg(), a)
+
+func add(a, b)
+    rules
+        final = a > BasicSignedInteger & b == a
+        result = a
+    flag debug is set?
+        then
+            overflow := false
+            min .= #a.minValue()
+            max .= #a.maxValue()
+            C
+                __int128 tmp = (__int128)a_ + (__int128)b_;
+                overflow_ = tmp < (__int128)min_ || tmp > (__int128)max_;
+            debugMessage(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    C
+        result_ = a_ + b_;
+
+func fromString(a, string) #4
+    rules
+        final =  a > BasicSignedInteger & string == [UInt8]
+        result = Box(a)
+    tenInIndexPower := 1.convertTo(#a).toUnsigned()
+    if string.getLength() != 0
+        then if signed .= string[0] == '-'; !(signed && string.getLength() == 1)
+            then
+                tmp := #a.toUnsigned()
+                edge := 0
+                if !signed
+                    then edge = UInt64.maxValue()
+                for index := string.getLength() - 1; index != edge; index--
+                    if char .= string[index]; char.digit?()
+                        then
+                            previous .= tmp
+                            tmp += (char - '0').convertTo(#a).toUnsigned() * tenInIndexPower
+                            if previous > tmp
+                                then return
+                        else return
+                    tenInIndexPower *= 10.convertTo(#a).toUnsigned()
+                if resultNumber .= tmp.convertTo(#a); resultNumber < #a
+                    then if signed && resultNumber == #a.minValue()
+                        then result:put(resultNumber)
+                    else if !(signed && resultNumber == #a)
+                        then if signed
+                            then result:put(!resultNumber)
+                            else result:put(resultNumber)
+
+func maxValue(a) #4
+    rules
+        final = a > BasicSignedInteger
+        result = a
+    unsignedA := #a.toUnsigned()
+    C
+        unsignedA_ = -1;
+        unsignedA_ >>= 1;
+        result_ = unsignedA_;
+
+func minValue(a) #4
+    rules
+        final = a > BasicSignedInteger
+        result = a
+    result = #a.maxValue().not()
+
+func mul(a, b)
+    rules
+        final = a > BasicSignedInteger & b == a
+        result = a
+    flag debug is set?
+        then
+            overflow := false
+            min .= #a.minValue()
+            max .= #a.maxValue()
+            C
+                __int128 tmp = (__int128)a_ * (__int128)b_;
+                overflow_ = tmp < (__int128)min_ || tmp > (__int128)max_;
+            debugMessage(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    C
+        result_ = a_ * b_;
+
+func neg(a) #4
+    rules
+        final = a > BasicSignedInteger
+        result = a
+    flag debug is set?
+        then debugMessage(a == #a.minValue(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    C
+        result_ = 0 - a_;
+
+func power(a, b) #4
+    rules
+        final = a > BasicSignedInteger & b == a
+        result = a
+    if b >= #b
+        then
+            tmp := a
+            power := b
+            result = 1.convertTo(#a)
+            for
+                if (power & 1.convertTo(#b)) == 1.convertTo(#b)
+                    then result *= tmp
+                power >>= 1
+                if power == #b
+                    then break
+                    else tmp *= tmp.clone()
+
+func random(maxValue) #4
+    rules
+        final = maxValue > BasicSignedInteger
+        result = maxValue
+    flag debug is set?
+        then debugMessage(maxValue <= 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
+    C
+        uint64_t randomNumber = (UINT64_MAX / RAND_MAX * rand() + rand()) / (UINT64_MAX / maxValue_);
+        result_ = randomNumber;
+
+func shl(a, shifts) #4
+    rules
+        final = a > BasicSignedInteger & shifts > BasicUnsignedInteger
+        result = a
+    flag debug is set?
+        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    unsignedResult := #a.toUnsigned()
+    C
+        unsignedResult_ = a_;
+        unsignedResult_ <<= shifts_;
+        result_ = unsignedResult_;
+
+func shr(a, shifts) #4
+    rules
+        final = a > BasicSignedInteger & shifts > BasicUnsignedInteger
+        result = a
+    flag debug is set?
+        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    unsignedResult := #a.toUnsigned()
+    C
+        unsignedResult_ = a_;
+        unsignedResult_ >>= shifts_;
+        result_ = unsignedResult_;
+
+func sub(a, b)
+    rules
+        final = a > BasicSignedInteger & b == a
+        result = a
+    flag debug is set?
+        then
+            overflow := false
+            min .= #a.minValue()
+            max .= #a.maxValue()
+            C
+                __int128 tmp = (__int128)a_ - (__int128)b_;
+                overflow_ = tmp < (__int128)min_ || tmp > (__int128)max_;
+            debugMessage(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    C
+        result_ = a_ - b_;
+
+func toString(a) #4
+    include
+        #include <string.h>
+    rules
+        final = a > BasicSignedInteger
+        result = [UInt8]
+    length := #a.getTypeSize() * 3 - #a.getTypeSize() / 2 + 1
+    index := length
+    remain := a
+    modCorrector .= select(a < #a, -1, 1).convertTo(#a)
+    C
+        char tmpResult[length_];
+        for (;;){
+            index_--;
+            char newChar = remain_ % 10 * modCorrector_ + 48;
+            remain_ /= 10;
+            tmpResult[index_] = newChar;
+            if (remain_ == 0){
+                break;
+            }
+        }
+        if (a_ < 0){
+            index_--;
+            tmpResult[index_] = '-';
+        }
+        length_ -= index_;
+    result = [UInt8].init(length)
+    C
+        memcpy(result_.items, tmpResult + index_, length_);
+    result:setStringFlag()

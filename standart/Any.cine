@@ -1,0 +1,16 @@
+func convertTo(from, to) #9
+    rules
+        final = from == to
+        result = to
+    result = from
+
+func getTypeSize(a)
+    rules
+        result = UInt64
+    C
+        result_ = sizeof(##a##);
+
+func getTypeNumber(a)
+    rules
+        result = UInt64
+    result = builtInTypeNumber(a)

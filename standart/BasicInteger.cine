@@ -1,0 +1,93 @@
+group BasicInteger
+//require
+//fromString(a, [UInt8]) -> a
+//maxValue(a) -> a
+//minValue(a) -> a
+//power(a, a) -> a
+//random(a) -> a
+//shl(a, b) -> a
+//shr(a, b) -> a
+//toString(a) -> [UInt8]
+
+rules
+    1 = type > BasicInteger
+    join 1 BasicNumber
+    join 1 Integer
+    join 1 Bits
+    join 1 Limited
+    join 1 Hashed
+    join 1 Binary
+
+func and(a, b) #4
+    rules
+        final = a > BasicInteger & b == a
+        result = a
+    C
+        result_ = a_ & b_;
+
+func convertTo(from, to) #4
+    rules
+        final = from > BasicInteger & (to > BasicInteger | to > BasicFloat)
+        result = to
+    C
+        result_ = from_;
+
+proc dec(:a) #4
+    rules
+        final = a > BasicInteger
+    C
+        (*a_)--;
+
+func getHash(a) #4
+    rules
+        final = a > BasicInteger
+        result = UInt64
+    C
+        result_ = a_;
+
+func getHashSize(a) #4
+    rules
+        final = a > BasicInteger
+        result = UInt8
+    result = #a.getTypeSize().convertTo(UInt8)
+
+proc inc(:a) #4
+    rules
+        final = a > BasicInteger
+    C
+        (*a_)++;
+
+func mod(a, b) #4
+    rules
+        final = a > BasicInteger & b == a
+        result = a
+    flag debug is set?
+        then debugMessage(b == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - division by zero.")
+    C
+        result_ = a_ % b_;
+
+proc modEq(:a, b) #4
+    rules
+        final = a > BasicInteger & b == a
+    a = a % b
+
+func not(a) #4
+    rules
+        final = a > BasicInteger
+        result = a
+    C
+        result_ = ~a_;
+
+func or(a, b) #4
+    rules
+        final = a > BasicInteger & b == a
+        result = a
+    C
+        result_ = a_ | b_;
+
+func xor(a, b) #4
+    rules
+        final = a > BasicInteger & b == a
+        result = a
+    C
+        result_ = a_ ^ b_;

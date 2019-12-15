@@ -1,0 +1,165 @@
+type ConflictUInt64
+    data UInt64
+
+rules
+    1 = type == ConflictUInt64
+    join 1 Equal
+    join 1 Hashed
+
+func equal(a, b)
+    rules
+        final = a == ConflictUInt64 & a == b
+        result = Bool
+    result = a.data == b.data
+
+func getHash(a)
+    rules
+        final = a == ConflictUInt64
+        result = UInt64
+    result = 0
+
+func getHashSize(a)
+    rules
+        final = a == ConflictUInt64
+        result = UInt8
+    result = 8.convertTo(UInt8)
+
+func getSmallHash(a)
+    rules
+        final = a == ConflictUInt64
+        result = UInt32
+    result = UInt32
+
+func toConflict(a)
+    rules
+        final = a == UInt64
+        result = ConflictUInt64
+    result:data = a
+
+proc testMap(:results)
+    rules
+        final = results == TestResults
+    allOk := true
+    m := Map(UInt64, UInt32).create([Pair(UInt64, UInt32)]{{
+        Pair(UInt64, UInt32).create(5, 0.convertTo(UInt32)),
+        Pair(UInt64, UInt32).create(4, 1.convertTo(UInt32)),
+        Pair(UInt64, UInt32).create(3, 2.convertTo(UInt32)),
+        Pair(UInt64, UInt32).create(2, 3.convertTo(UInt32)),
+        Pair(UInt64, UInt32).create(1, 4.convertTo(UInt32)),
+        Pair(UInt64, UInt32).create(0, 5.convertTo(UInt32))
+        })
+    }
+    results:test(m.getLength() == 6, builtIn_currentFile, builtIn_currentLine)
+    parse key, value <- m
+        allOk = allOk && key == (5 - value.convertTo(UInt64))
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 0; key < 6; key++
+        allOk = allOk && key == (5 - m[key][].convertTo(UInt64))
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 6; key < 10; key++
+        allOk = allOk && m[key].empty?()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    cm := Map(ConflictUInt64, UInt64).create([Pair(ConflictUInt64, UInt64)]{{
+        Pair(ConflictUInt64, UInt64).create(5.toConflict(), 0),
+        Pair(ConflictUInt64, UInt64).create(4.toConflict(), 1),
+        Pair(ConflictUInt64, UInt64).create(3.toConflict(), 2),
+        Pair(ConflictUInt64, UInt64).create(2.toConflict(), 3),
+        Pair(ConflictUInt64, UInt64).create(1.toConflict(), 4),
+        Pair(ConflictUInt64, UInt64).create(0.toConflict(), 5)
+        })
+    }
+    results:test(cm.getLength() == 6, builtIn_currentFile, builtIn_currentLine)
+    parse key, value <- cm
+        allOk = allOk && key.data == (5 - value.convertTo(UInt64))
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 0.toConflict(); key.data < 6; key:data++
+        allOk = allOk && key.data == (5 - cm[key][])
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 6.toConflict(); key.data < 10; key:data++
+        allOk = allOk && cm[key].empty?()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    am := Map(UInt64, UInt64)
+    results:test(am.getLength() == 0, builtIn_currentFile, builtIn_currentLine)
+    for key := 0; key < 100; key++
+        am:add(key, key * key)
+    allOk = true
+    for key := 0; key < 100; key++
+        allOk = allOk && am[key][] == key * key
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    parse key, value <- am
+        allOk = allOk && value == key * key
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    parse _, _ <- Map(UInt64, UInt64)
+        allOk = false
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = Map(UInt64, UInt64)[0].empty?()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    parse _, _ <- Map(UInt64, UInt64).init()
+        allOk = false
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 100; key < 104; key++
+        allOk = allOk && am[key].empty?()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    am:add(0, 12)
+    allOk = am[0][] == 12
+    for key := 1; key < 100; key++
+        allOk = allOk && am[key][] == key * key
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 0; key < 50; key++
+        am -= key
+    for key := 0; key < 100; key++
+        if key < 50
+            then allOk = allOk && am[key].empty?()
+            else allOk = allOk && am[key][] == key * key
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    for key := 0; key < 50; key++
+        am:add(key, key + key)
+    allOk = true
+    for key := 0; key < 100; key++
+        if key < 50
+            then allOk = allOk && am[key][] == key + key
+            else allOk = allOk && am[key][] == key * key
+    for key := 100; key < 104; key++
+        allOk = allOk && am[key].empty?()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    cm = Map(ConflictUInt64, UInt64)
+    for key := 0.toConflict(); key.data < 100; key:data++
+        cm:add(key, key.data * key.data)
+    allOk = true
+    for key := 0.toConflict(); key.data < 100; key:data++
+        allOk = allOk && cm[key][] == key.data * key.data
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    cm:add(0.toConflict(), 12)
+    allOk = cm[0.toConflict()][] == 12
+    for key := 1.toConflict(); key.data < 100; key:data++
+        allOk = allOk && cm[key][] == key.data * key.data
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for key := 0.toConflict(); key.data < 50; key:data++
+        cm -= key
+    for key := 0.toConflict(); key.data < 100; key:data++
+        if key.data < 50
+            then allOk = allOk && cm[key].empty?()
+            else allOk = allOk && cm[key][] == key.data * key.data
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    for key := 0.toConflict(); key.data < 50; key:data++
+        cm:add(key, key.data + key.data)
+    allOk = true
+    for key := 0.toConflict(); key.data < 100; key:data++
+        if key.data < 50
+            then allOk = allOk && cm[key][] == key.data + key.data
+            else allOk = allOk && cm[key][] == key.data * key.data
+    for key := 100.toConflict(); key.data < 104; key:data++
+        allOk = allOk && cm[key].empty?()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+

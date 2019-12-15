@@ -1,0 +1,12 @@
+proc testVAList(:results)
+    rules
+        final = results == TestResults
+    results:test(VAList(UInt64).create().getLength() == UInt8, builtIn_currentFile, builtIn_currentLine)
+    val := VAList(UInt64).create(0, 1)
+    results:test(val.getLength() == 2.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(val[0] == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test(val[1] == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(val.clone()[0] == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test(val.clone()[1] == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(val.convertTo([UInt64]) == [UInt64]{0, 1}, builtIn_currentFile, builtIn_currentLine)
+    results:test(VAList(UInt64).create().convertTo([UInt64]) == [UInt64], builtIn_currentFile, builtIn_currentLine)

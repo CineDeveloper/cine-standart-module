@@ -1,0 +1,92 @@
+type Box(item)
+    private_item item
+    private_haveItem Bool
+
+rules
+    1 = type == Box(_) & type[0] > Binary
+    join 1 Binary
+    2 = type == Box(_) & type[0] > Equal
+    join 2 Equal
+    3 = type == Box(_) & type[0] > StringReader
+    join 3 StringReader
+    4 = type == Box(_) & type[0] > StringWriter
+    join 4 StringWriter
+
+proc addEq(:data, a)
+    rules
+        final = data == BinaryData & a == Box(_) & a > Binary
+    data += a.private_haveItem
+    if a.private_haveItem
+        then data += a.private_item
+
+func create(boxType, item)
+    rules
+        final = boxType == Box(item)
+        result = Box(item)
+    result:private_item = item
+    result:private_haveItem = true
+
+func empty?(a)
+    rules
+        final = a == Box(_)
+        result = Bool
+    result = !a.private_haveItem
+
+func equal(a, b)
+    rules
+        final = a > Equal & a == b & a == Box(_)
+        result = Bool
+    if result = a.item?() == b.item?(); result && a.item?()
+        then result = a[] == b[]
+
+func fromString(a, string)
+    rules
+        final = a == Box(_) & string == [UInt8] & a > StringReader
+        result = Box(a)
+    if string.getLength() >= 2 && string[0] == '(' && string.getLast() == ')'
+        then if itemString .= string.getAllExceptLast().getAllExceptFirst(); itemString.getLength() != 0
+            then
+                itemBox .= #a[0].fromString(itemString)
+                if itemBox.item?()
+                    then result:put(itemBox)
+            else result:put(#a)
+
+func getFromBinaryData(a, data, :position)
+    rules
+        final = data == BinaryData & position == UInt64 & a == Box(_) & a > Binary
+        result = a
+    result:private_haveItem = Bool.getFromBinaryData(data, position)
+    if result.private_haveItem
+        then result:private_item = #a[0].getFromBinaryData(data, position)
+
+func getItem(a)
+    rules
+        final = a == Box(_)
+        result = a[0]
+    flag debug is set?
+        then debugMessage(a.empty?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - get the value from the empty box.")
+    if !a.empty?()
+        then result = a.private_item
+
+func item?(a)
+    rules
+        final = a == Box(_)
+        result = Bool
+    result = a.private_haveItem
+
+proc put(:box, item)
+    rules
+        final = box == Box(item)
+    box = #box.create(item)
+
+func toString(a)
+    rules
+        final = a == Box(_) & a > StringWriter
+        result = [UInt8]
+    if a.item?()
+        then
+            result += '('
+            result += a[].toString()
+            result += ')'
+        else result = "()"
+    result:setStringFlag()

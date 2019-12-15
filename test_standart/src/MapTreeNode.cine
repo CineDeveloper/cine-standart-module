@@ -1,0 +1,38 @@
+proc testMapTreeNode(:results)
+    rules
+        final = results == TestResults
+    mtn := MapTreeNode
+    for i := UInt8; i < 16.convertTo(UInt8).convertTo(UInt8); i++
+        mtn:setItem(i, i.convertTo(UInt64))
+    allOk := true
+    for i := UInt8; i < 16.convertTo(UInt8).convertTo(UInt8); i++
+        allOk = allOk && mtn[i] == i.convertTo(UInt64)
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    for i := UInt8; i < 16.convertTo(UInt8).convertTo(UInt8); i++
+        mtn:setItem(i, 16777215)
+    allOk = true
+    for i := UInt8; i < 16.convertTo(UInt8).convertTo(UInt8); i++
+        allOk = allOk && mtn[i] == 16777215
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    mtn:setItemIndex(65535)
+    allOk = mtn.getItemIndex() == 65535
+    for i := UInt8; i < 16.convertTo(UInt8); i++
+        allOk = allOk && mtn[i] == 16777215
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    mtn:setItemIndex(UInt64.maxValue())
+    allOk = mtn.getItemIndex() == UInt64.maxValue()
+    for i := UInt8; i < 16.convertTo(UInt8); i++
+        allOk = allOk && mtn[i] == 16777215
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    mtn:setNodeIndexWithOtherItemIndex(65535)
+    allOk = mtn.getNodeIndexWithOtherItemIndex() == 65535
+    for i := UInt8; i < 16.convertTo(UInt8); i++
+        allOk = allOk && mtn[i] == 16777215
+    allOk = allOk && mtn.getItemIndex() == UInt64.maxValue()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    mtn:setNodeIndexWithOtherItemIndex(UInt32.maxValue().convertTo(UInt64))
+    allOk = mtn.getNodeIndexWithOtherItemIndex() == UInt32.maxValue().convertTo(UInt64)
+    for i := UInt8; i < 16.convertTo(UInt8); i++
+        allOk = allOk && mtn[i] == 16777215
+    allOk = allOk && mtn.getItemIndex() == UInt64.maxValue()
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)

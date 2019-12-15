@@ -1,0 +1,78 @@
+proc testSet(:results)
+    rules
+        final = results == TestResults
+    allOk := true
+    s := Set(UInt64).create([UInt64]{0, 1, 2, 3, 4, 5})
+    results:test(s.getLength() == 6, builtIn_currentFile, builtIn_currentLine)
+    for item := 0; item < 12; item++
+        if item < 6
+            then allOk = allOk && s[item]
+            else allOk = allOk && !s[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    cs := Set(ConflictUInt64).create([ConflictUInt64]{0.toConflict(), 1.toConflict(), 2.toConflict(), 3.toConflict(), 4.toConflict(), 5.toConflict()})
+    results:test(cs.getLength() == 6, builtIn_currentFile, builtIn_currentLine)
+    for item := 0.toConflict(); item.data < 12; item:data++
+        if item.data < 6
+            then allOk = allOk && cs[item]
+            else allOk = allOk && !cs[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    s = Set(UInt64)
+    allOk = true
+    results:test(s.getLength() == 0, builtIn_currentFile, builtIn_currentLine)
+    for item := 0; item < 100; item++
+        s += item
+    for item := 0; item < 200; item++
+        if item < 100
+            then allOk = allOk && s[item]
+            else allOk = allOk && !s[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for item := 0; item < 50; item++
+        s -= item
+    for item := 0; item < 100; item++
+        if item < 50
+            then allOk = allOk && !s[item]
+            else allOk = allOk && s[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for item := 0; item < 50; item++
+        s += item
+    for item := 0; item < 200; item++
+        if item < 100
+            then allOk = allOk && s[item]
+            else allOk = allOk && !s[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    cs = Set(ConflictUInt64)
+    allOk = true
+    results:test(cs.getLength() == 0, builtIn_currentFile, builtIn_currentLine)
+    for item := 0.toConflict(); item.data < 100; item:data++
+        cs += item
+    for item := 0.toConflict(); item.data < 200; item:data++
+        if item.data < 100
+            then allOk = allOk && cs[item]
+            else allOk = allOk && !cs[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for item := 0.toConflict(); item.data < 50; item:data++
+        cs -= item
+    for item := 0.toConflict(); item.data < 100; item:data++
+        if item.data < 50
+            then allOk = allOk && !cs[item]
+            else allOk = allOk && cs[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    for item := 0.toConflict(); item.data < 50; item:data++
+        cs += item
+    for item := 0.toConflict(); item.data < 200; item:data++
+        if item.data < 100
+            then allOk = allOk && cs[item]
+            else allOk = allOk && !cs[item]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = true
+    parse _, _ <- Set(UInt64)
+        allOk = false
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+    allOk = !Set(UInt64)[0]
+    results:test(allOk, builtIn_currentFile, builtIn_currentLine)
+

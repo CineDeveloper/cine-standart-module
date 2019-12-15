@@ -1,0 +1,7 @@
+proc testRealNumber(:results)
+    rules
+        final = results == TestResults
+    r := 11
+    results:test(r == 11, builtIn_currentFile, builtIn_currentLine)
+    r %= 3
+    results:test(r == 2, builtIn_currentFile, builtIn_currentLine)

@@ -1,0 +1,21 @@
+proc testBox(:results)
+    rules
+        final = results == TestResults
+    data := BinaryData
+    box := Box(UInt64).create(10)
+    data += box
+    position := 0
+    box = Box(UInt64)
+    results:test(box.empty?(), builtIn_currentFile, builtIn_currentLine)
+    box = Box(UInt64).getFromBinaryData(data, position)
+    results:test(box.item?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(box[] == 10, builtIn_currentFile, builtIn_currentLine)
+    box:put(134)
+    results:test(box.item?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(box[] == 134, builtIn_currentFile, builtIn_currentLine)
+    results:test(box == box, builtIn_currentFile, builtIn_currentLine)
+    results:test(box == Box(UInt64).create(134), builtIn_currentFile, builtIn_currentLine)
+    results:test(Box(UInt64).fromString("(134)") == Box(Box(UInt64)).create(box), builtIn_currentFile, builtIn_currentLine)
+    results:test(Box(UInt64).fromString("()") == Box(Box(UInt64)).create(Box(UInt64)), builtIn_currentFile, builtIn_currentLine)
+    results:test(box.toString() == "(134)", builtIn_currentFile, builtIn_currentLine)
+    results:test(Box(UInt64).toString() == "()", builtIn_currentFile, builtIn_currentLine)

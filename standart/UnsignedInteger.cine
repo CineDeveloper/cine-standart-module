@@ -1,0 +1,23 @@
+group UnsignedInteger
+//require
+//add(a, a) -> a
+//dec(:a)
+//div(a, a) -> a
+//equal(a, a) -> Bool
+//fromString(a, [UInt8]) -> Box(a)
+//greater(a, a) -> Bool
+//greaterOrEqual(a, a) -> Bool
+//inc(:a)
+//less(a, a) -> Bool
+//lessOrEqual(a, a) -> Bool
+//mod(a, a) -> a
+//mul(a, a) -> a
+//power(a, a) -> a
+//sub(a, a) -> a
+//toSigned(a) -> b
+//toString(a) -> [UInt8]
+
+rules
+    1 = type > UnsignedInteger
+    join 1 Integer
+    join 1 UnsignedNumber

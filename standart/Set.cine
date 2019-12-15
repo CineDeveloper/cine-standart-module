@@ -1,0 +1,274 @@
+type Set(item)
+    private_items [Box(item)]
+    private_trees [MapTreeNode]
+    private_numberOfHiddenItems UInt16
+
+proc add(:set, item)
+    rules
+        1 = set == Set(item)
+        2 = item > Hashed & item > Equal
+        final = 1 & 2
+    set += item
+
+proc addEq(:set, item)
+    rules
+        1 = set == Set(item)
+        2 = item > Hashed & item > Equal
+        final = 1 & 2
+    if !set.init?()
+        then set = #set.init()
+    itemHash := item.getSmallHash()
+    firstNodeOfTreeIndex := 0
+    currentNodeIndex := 0
+    countOfLoops .= #set[0].getSmallHashSize() * 2.convertTo(UInt8)
+    firstHash .= itemHash
+    itemIndex := 0
+    for
+        for loopID := UInt8; loopID < countOfLoops; loopID++
+            partOfItemHash .= (itemHash & 15.convertTo(UInt32)).convertTo(UInt8)
+            itemHash >>= 4
+            fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+            nextNodeIndex .= set.private_trees[fullCurrentIndex][partOfItemHash]
+            mif
+                nextNodeIndex == 0
+                    newNodeIndex .= set.private_trees.getLength() - firstNodeOfTreeIndex
+                    currentNode := set.private_trees[fullCurrentIndex]
+                    currentNode:setItem(partOfItemHash, newNodeIndex)
+                    set:private_trees:setItem(fullCurrentIndex, currentNode)
+                    set:private_trees += MapTreeNode
+                    if newNodeIndex == 16777215
+                        then
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            itemHash = firstHash
+                            continue first
+                        else currentNodeIndex = newNodeIndex
+                nextNodeIndex == 16777215
+                    firstNodeOfTreeIndex += 16777215
+                    currentNodeIndex = 0
+                    itemHash = firstHash
+                    continue first
+                default
+                    currentNodeIndex = nextNodeIndex
+        for
+            fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+            if itemIndex = set.private_trees[fullCurrentIndex].getItemIndex(); itemIndex == 0
+                then
+                    itemIndex = set.private_items.getLength()
+                    set:private_items += Box(item)
+                    break
+            if boxItem .= set.private_items[itemIndex]; boxItem.item?() && boxItem[] == item
+                then break
+            nextNodeIndex .= set.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
+            mif
+                nextNodeIndex == 0
+                    newNodeIndex .= set.private_trees.getLength() - firstNodeOfTreeIndex
+                    currentNode := set.private_trees[fullCurrentIndex]
+                    currentNode:setNodeIndexWithOtherItemIndex(newNodeIndex)
+                    set:private_trees:setItem(fullCurrentIndex, currentNode)
+                    set:private_trees += MapTreeNode
+                    if newNodeIndex == 16777215
+                        then
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            itemHash = firstHash
+                            continue first
+                        else currentNodeIndex = newNodeIndex
+                nextNodeIndex == 16777215
+                    firstNodeOfTreeIndex += 16777215
+                    currentNodeIndex = 0
+                    itemHash = firstHash
+                    continue first
+                default
+                    currentNodeIndex = nextNodeIndex
+        break
+    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+    currentNode := set.private_trees[fullCurrentIndex]
+    currentNode:setItemIndex(itemIndex)
+    set:private_trees:setItem(fullCurrentIndex, currentNode)
+    set:private_items:setItem(itemIndex, Box(item).create(item))
+
+func create(setType, items)
+    rules
+        1 = setType == Set(_) & items == [setType[0]]
+        2 = setType[0] > Hashed & setType[0] > Equal
+        final = 1 & 2
+        result = setType
+    parse _, item  <- items
+        result += item
+
+func getItem(set, item)
+    rules
+        1 = set == Set(item)
+        2 = item > Hashed & item > Equal
+        final = 1 & 2
+        result = Bool
+    if set.init?()
+        then
+            itemHash := item.getSmallHash()
+            firstNodeOfTreeIndex := 0
+            currentNodeIndex := 0
+            countOfLoops .= #item.getSmallHashSize() * 2.convertTo(UInt8)
+            firstHash .= itemHash
+            for
+                for loopID := UInt8; loopID < countOfLoops; loopID++
+                    partOfItemHash .= (itemHash & 15.convertTo(UInt32)).convertTo(UInt8)
+                    itemHash >>= 4
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    nextNodeIndex .= set.private_trees[fullCurrentIndex][partOfItemHash]
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            itemHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                for
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    itemIndex .= set.private_trees[fullCurrentIndex].getItemIndex()
+                    if itemIndex == 0
+                        then break
+                    if boxItem .= set.private_items[itemIndex]; boxItem.item?() && boxItem[] == item
+                        then
+                            result = true
+                            break all
+                    nextNodeIndex .= set.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            itemHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                break
+
+func getLength(a)
+    rules
+        final = a == Set(_)
+        result = UInt64
+    if a.init?()
+        then result = a.private_items.getLength() - 1 - a.private_numberOfHiddenItems.convertTo(UInt64)
+
+func init(a)
+    rules
+        final = a == Set(_)
+        result = a
+    result:private_items = [Box(a[0])].init(256)
+    result:private_items = result.private_items.getFirstN(1)
+    result:private_trees = [MapTreeNode].init(512)
+    result:private_trees = result.private_trees.getFirstN(1)
+
+func init?(a)
+    rules
+        final = a == Set(_)
+        result = Bool
+    result = a.private_trees.getLength() != 0
+
+func parse_first(set)
+    rules
+        final = set == Set(_)
+        result = UInt64
+    result = 1
+    for ; result < set.private_items.getLength(); result++
+        if set.private_items[result].item?()
+            then break
+
+func parse_haveItem?(set, index)
+    rules
+        final = set == Set(_) & index == UInt64
+        result = Bool
+    result = index < set.private_items.getLength()
+
+func parse_item(set, index)
+    rules
+        final = set == Set(_) & index == UInt64
+        result = Bool
+
+func parse_key(set, index)
+    rules
+        final = set == Set(_) & index == UInt64
+        result = set[0]
+    result = set.private_items[index][]
+
+func parse_next(set, index)
+    rules
+        final = set == Set(_) & index == UInt64
+        result = UInt64
+    result = index + 1
+    for ; result < set.private_items.getLength(); result++
+        if set.private_items[result].item?()
+            then break
+
+proc private_deleteHidden(:set)
+    rules
+        1 = set == Set(_)
+        2 = set[0] > Hashed & set[0] > Equal
+        final = 1 & 2
+    newSet := #set.init()
+    parse item, _ <- set
+        newSet += item
+    set = newSet
+
+proc subEq(:set, item)
+    rules
+        1 = set == Set(item)
+        2 = item > Hashed & item > Equal
+        final = 1 & 2
+    if set.init?()
+        then
+            itemHash := item.getSmallHash()
+            firstNodeOfTreeIndex := 0
+            currentNodeIndex := 0
+            countOfLoops .= #item.getSmallHashSize() * 2.convertTo(UInt8)
+            firstHash .= itemHash
+            for
+                for loopID := UInt8; loopID < countOfLoops; loopID++
+                    partOfItemHash .= (itemHash & 15.convertTo(UInt32)).convertTo(UInt8)
+                    itemHash >>= 4
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    nextNodeIndex .= set.private_trees[fullCurrentIndex][partOfItemHash]
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            itemHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                for
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    itemIndex .= set.private_trees[fullCurrentIndex].getItemIndex()
+                    if itemIndex == 0
+                        then break
+                    if boxItem .= set.private_items[itemIndex]; boxItem.item?() && boxItem[] == item
+                        then
+                            set:private_items:setItem(itemIndex, Box(item))
+                            nextNode .= set.private_trees[set.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()]
+                            currentNode := set.private_trees[fullCurrentIndex]
+                            currentNode:setItemIndex(nextNode.getItemIndex())
+                            currentNode:setNodeIndexWithOtherItemIndex(nextNode.getNodeIndexWithOtherItemIndex())
+                            set:private_trees:setItem(fullCurrentIndex, currentNode)
+                            set:private_numberOfHiddenItems++
+                            if set.private_numberOfHiddenItems == UInt16
+                                then set:private_deleteHidden()
+                            break all
+                    nextNodeIndex .= set.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            itemHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                break

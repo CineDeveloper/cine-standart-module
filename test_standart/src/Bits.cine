@@ -1,0 +1,75 @@
+proc testBits(:results)
+    rules
+        final = results == TestResults
+    var := 10
+    var &= -1
+    results:test(var == 10, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var &= 0
+    results:test(var == 0, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var &= 7
+    results:test(var == 2, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var &= 8
+    results:test(var == 8, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var &= 2
+    results:test(var == 2, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var &= 16
+    results:test(var == 0, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var |= -1
+    results:test(var == -1, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var |= 0
+    results:test(var == 10, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var |= 7
+    results:test(var == 15, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var |= 8
+    results:test(var == 10, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var |= 2
+    results:test(var == 10, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var |= 16
+    results:test(var == 26, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var >>= 1
+    results:test(var == 5, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var >>= 2
+    results:test(var == 2, builtIn_currentFile, builtIn_currentLine)
+    var = 13
+    var >>= 3
+    results:test(var == 1, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var <<= 1
+    results:test(var == 20, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var <<= 2
+    results:test(var == 40, builtIn_currentFile, builtIn_currentLine)
+    var = 13
+    var <<= 3
+    results:test(var == 104, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var ^= -1
+    results:test(var == -11, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var ^= 0
+    results:test(var == 10, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var ^= 7
+    results:test(var == 13, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var ^= 8
+    results:test(var == 2, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var ^= 2
+    results:test(var == 8, builtIn_currentFile, builtIn_currentLine)
+    var = 10
+    var ^= 16
+    results:test(var == 26, builtIn_currentFile, builtIn_currentLine)

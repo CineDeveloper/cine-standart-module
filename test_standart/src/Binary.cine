@@ -1,0 +1,20 @@
+proc testBinary(:results)
+    rules
+        final = results == TestResults
+    data := BinaryData
+    data += 12
+    data += true
+    data += "string"
+    data += ""
+    data += [UInt8]
+    data += 14.convertTo(UInt8)
+    data += -18.convertTo(Int16)
+    position := 0
+    results:test(UInt64.getFromBinaryData(data, position) == 12, builtIn_currentFile, builtIn_currentLine)
+    results:test(Bool.getFromBinaryData(data, position), builtIn_currentFile, builtIn_currentLine)
+    results:test([UInt8].getFromBinaryData(data, position) == "string", builtIn_currentFile, builtIn_currentLine)
+    results:test([UInt8].getFromBinaryData(data, position) == "", builtIn_currentFile, builtIn_currentLine)
+    results:test([UInt8].getFromBinaryData(data, position) == "", builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt8.getFromBinaryData(data, position) == 14.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int16.getFromBinaryData(data, position) == -18.convertTo(Int16), builtIn_currentFile, builtIn_currentLine)
+    results:test(position == data.getLength(), builtIn_currentFile, builtIn_currentLine)

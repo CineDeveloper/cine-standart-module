@@ -1,0 +1,12 @@
+rules
+    1 = type == Int16
+    join 1 BasicSignedInteger
+
+func toUnsigned(a)
+    rules
+        final = a == Int16
+        result = UInt16
+    flag debug is set?
+        then debugMessage(a < #a, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - assign a negative number to the unsigned variable.")
+    C
+        result_ = a_;

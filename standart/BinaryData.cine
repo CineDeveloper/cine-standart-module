@@ -1,0 +1,49 @@
+type BinaryData
+    private_data [UInt8]
+
+func convertTo(from, to)
+    rules
+        final = from == BinaryData & to == [UInt8]
+        result = [UInt8]
+    result = from.private_data
+
+func convertTo(from, to)
+    rules
+        final = from == [UInt8] & to == BinaryData
+        result = BinaryData
+    result:private_data = from
+
+func getLength(data)
+    rules
+        final = data == BinaryData
+        result = UInt64
+    result = data.private_data.getLength()
+
+func writeToFile(data, fileName)
+    include
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <stddef.h>
+        #include <string.h>
+    rules
+        final = data == BinaryData & fileName == [UInt8]
+        result = Bool
+    fileNameLength .= fileName.getLength()
+    flag debug is set?
+        then debugMessage(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    C
+        char zeroEndedFileName[fileNameLength_ + 1];
+        memcpy(zeroEndedFileName, fileName_.items, fileNameLength_);
+        zeroEndedFileName[fileNameLength_] = 0;
+        FILE* file = fopen(zeroEndedFileName, "w");
+        result_ = file != NULL;
+    if result
+        then
+            if data.getLength() != 0
+                then
+                    writedLength := 0
+                    C
+                        writedLength_ = fwrite(data_.private_data_.items, 1, data_.private_data_.length, file);
+                    result = writedLength == data.getLength()
+            C
+                fclose(file);

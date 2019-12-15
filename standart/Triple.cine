@@ -1,0 +1,132 @@
+type Triple(first, second, third)
+    first first
+    second second
+    third third
+
+rules
+    1 = type == Triple(_, _, _) & type[0] > Binary & type[1] > Binary & type[2] > Binary
+    join 1 Binary
+    2 = type == Triple(_, _, _) & type[0] > Equal & type[1] > Equal & type[2] > Equal
+    join 2 Equal
+    3 = type == Triple(_, _, _) & type[0] > StringWriter & type[1] > StringWriter & type[2] > StringWriter
+    join 3 StringWriter
+    4 = type == Triple(_, _, _) & type[0] > Hashed & type[1] > Hashed & type[2] > Hashed
+    join 4 Hashed
+    5 = type == Triple(_, _, _) & type[0] > Bits & type[1] > Bits & type[2] > Bits
+    join 5 Bits
+
+proc addEq(:data, triple)
+    rules
+        final = data == BinaryData & triple == Triple(_, _, _) & triple > Binary
+    data += triple.first
+    data += triple.second
+    data += triple.third
+
+func and(a, b)
+    rules
+        final = a == Triple(_, _, _) & a > Bits & a == b
+        result = a
+    result:first = a.first & b.first
+    result:second = a.second & b.second
+    result:third = a.third & b.third
+
+func create(tripleType, first, second, third)
+    rules
+        final = tripleType == Triple(first, second, third)
+        result = tripleType
+    result:first = first
+    result:second = second
+    result:third = third
+
+func equal(a, b)
+    rules
+        final = a == Triple(_, _, _) & a > Equal & a == b
+        result = Bool
+    result = a.first == b.first && a.second == b.second && a.third == b.third
+
+func getFromBinaryData(triple, data, :position)
+    rules
+        final = triple == Triple(_, _, _) & triple > Binary & data == BinaryData & position == UInt64
+        result = triple
+    result:first = #triple[0].getFromBinaryData(data, position)
+    result:second = #triple[1].getFromBinaryData(data, position)
+    result:third = #triple[2].getFromBinaryData(data, position)
+
+func getHash(triple)
+    rules
+        final = triple == Triple(_, _, _) & triple > Hashed
+        result = UInt64
+    result = triple.first.getHash()
+    result += result << 10
+    result ^= result >> 6
+    result += getStaticRandomNumber()
+    result += result << 10
+    result ^= result >> 6
+    result += triple.second.getHash()
+    result += result << 10
+    result ^= result >> 6
+    result += triple.third.getHash()
+    result += result << 10
+    result ^= result >> 6
+    result += result << 3
+    result ^= result >> 11
+    result += result << 15
+
+func getHashSize(triple)
+    rules
+        final = triple == Triple(_, _, _) & triple > Hashed
+        result = UInt8
+    result = 8.convertTo(UInt8)
+
+func not(triple)
+    rules
+        final = triple == Triple(_, _, _) & triple > Bits
+        result = triple
+    result:first = triple.first.not()
+    result:second = triple.second.not()
+    result:third = triple.third.not()
+
+func or(a, b)
+    rules
+        final = a == Triple(_, _, _) & a > Bits & a == b
+        result = a
+    result:first = a.first | b.first
+    result:second = a.second | b.second
+    result:third = a.third | b.third
+
+func shl(triple, shifts)
+    rules
+        final = triple == Triple(_, _, _) & triple > Bits & shifts > BasicUnsignedInteger
+        result = triple
+    result:first = triple.first << shifts
+    result:second = triple.second << shifts
+    result:third = triple.third << shifts
+
+func shr(triple, shifts)
+    rules
+        final = triple == Triple(_, _, _) & triple > Bits & shifts > BasicUnsignedInteger
+        result = triple
+    result:first = triple.first >> shifts
+    result:second = triple.second >> shifts
+    result:third = triple.third >> shifts
+
+func toString(triple)
+    rules
+        final = triple == Triple(_, _, _) & triple > StringWriter
+        result = [UInt8]
+    result += '('
+    result += triple.first.toString()
+    result += ", "
+    result += triple.second.toString()
+    result += ", "
+    result += triple.third.toString()
+    result += ')'
+    result:setStringFlag()
+
+func xor(a, b)
+    rules
+        final = a == Triple(_, _, _) & a > Bits & a == b
+        result = a
+    result:first = a.first ^ b.first
+    result:second = a.second ^ b.second
+    result:third = a.third ^ b.third

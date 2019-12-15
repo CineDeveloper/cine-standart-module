@@ -1,0 +1,203 @@
+rules
+    1 = type == Float
+    join 1 BasicFloat
+
+func abs(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = fabsf(a_);
+
+func arcCos(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    flag debug is set?
+        then debugMessage(!a.inRange?(-1.0.convertTo(#a), 1.0.convertTo(#a)), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
+    C
+        result_ = acosf(a_);
+
+func arcCtg(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = (float)(M_PI) / 2.0 - atanf(a_);
+
+func arcSin(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    flag debug is set?
+        then debugMessage(!a.inRange?(-1.0.convertTo(#a), 1.0.convertTo(#a)), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
+    C
+        result_ = asinf(a_);
+
+func arcTg(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = atanf(a_);
+
+func ceil(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = ceilf(a_);
+
+func cos(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = cosf(a_);
+
+func ctg(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = (float)(1.0) / tanf(a_);
+
+func disassemble(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = Pair(a, a)
+    C
+        result_.second_ = modff(a_, &(result_.first_));
+
+func exp(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = expf(a_);
+
+func floor(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = floorf(a_);
+
+func fromString(a, string)
+    include
+        #include <string.h>
+    rules
+        final = a == Float & string == [UInt8]
+        result = Box(a)
+    if string.getLength().inRange?(1, 312)
+        then
+            C
+                char buf[string_.length + 1];
+                memcpy(buf, string_.items, string_.length);
+                buf[string_.length] = 0;
+                char* endPtr;
+                result_.private_item_ = strtof(buf, &endPtr);
+                result_.private_haveItem_ = (uint64_t)(endPtr - buf) == string_.length;
+                if (!result_.private_haveItem_) {
+                    result_.private_item_ = 0.0;
+                }
+
+func lg(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = log10f(a_);
+
+func ln(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = logf(a_);
+
+func log(a, base)
+    include
+        #include <math.h>
+    rules
+        final = a == Float & base == a
+        result = a
+    C
+        result_ = logf(a_) / logf(base_);
+
+func mod(a, b)
+    include
+        #include <math.h>
+    rules
+        final = a == Float & b == a
+        result = a
+    C
+        result_ = fmodf(a_, b_);
+    flag debug is set?
+        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+
+func power(a, b)
+    include
+        #include <math.h>
+    rules
+        final = a == Float & b == a
+        result = a
+    C
+        result_ = powf(a_, b_);
+    flag debug is set?
+        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+
+func sin(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = sinf(a_);
+
+func sqrt(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = sqrtf(a_);
+    flag debug is set?
+        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+
+func tg(a)
+    include
+        #include <math.h>
+    rules
+        final = a == Float
+        result = a
+    C
+        result_ = tanf(a_);

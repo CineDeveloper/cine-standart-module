@@ -1,0 +1,22 @@
+proc testPair(:results)
+    rules
+        final = results == TestResults
+    data := BinaryData
+    p .= Pair(UInt64, Int8).create(12, -12.convertTo(Int8))
+    data += p
+    position := 0
+    results:test(Pair(UInt64, Int8).getFromBinaryData(data, position) == p, builtIn_currentFile, builtIn_currentLine)
+    results:test(p == Pair(UInt64, Int8).create(12, -12.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test(p != Pair(UInt64, Int8).create(11, -12.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test(p != Pair(UInt64, Int8).create(12, -11.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test(p != Pair(UInt64, Int8).create(11, -11.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test((p & Pair(UInt64, Int8).create(8, 1.convertTo(Int8))) == Pair(UInt64, Int8).create(8, Int8), builtIn_currentFile, builtIn_currentLine)
+    results:test((p & Pair(UInt64, Int8).create(8, 4.convertTo(Int8))) == Pair(UInt64, Int8).create(8, 4.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test(p.not() == Pair(UInt64, Int8).create(18446744073709551603, 11.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test((p | Pair(UInt64, Int8).create(8, 1.convertTo(Int8))) == Pair(UInt64, Int8).create(12, -11.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test((p | Pair(UInt64, Int8).create(8, 4.convertTo(Int8))) == Pair(UInt64, Int8).create(12, -12.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test((p << 1) == Pair(UInt64, Int8).create(24, -24.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test((p >> 1) == Pair(UInt64, Int8).create(6, 122.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test(p.toString() == "(12, -12)", builtIn_currentFile, builtIn_currentLine)
+    results:test((p ^ Pair(UInt64, Int8).create(8, 1.convertTo(Int8))) == Pair(UInt64, Int8).create(4, -11.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)
+    results:test((p ^ Pair(UInt64, Int8).create(8, 5.convertTo(Int8))) == Pair(UInt64, Int8).create(4, -15.convertTo(Int8)), builtIn_currentFile, builtIn_currentLine)

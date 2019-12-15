@@ -1,0 +1,7 @@
+proc testUInt(:results)
+    rules
+        final = results == TestResults
+    results:test(12.convertTo(UInt8).toSigned() == 12.convertTo(Int8), builtIn_currentFile, builtIn_currentLine)
+    results:test(12.convertTo(UInt16).toSigned() == 12.convertTo(Int16), builtIn_currentFile, builtIn_currentLine)
+    results:test(12.convertTo(UInt32).toSigned() == 12.convertTo(Int32), builtIn_currentFile, builtIn_currentLine)
+    results:test(12.convertTo(UInt64).toSigned() == 12.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)

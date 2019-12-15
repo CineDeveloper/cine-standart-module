@@ -1,0 +1,12 @@
+rules
+    1 = type == UInt16
+    join 1 BasicUnsignedInteger
+
+func toSigned(a)
+    rules
+        final = a == UInt16
+        result = Int16
+    flag debug is set?
+        then debugMessage(a > (#a.maxValue() >> 1), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    C
+        result_ = a_;

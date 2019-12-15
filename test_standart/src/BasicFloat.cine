@@ -1,0 +1,26 @@
+proc testBasicFloat(:results)
+    rules
+        final = results == TestResults
+    results:test(1.12.convertTo(Float).inRange?(1.119.convertTo(Float), 1.121.convertTo(Float)), builtIn_currentFile, builtIn_currentLine)
+    results:test(1.12.convertTo(Float).convertTo(Double).inRange?(1.119, 1.121), builtIn_currentFile, builtIn_currentLine)
+    a := 10.0
+    a--
+    results:test(a.inRange?(8.999, 9.001), builtIn_currentFile, builtIn_currentLine)
+    a = a / 2.0
+    results:test(a.inRange?(4.499, 4.501), builtIn_currentFile, builtIn_currentLine)
+    a++
+    results:test(a.inRange?(5.499, 5.501), builtIn_currentFile, builtIn_currentLine)
+    results:test(a.neg().inRange?(-5.501, -5.499), builtIn_currentFile, builtIn_currentLine)
+    results:test(Double.pi().inRange?(3.1415, 3.1416), builtIn_currentFile, builtIn_currentLine)
+    results:test(4.6.round() == 5.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(4.4.round() == 4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(-4.4.round() == -4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(-4.6.round() == -5.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(0.0.round() == Int64, builtIn_currentFile, builtIn_currentLine)
+    results:test(3.2.toString() == "3.2", builtIn_currentFile, builtIn_currentLine)
+    results:test(0.0.toString() == "0", builtIn_currentFile, builtIn_currentLine)
+    results:test(4.6.trunc() == 4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(4.4.trunc() == 4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(-4.4.trunc() == -4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(-4.6.trunc() == -4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
+    results:test(0.0.trunc() == Int64, builtIn_currentFile, builtIn_currentLine)

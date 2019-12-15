@@ -1,0 +1,2715 @@
+rules
+    1 = type == [_] & type[0] > Binary
+    join 1 Binary
+    2 = type == [_] & type[0] > Bits
+    join 2 Bits
+    3 = type == [_] & type[0] > Ordered
+    join 3 Ordered
+    4 = type == [_] & type[0] > Equal
+    join 4 Equal
+    5 = type == [_] & type[0] > Hashed
+    join 5 Hashed
+    6 = type == [_] & type[0] > StringWriter
+    join 6 StringWriter
+
+func add(slice, newItem)
+    rules
+        final = slice == [newItem]
+        result = slice
+    result = #slice.init(slice.getLength() + 1)
+    result:copyToFirst(slice)
+    result:setLast(newItem)
+    if slice.string?()
+        then result:setStringFlag()
+
+func add(firstPart, lastPart)
+    rules
+        final = firstPart == [_] & firstPart == lastPart
+        result = firstPart
+    if length .= firstPart.getLength() + lastPart.getLength(); length != 0
+        then
+            result = #firstPart.init(length)
+            result:copyToFirst(firstPart)
+            result:copyToLast(lastPart)
+    if firstPart.string?()
+        then result:setStringFlag()
+
+proc addEq(:data, slice)
+    rules
+        final = data == BinaryData & slice == [_] & slice > Binary
+    data += slice.string?()
+    data += slice.getLength()
+    parse _, item <- slice
+        data += item
+
+proc addEq(:slice, newItem)
+    rules
+        final = slice == [newItem]
+    initLength .= slice.getLength()
+    isString .= slice.string?()
+    if slice.getCapacity() <= initLength || slice.use?()
+        then
+            newSlice := #slice.init(((initLength + initLength / 4) / 64 + 1) * 64)
+            newSlice:copyToFirst(slice)
+            slice = newSlice.getFirstN(initLength + 1)
+        else
+            C
+                slice_->length++;
+    slice:setItem(initLength, newItem)
+    if isString
+        then slice:setStringFlag()
+
+proc addEq(:slice, lastPart)
+    rules
+        final = slice == [_] & slice == lastPart
+    newLength .= slice.getLength() + lastPart.getLength()
+    isString .= slice.string?()
+    if slice.getCapacity() < newLength || slice.use?()
+        then
+            newSlice := #slice.init(((newLength + newLength / 4) / 64 + 1) * 64)
+            newSlice:copyToFirst(slice)
+            slice = newSlice.getFirstN(newLength)
+        else
+            C
+                slice_->length = newLength_;
+    slice:copyToLast(lastPart)
+    if isString
+        then slice:setStringFlag()
+
+func and(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
+        result = slice1
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    result = #slice1.init(slice1.getLength())
+    parse index, item <- slice1
+        result:setItem(index, item & slice2[index])
+    if slice1.string?()
+        then result:setStringFlag()
+
+proc andEq(:slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    parse index, item <- slice2
+        slice1:setItem(index, slice1[index] & item)
+
+func asSlice(slice)
+    rules
+        final = slice == [_]
+        result = slice
+    result = slice
+    C
+        result_.isString = false;
+
+func asString(slice)
+    rules
+        final = slice == [_]
+        result = slice
+    result = slice
+    C
+        result_.isString = true;
+
+proc clear(:slice)
+    rules
+        final = slice == [_]
+    slice:fillWithZeros()
+    C
+        slice_->length = 0;
+
+func clone(slice)
+    rules
+        final = slice == [_]
+        result = slice
+    if slice.getLength() != 0
+        then
+            result = #slice.init(slice.getLength())
+            result:copyToFirst(slice)
+    if slice.string?()
+        then result:setStringFlag()
+
+func contain?(slice, item)
+    rules
+        final = slice == [item] & slice > Equal
+        result = Bool
+    result = slice.look(item).item?()
+
+func contain?(slice, itemsList)
+    rules
+        final = slice == [itemsList[0]] & slice > Equal & itemsList == VAList(_)
+        result = Bool
+    result = slice.look(itemsList).item?()
+
+func contain?(slice, subSlice)
+    rules
+        final = slice == subSlice & slice > Equal & slice == [_]
+        result = Bool
+    result = slice.look(subSlice).item?()
+
+func contain?(slice, subSlicesList)
+    rules
+        final = slice == subSlicesList[0] & slice > Equal & slice == [_] & subSlicesList == VAList(_)
+        result = Bool
+    result = slice.look(subSlicesList).item?()
+
+proc copy(:slice, from, to, source)
+    include
+        #include <string.h>
+    rules
+        final = slice == [_] & from > BasicUnsignedInteger & to > BasicUnsignedInteger & source == slice
+    flag debug is set?
+        then
+            debugMessage(from.convertTo(UInt64) > to.convertTo(UInt64), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is greater than the last index.")
+            debugMessage(from.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is too large.")
+            debugMessage(to.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the last index is too large.")
+            debugMessage(to.convertTo(UInt64) - from.convertTo(UInt64) > source.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the source is too short.")
+    if length .= to - from; length != 0
+        then haveLink? slice[0]
+            then
+                for index := from; index < to; index++
+                    slice:setItem(index, source[index - from])
+            else
+                if slice.use?()
+                    then slice = slice.clone()
+                itemSize .= #slice[0].getTypeSize()
+                C
+                    memcpy(slice_->items + from_, source_.items, length_ * itemSize_);
+
+proc copyToFirst(:slice, source)
+    rules
+        final = slice == [_] & source == slice
+    slice:copy(0, source.getLength(), source)
+
+proc copyToLast(:slice, source)
+    rules
+        final = slice == [_] & source == slice
+    slice:copy(slice.getLength() - source.getLength(), slice.getLength(), source)
+
+func count(slice, item)
+    rules
+        final = slice == [item] & slice > Equal
+        result = UInt64
+    parse _, sliceItem <- slice
+        if item == sliceItem
+            then result++
+
+func count(slice, itemsList)
+    rules
+        final = slice == [itemsList[0]] & slice > Equal & itemsList == VAList(_)
+        result = UInt64
+    flag debug is set?
+        then debugMessage(itemsList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    parse _, sliceItem <- slice
+        parse _, listItem <- itemsList
+            if sliceItem == listItem
+                then
+                    result++
+                    break
+
+func count(slice, subSlice)
+    rules
+        final = slice == subSlice & slice > Equal & slice == [_]
+        result = UInt64
+    flag debug is set?
+        then debugMessage(subSlice.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    mutSlice := slice
+    firstItem .= subSlice[0]
+    for mutSlice.getLength() >= subSlice.getLength()
+        firstItemIndex .= mutSlice.look(firstItem)
+        if firstItemIndex.empty?()
+            then break
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemIndex[])
+        if mutSlice.hasPrefix?(subSlice)
+            then
+                result++
+                mutSlice = mutSlice.getAllExceptFirstN(subSlice.getLength())
+            else mutSlice = mutSlice.getAllExceptFirst()
+
+func count(slice, subSlicesList)
+    rules
+        final = slice == subSlicesList[0] & slice > Equal & slice == [_] & subSlicesList == VAList(_)
+        result = UInt64
+    flag debug is set?
+        then debugMessage(subSlicesList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    mutSlice := slice
+    firstsItems := VAList(slice[0])
+    enslave(firstsItems)
+    listLength .= subSlicesList.getLength()
+    C
+        firstsItems_.length = listLength_;
+    minLength := UInt64.maxValue()
+    parse index, item <- subSlicesList
+        flag debug is set?
+            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        minLength = minLength.min(item.getLength())
+        C
+            firstsItems_.items[index_] = item_.items[0];
+    for mutSlice.getLength() >= minLength
+        firstItemAndIndex .= mutSlice.look(firstsItems)
+        if firstItemAndIndex.empty?()
+            then break
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemAndIndex[].second)
+        countOfDeletingItems := 1
+        parse _, item <- subSlicesList
+            if mutSlice.hasPrefix?(item)
+                then
+                    result++
+                    countOfDeletingItems = item.getLength()
+                    break
+        mutSlice = mutSlice.getAllExceptFirstN(countOfDeletingItems)
+
+func dummy(sliceType, numberOfItems)
+    include
+        #include <stdlib.h>
+        #include <stdio.h>
+    rules
+        final = sliceType == [_] & numberOfItems > BasicUnsignedInteger
+        result = sliceType
+    if numberOfItems != 0
+        then
+            C
+                result_.array = (##sliceType[0]##*)calloc(numberOfItems_, sizeof(##sliceType[0]##));
+                result_.useCounter = (uint64_t*)(malloc(sizeof(uint64_t)));
+                if (__builtin_expect(result_.array == NULL || result_.useCounter == NULL, false)){
+                    fprintf(stderr, "Not enought memory.\n");
+                    abort();
+                }
+                *result_.useCounter = 1;
+                result_.items = result_.array;
+                result_.capacity = numberOfItems_;
+                result_.initCapacity = numberOfItems_;
+
+func equal(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Equal
+        result = Bool
+    if length .= slice1.getLength(); result = length == slice2.getLength(); result && length != 0
+        then parse index, item <- slice1
+            if result = item == slice2[index]; !result
+                then break
+
+proc fillWithZeros(:slice)
+    include
+        #include <string.h>
+    rules
+        final = slice == [_]
+    if slice.getLength() != 0
+        then
+            haveLink? slice[0]
+                then for index := 0; index < slice.getLength(); index++
+                    slice:setItem(index, #slice[0])
+                else
+                    if slice.use?()
+                        then slice = slice.clone()
+                    itemSize .= #slice[0].getTypeSize()
+                    C
+                        memset(slice_->items, 0, slice_->length * itemSize_);
+
+proc free(slice)
+    include
+        #include <stdlib.h>
+    rules
+        final = slice == [_]
+    needToFree := false
+    C
+        if (slice_.useCounter != (uint64_t*){0}) {
+            needToFree_ = *slice_.useCounter < 2;
+            (*slice_.useCounter)--;
+        }
+    if needToFree
+        then
+            haveLink? slice[0]
+                then for index := 0; index < slice.getInitCapacity(); index++
+                    freeObject := #slice[0]
+                    C
+                        freeObject_ = slice_.array[index_];
+            C
+                free(slice_.useCounter);
+                free(slice_.array);
+
+func getAllExceptFirst(slice)
+    rules
+        final = slice == [_]
+        result = slice
+    result = slice.getSlice(1, slice.getLength())
+
+func getAllExceptFirstN(slice, n)
+    rules
+        final = slice == [_] & n > BasicUnsignedInteger
+        result = slice
+    result = slice.getSlice(n, slice.getLength())
+
+func getAllExceptLast(slice)
+    rules
+        final = slice == [_]
+        result = slice
+    result = slice.getSlice(0, slice.getLength() - 1)
+
+func getAllExceptLastN(slice, n)
+    rules
+        final = slice == [_] & n > BasicUnsignedInteger
+        result = slice
+    result = slice.getSlice(0, slice.getLength() - n.convertTo(UInt64))
+
+func getCapacity(slice)
+    rules
+        final = slice == [_]
+        result = UInt64
+    C
+        result_ = slice_.capacity;
+
+func getFirst(slice)
+    rules
+        final = slice == [_]
+        result = slice[0]
+    result = slice[0]
+
+func getFirstN(slice, n)
+    rules
+        final = slice == [_] & n > BasicUnsignedInteger
+        result = slice
+    result = slice.getSlice(0, n)
+
+func getFromBinaryData(sliceType, data, :position)
+    rules
+        final = sliceType == [_] & sliceType > Binary & data == BinaryData & position == UInt64
+        result = sliceType
+    isString .= Bool.getFromBinaryData(data, position)
+    length .= UInt64.getFromBinaryData(data, position)
+    result = #sliceType.init(length)
+    for index := 0; index < length; index++
+        result:setItem(index, #sliceType[0].getFromBinaryData(data, position))
+    if isString
+        then result:setStringFlag()
+
+func getHash(slice)
+    rules
+        final = slice == [_] & slice > Hashed
+        result = UInt64
+    result = getStaticRandomNumber()
+    result += slice.getLength()
+    result += result << 10
+    result ^= result >> 6
+    parse index, item <- slice
+        result += item.getHash()
+        result += result << 10
+        result ^= result >> 6
+    result += result << 3
+    result ^= result >> 11
+    result += result << 15
+
+func getHashSize(sliceType)
+    rules
+        final = sliceType == [_] & sliceType > Hashed
+        result = UInt8
+    result = 8.convertTo(UInt8)
+
+func getInitCapacity(slice)
+    rules
+        final = slice == [_]
+        result = UInt64
+    C
+        result_ = slice_.initCapacity;
+
+func getItem(slice, index)
+    rules
+        final = slice == [_] & index > BasicUnsignedInteger
+        result = slice[0]
+    flag debug is set?
+        then debugMessage(index.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
+    C
+        result_ = slice_.items[index_];
+    result.use()
+
+func getLast(slice)
+    rules
+        final = slice == [_]
+        result = slice[0]
+    result = slice[slice.getLength() - 1]
+
+func getLastN(slice, n)
+    rules
+        final = slice == [_] & n > BasicUnsignedInteger
+        result = slice
+    result = slice.getSlice(slice.getLength() - n.convertTo(UInt64), slice.getLength())
+
+func getLength(slice)
+    rules
+        final = slice == [_]
+        result = UInt64
+    C
+        result_ = slice_.length;
+
+func getSlice(slice, from, to)
+    include
+        #include <string.h>
+    rules
+        final = slice == [_] & from > BasicUnsignedInteger & to > BasicUnsignedInteger
+        result = slice
+    flag debug is set?
+        then
+            debugMessage(from.convertTo(UInt64) > to.convertTo(UInt64), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is greater than the last index.")
+            debugMessage(from.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is too large.")
+            debugMessage(to.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the last index is too large.")
+    newLength .= to - from
+    if newLength != 0
+        then
+            C
+                result_.length = newLength_;
+                result_.capacity = slice_.capacity - from_;
+                result_.array = slice_.array;
+                result_.initCapacity = slice_.initCapacity;
+                result_.items = slice_.items + from_;
+                result_.useCounter = slice_.useCounter;
+            result.use()
+    if slice.string?()
+        then result:setStringFlag()
+
+func greater(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
+        result = Bool
+    if minLength .= slice1.getLength().min(slice2.getLength()); minLength != 0
+        then for index := 0; index < minLength; index++
+            item1 .= slice1[index]
+            item2 .= slice2[index]
+            mif
+                item1 > item2
+                    return true
+                item2 > item1
+                    return false
+    result = slice1.getLength() > slice2.getLength()
+
+func greaterOrEqual(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
+        result = Bool
+    if minLength .= slice1.getLength().min(slice2.getLength()); minLength != 0
+        then for index := 0; index < minLength; index++
+            item1 .= slice1[index]
+            item2 .= slice2[index]
+            mif
+                item1 > item2
+                    return true
+                item2 > item1
+                    return false
+    result = slice1.getLength() >= slice2.getLength()
+
+func hasPrefix?(slice, prefix)
+    rules
+        final = slice == [_] & slice == prefix & slice > Equal
+        result = Bool
+    flag debug is set?
+        then debugMessage(prefix.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - prefix is empty.")
+    if result = slice.getLength() >= prefix.getLength(); result
+        then result = slice.getFirstN(prefix.getLength()) == prefix
+
+func hasSuffix?(slice, suffix)
+    rules
+        final = slice == [_] & slice == suffix & slice > Equal
+        result = Bool
+    flag debug is set?
+        then debugMessage(suffix.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - suffix is empty.")
+    if result = slice.getLength() >= suffix.getLength(); result
+        then result = slice.getLastN(suffix.getLength()) == suffix
+
+func init(sliceType, numberOfItems)
+    rules
+        final = sliceType == [_] & numberOfItems > BasicUnsignedInteger
+        result = sliceType
+    result = #sliceType.dummy(numberOfItems)
+    C
+        result_.length = numberOfItems_;
+
+func join(slice, js1, js2)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        final = 1 & 2 & 3
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+
+func join(slice, js1, js2, js3)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        final = 1 & 2 & 3 & 4
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+
+func join(slice, js1, js2, js3, js4)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        final = 1 & 2 & 3 & 4 & 5
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+
+func join(slice, js1, js2, js3, js4, js5)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+
+func join(slice, js1, js2, js3, js4, js5, js6)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+    result += js11
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+    result += js11
+    result += js12
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+    result += js11
+    result += js12
+    result += js13
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13, js14)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        15 = js14 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    length += js14.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+    result += js11
+    result += js12
+    result += js13
+    result += js14
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13, js14, js15)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        15 = js14 == slice
+        16 = js15 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    length += js14.getLength()
+    length += js15.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+    result += js11
+    result += js12
+    result += js13
+    result += js14
+    result += js15
+
+func join(slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13, js14, js15, js16)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        15 = js14 == slice
+        16 = js15 == slice
+        17 = js16 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17
+        result = slice
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    length += js14.getLength()
+    length += js15.getLength()
+    length += js16.getLength()
+    result = #slice.dummy(length)
+    if slice.string?()
+        then result:setStringFlag()
+    result += slice
+    result += js1
+    result += js2
+    result += js3
+    result += js4
+    result += js5
+    result += js6
+    result += js7
+    result += js8
+    result += js9
+    result += js10
+    result += js11
+    result += js12
+    result += js13
+    result += js14
+    result += js15
+    result += js16
+
+proc join(:slice, js1, js2)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        final = 1 & 2 & 3
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+
+proc join(:slice, js1, js2, js3)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        final = 1 & 2 & 3 & 4
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+
+proc join(:slice, js1, js2, js3, js4)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        final = 1 & 2 & 3 & 4 & 5
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+
+proc join(:slice, js1, js2, js3, js4, js5)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+
+proc join(:slice, js1, js2, js3, js4, js5, js6)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+    slice += js11
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+    slice += js11
+    slice += js12
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+    slice += js11
+    slice += js12
+    slice += js13
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13, js14)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        15 = js14 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    length += js14.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+    slice += js11
+    slice += js12
+    slice += js13
+    slice += js14
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13, js14, js15)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        15 = js14 == slice
+        16 = js15 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    length += js14.getLength()
+    length += js15.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+    slice += js11
+    slice += js12
+    slice += js13
+    slice += js14
+    slice += js15
+
+proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12, js13, js14, js15, js16)
+    rules
+        1 = slice == [_]
+        2 = js1 == slice
+        3 = js2 == slice
+        4 = js3 == slice
+        5 = js4 == slice
+        6 = js5 == slice
+        7 = js6 == slice
+        8 = js7 == slice
+        9 = js8 == slice
+        10 = js9 == slice
+        11 = js10 == slice
+        12 = js11 == slice
+        13 = js12 == slice
+        14 = js13 == slice
+        15 = js14 == slice
+        16 = js15 == slice
+        17 = js16 == slice
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17
+    length := slice.getLength()
+    length += js1.getLength()
+    length += js2.getLength()
+    length += js3.getLength()
+    length += js4.getLength()
+    length += js5.getLength()
+    length += js6.getLength()
+    length += js7.getLength()
+    length += js8.getLength()
+    length += js9.getLength()
+    length += js10.getLength()
+    length += js11.getLength()
+    length += js12.getLength()
+    length += js13.getLength()
+    length += js14.getLength()
+    length += js15.getLength()
+    length += js16.getLength()
+    if slice.use?() || slice.getCapacity() < length
+        then
+            newSlice := #slice.dummy(((length + length / 4) / 64 + 1) * 64)
+            if slice.string?()
+                then newSlice:setStringFlag()
+            newSlice += slice
+            slice = newSlice
+    slice += js1
+    slice += js2
+    slice += js3
+    slice += js4
+    slice += js5
+    slice += js6
+    slice += js7
+    slice += js8
+    slice += js9
+    slice += js10
+    slice += js11
+    slice += js12
+    slice += js13
+    slice += js14
+    slice += js15
+    slice += js16
+
+func less(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
+        result = Bool
+    if minLength .= slice1.getLength().min(slice2.getLength()); minLength != 0
+        then for index := 0; index < minLength; index++
+            item1 .= slice1[index]
+            item2 .= slice2[index]
+            mif
+                item1 < item2
+                    return true
+                item2 < item1
+                    return false
+    result = slice1.getLength() < slice2.getLength()
+
+func lessOrEqual(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
+        result = Bool
+    if minLength .= slice1.getLength().min(slice2.getLength()); minLength != 0
+        then for index := 0; index < minLength; index++
+            item1 .= slice1[index]
+            item2 .= slice2[index]
+            mif
+                item1 < item2
+                    return true
+                item2 < item1
+                    return false
+    result = slice1.getLength() <= slice2.getLength()
+
+func look(slice, lookFor)
+    rules
+        final = slice == [lookFor] & slice > Equal
+        result = Box(UInt64)
+    parse index, item <- slice
+        if item == lookFor
+            then
+                result:put(index)
+                break
+
+func look(slice, lookFor)
+    rules
+        final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal
+        result = Box(Pair(slice[0], UInt64))
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    parse sliceIndex, sliceItem <- slice
+        parse _, lookForItem <- lookFor
+            if sliceItem == lookForItem
+                then
+                    result:put(Pair(slice[0], UInt64).create(lookForItem, sliceIndex))
+                    return
+
+func look(slice, lookFor)
+    rules
+        final = slice == lookFor & slice > Equal & slice == [_]
+        result = Box(UInt64)
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    mutSlice := slice
+    firstItem .= lookFor[0]
+    resultIndex := 0
+    for mutSlice.getLength() >= lookFor.getLength()
+        firstItemIndex .= mutSlice.look(firstItem)
+        if firstItemIndex.empty?()
+            then break
+        resultIndex += firstItemIndex[]
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemIndex[])
+        if mutSlice.hasPrefix?(lookFor)
+            then
+                result:put(resultIndex)
+                break
+            else
+                resultIndex++
+                mutSlice = mutSlice.getAllExceptFirst()
+
+func look(slice, lookFor)
+    rules
+        final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_)
+        result = Box(Pair(slice, UInt64))
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    mutSlice := slice
+    firstsItems := VAList(slice[0])
+    enslave(firstsItems)
+    listLength .= lookFor.getLength()
+    C
+        firstsItems_.length = listLength_;
+    minLength := UInt64.maxValue()
+    parse index, item <- lookFor
+        flag debug is set?
+            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        minLength = minLength.min(item.getLength())
+        C
+            firstsItems_.items[index_] = item_.items[0];
+    resultIndex := 0
+    for mutSlice.getLength() >= minLength
+        firstItemAndIndex .= mutSlice.look(firstsItems)
+        if firstItemAndIndex.empty?()
+            then break
+        resultIndex += firstItemAndIndex[].second
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemAndIndex[].second)
+        parse _, item <- lookFor
+            if mutSlice.hasPrefix?(item)
+                then
+                    result:put(Pair(slice, UInt64).create(item, resultIndex))
+                    return
+        mutSlice = mutSlice.getAllExceptFirst()
+
+func lookAll(slice, lookFor)
+    rules
+        final = slice == [lookFor] & slice > Equal
+        result = [UInt64]
+    parse index, item <- slice
+        if item == lookFor
+            then result += index
+
+func lookAll(slice, lookFor)
+    rules
+        final = slice == [lookFor[0]] & slice > Equal & lookFor == VAList(_)
+        result = [Pair(slice[0], UInt64)]
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    parse sliceIndex, sliceItem <- slice
+        parse _, lookForItem <- lookFor
+            if sliceItem == lookForItem
+                then
+                    result += Pair(slice[0], UInt64).create(lookForItem, sliceIndex)
+                    break
+
+func lookAll(slice, lookFor)
+    rules
+        final = slice == lookFor & slice == [_] & slice > Equal
+        result = [UInt64]
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    mutSlice := slice
+    firstItem .= lookFor[0]
+    offset := 0
+    for mutSlice.getLength() >= lookFor.getLength()
+        firstItemIndex .= mutSlice.look(firstItem)
+        if firstItemIndex.empty?()
+            then break
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemIndex[])
+        offset += firstItemIndex[]
+        countOfDeletingItems := 1
+        if mutSlice.hasPrefix?(lookFor)
+            then
+                result += offset
+                countOfDeletingItems = lookFor.getLength()
+        offset += countOfDeletingItems
+        mutSlice = mutSlice.getAllExceptFirstN(countOfDeletingItems)
+
+func lookAll(slice, lookFor)
+    rules
+        final = slice == lookFor[0] & slice == [_] & slice > Equal & lookFor == VAList(_)
+        result = [Pair(slice, UInt64)]
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    mutSlice := slice
+    firstsItems := VAList(slice[0])
+    enslave(firstsItems)
+    listLength .= lookFor.getLength()
+    C
+        firstsItems_.length = listLength_;
+    minLength := UInt64.maxValue()
+    parse index, item <- lookFor
+        flag debug is set?
+            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        minLength = minLength.min(item.getLength())
+        C
+            firstsItems_.items[index_] = item_.items[0];
+    offset := 0
+    for mutSlice.getLength() >= minLength
+        firstItemAndIndex .= mutSlice.look(firstsItems)
+        if firstItemAndIndex.empty?()
+            then break
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemAndIndex[].second)
+        offset += firstItemAndIndex[].second
+        countOfDeletingItems := 1
+        parse _, item <- lookFor
+            if mutSlice.hasPrefix?(item)
+                then
+                    result += Pair(slice, UInt64).create(item, offset)
+                    countOfDeletingItems = item.getLength()
+                    break
+        offset += countOfDeletingItems
+        mutSlice = mutSlice.getAllExceptFirstN(countOfDeletingItems)
+
+func lookFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).look(lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_)
+        result = Box(Pair(slice[0], UInt64))
+    result = slice.getSlice(a, b).look(lookFor)
+    if result.item?()
+        then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_]
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).look(lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_)
+        result = Box(Pair(slice, UInt64))
+    result = slice.getSlice(a, b).look(lookFor)
+    if result.item?()
+        then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookLast(slice, lookFor)
+    rules
+        final = slice == [lookFor] & slice > Equal
+        result = Box(UInt64)
+    for index := slice.getLength() - 1; index != UInt64.maxValue(); index--
+        if slice[index] == lookFor
+            then
+                result:put(index)
+                break
+
+func lookLast(slice, lookFor)
+    rules
+        final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal
+        result = Box(Pair(slice[0], UInt64))
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    for sliceIndex := slice.getLength() - 1; sliceIndex != UInt64.maxValue(); sliceIndex--
+        parse _, lookForItem <- lookFor
+            if slice[sliceIndex] == lookForItem
+                then
+                    result:put(Pair(slice[0], UInt64).create(lookForItem, sliceIndex))
+                    return
+
+func lookLast(slice, lookFor)
+    rules
+        final = slice == lookFor & slice > Equal & slice == [_]
+        result = Box(UInt64)
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    mutSlice := slice
+    firstItem .= lookFor[0]
+    resultIndex := 0
+    for mutSlice.getLength() >= lookFor.getLength()
+        if result = mutSlice.lookLast(firstItem); result.empty?()
+            then break
+        if slice.getAllExceptFirstN(result[]).hasPrefix?(lookFor)
+            then break
+            else
+                mutSlice = slice.getFirstN(result[])
+                result = Box(UInt64)
+
+func lookLast(slice, lookFor)
+    rules
+        final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_)
+        result = Box(Pair(slice, UInt64))
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    mutSlice := slice
+    firstsItems := VAList(slice[0])
+    enslave(firstsItems)
+    listLength .= lookFor.getLength()
+    C
+        firstsItems_.length = listLength_;
+    minLength := UInt64.maxValue()
+    parse index, item <- lookFor
+        flag debug is set?
+            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        minLength = minLength.min(item.getLength())
+        C
+            firstsItems_.items[index_] = item_.items[0];
+    resultIndex := 0
+    for mutSlice.getLength() >= minLength
+        lastItemAndIndex .= mutSlice.lookLast(firstsItems)
+        if lastItemAndIndex.empty?()
+            then break
+        lastPart .= slice.getAllExceptFirstN(lastItemAndIndex[].second)
+        parse _, item <- lookFor
+            if lastPart.hasPrefix?(item)
+                then
+                    result:put(Pair(slice, UInt64).create(item, lastItemAndIndex[].second))
+                    return
+        mutSlice = mutSlice.getFirstN(lastItemAndIndex[].second)
+
+func lookLastFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).lookLast(lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookLastFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_)
+        result = Box(Pair(slice[0], UInt64))
+    result = slice.getSlice(a, b).lookLast(lookFor)
+    if result.item?()
+        then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookLastFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_]
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).lookLast(lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookLastFromAtoB(slice, a, b, lookFor)
+    rules
+        final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_)
+        result = Box(Pair(slice, UInt64))
+    result = slice.getSlice(a, b).lookLast(lookFor)
+    if result.item?()
+        then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookLastN(slice, n, lookFor)
+    rules
+        final = slice == [lookFor] & slice > Equal & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    flag debug is set?
+        then debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    for index := slice.getLength() - 1; index != UInt64.maxValue(); index--
+        if slice[index] == lookFor
+            then if mutN == 1.convertTo(#n)
+                then
+                    result:put(index)
+                    break
+                else mutN--
+
+func lookLastN(slice, n, lookFor)
+    rules
+        final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal & n > BasicUnsignedInteger
+        result = Box(Pair(slice[0], UInt64))
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    for sliceIndex := slice.getLength() - 1; sliceIndex != UInt64.maxValue(); sliceIndex--
+        parse _, lookForItem <- lookFor
+            if slice[sliceIndex] == lookForItem
+                then if mutN == 1.convertTo(#n)
+                    then
+                        result:put(Pair(slice[0], UInt64).create(lookForItem, sliceIndex))
+                        return
+                    else
+                        mutN--
+                        break
+
+func lookLastN(slice, n, lookFor)
+    rules
+        final = slice == lookFor & slice > Equal & slice == [_] & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    sliceContainFirstChar := slice
+    sliceContainLookFor := slice
+    mutN := n
+    firstItem .= lookFor[0]
+    for sliceContainLookFor.getLength() >= lookFor.getLength()
+        lastItemIndex .= sliceContainFirstChar.lookLast(firstItem)
+        if lastItemIndex.empty?()
+            then break
+        if sliceContainLookFor.getAllExceptFirstN(lastItemIndex[]).hasPrefix?(lookFor)
+            then if mutN == 1.convertTo(#n)
+                then
+                    result:put(lastItemIndex[])
+                    break
+                else
+                    sliceContainLookFor = sliceContainLookFor.getFirstN(lastItemIndex[])
+                    mutN--
+        sliceContainFirstChar = sliceContainFirstChar.getFirstN(lastItemIndex[])
+
+func lookLastN(slice, n, lookFor)
+    rules
+        final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
+        result = Box(Pair(slice, UInt64))
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    firstsItems := VAList(slice[0])
+    enslave(firstsItems)
+    listLength .= lookFor.getLength()
+    C
+        firstsItems_.length = listLength_;
+    minLength := UInt64.maxValue()
+    parse index, item <- lookFor
+        flag debug is set?
+            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        minLength = minLength.min(item.getLength())
+        C
+            firstsItems_.items[index_] = item_.items[0];
+    sliceContainFirstChar := slice
+    sliceContainLookFor := slice
+    mutN := n
+    for sliceContainLookFor.getLength() >= minLength
+        lastItemAndIndex .= sliceContainFirstChar.lookLast(firstsItems)
+        if lastItemAndIndex.empty?()
+            then break
+        lastPart .= sliceContainLookFor.getAllExceptFirstN(lastItemAndIndex[].second)
+        parse _, item <- lookFor
+            if lastPart.hasPrefix?(item)
+                then if mutN == 1.convertTo(#n)
+                    then
+                        result:put(Pair(slice, UInt64).create(item, lastItemAndIndex[].second))
+                        return
+                    else
+                        sliceContainLookFor = sliceContainLookFor.getFirstN(lastItemAndIndex[].second)
+                        mutN--
+                        break
+        sliceContainFirstChar = sliceContainFirstChar.getFirstN(lastItemAndIndex[].second)
+
+func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).lookLastN(n, lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_) & n > BasicUnsignedInteger
+        result = Box(Pair(slice[0], UInt64))
+    result = slice.getSlice(a, b).lookLastN(n, lookFor)
+    if result.item?()
+        then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).lookLastN(n, lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
+        result = Box(Pair(slice, UInt64))
+    result = slice.getSlice(a, b).lookLastN(n, lookFor)
+    if result.item?()
+        then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookN(slice, n, lookFor)
+    rules
+        final = slice == [lookFor] & slice > Equal & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    flag debug is set?
+        then debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    parse index, item <- slice
+        if item == lookFor
+            then if mutN == 1.convertTo(#n)
+                then
+                    result:put(index)
+                    break
+                else mutN--
+
+func lookN(slice, n, lookFor)
+    rules
+        final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal & n > BasicUnsignedInteger
+        result = Box(Pair(slice[0], UInt64))
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    parse sliceIndex, sliceItem <- slice
+        parse _, lookForItem <- lookFor
+            if sliceItem == lookForItem
+                then if mutN == 1.convertTo(#n)
+                    then
+                        result:put(Pair(slice[0], UInt64).create(lookForItem, sliceIndex))
+                        return
+                    else
+                        mutN--
+                        break
+
+func lookN(slice, n, lookFor)
+    rules
+        final = slice == lookFor & slice > Equal & slice == [_] & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutSlice := slice
+    mutN := n
+    firstItem .= lookFor[0]
+    resultIndex := 0
+    for mutSlice.getLength() >= lookFor.getLength()
+        firstItemIndex .= mutSlice.look(firstItem)
+        if firstItemIndex.empty?()
+            then break
+        resultIndex += firstItemIndex[]
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemIndex[])
+        addToResultItem := 1
+        if mutSlice.hasPrefix?(lookFor)
+            then if mutN == 1.convertTo(#n)
+                then
+                    result:put(resultIndex)
+                    break
+                else
+                    addToResultItem = lookFor.getLength()
+                    mutN--
+        mutSlice = mutSlice.getAllExceptFirstN(addToResultItem)
+        resultIndex += addToResultItem
+
+func lookN(slice, n, lookFor)
+    rules
+        final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
+        result = Box(Pair(slice, UInt64))
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutSlice := slice
+    firstsItems := VAList(slice[0])
+    enslave(firstsItems)
+    listLength .= lookFor.getLength()
+    C
+        firstsItems_.length = listLength_;
+    minLength := UInt64.maxValue()
+    parse index, item <- lookFor
+        flag debug is set?
+            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        minLength = minLength.min(item.getLength())
+        C
+            firstsItems_.items[index_] = item_.items[0];
+    mutN := n
+    resultIndex := 0
+    for mutSlice.getLength() >= minLength
+        firstItemAndIndex .= mutSlice.look(firstsItems)
+        if firstItemAndIndex.empty?()
+            then break
+        resultIndex += firstItemAndIndex[].second
+        mutSlice = mutSlice.getAllExceptFirstN(firstItemAndIndex[].second)
+        addToResultItem := 1
+        parse _, item <- lookFor
+            if mutSlice.hasPrefix?(item)
+                then if mutN == 1.convertTo(#n)
+                    then
+                        result:put(Pair(slice, UInt64).create(item, resultIndex))
+                        return
+                    else
+                        mutN--
+                        addToResultItem = item.getLength()
+                        break
+        resultIndex += addToResultItem
+        mutSlice = mutSlice.getAllExceptFirstN(addToResultItem)
+
+func lookNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).lookN(n, lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_) & n > BasicUnsignedInteger
+        result = Box(Pair(slice[0], UInt64))
+    result = slice.getSlice(a, b).lookN(n, lookFor)
+    if result.item?()
+        then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func lookNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & n > BasicUnsignedInteger
+        result = Box(UInt64)
+    result = slice.getSlice(a, b).lookN(n, lookFor)
+    if result.item?()
+        then result:put(result[] + a.convertTo(UInt64))
+
+func lookNFromAtoB(slice, n, a, b, lookFor)
+    rules
+        final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
+        result = Box(Pair(slice, UInt64))
+    result = slice.getSlice(a, b).lookN(n, lookFor)
+    if result.item?()
+        then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
+
+func not(slice)
+    rules
+        final = slice == [_] & slice > Bits
+        result = slice
+    result = #slice.init(slice.getLength())
+    parse index, item <- slice
+        result:setItem(index, item.not())
+    if slice.string?()
+        then result:setStringFlag()
+
+func or(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
+        result = slice1
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    result = #slice1.init(slice1.getLength())
+    parse index, item <- slice1
+        result:setItem(index, item | slice2[index])
+    if slice1.string?()
+        then result:setStringFlag()
+
+proc orEq(:slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    parse index, item <- slice2
+        slice1:setItem(index, slice1[index] | item)
+
+func parse_first(slice)
+    rules
+        final = slice == [_]
+        result = UInt64
+    result = 0
+
+func parse_haveItem?(slice, index)
+    rules
+        final = slice == [_] & index == UInt64
+        result = Bool
+    result = index < slice.getLength()
+
+func parse_item(slice, index)
+    rules
+        final = slice == [_] & index == UInt64
+        result = slice[0]
+    result = slice[index]
+
+func parse_key(slice, index)
+    rules
+        final = slice == [_] & index == UInt64
+        result = UInt64
+    result = index
+
+func parse_next(slice, index)
+    rules
+        final = slice == [_] & index == UInt64
+        result = UInt64
+    result = index + 1
+
+proc setStringFlag(:slice)
+    rules
+        final = slice == [_]
+    C
+        slice_->isString = true;
+
+func replace(slice, old, new)
+    rules
+        final = slice == [old] & old == new & slice > Equal
+        result = slice
+    result = slice
+    indexes .= slice.lookAll(old)
+    parse _, index <- indexes
+        result:setItem(index, new)
+
+func replace(slice, old, new)
+    rules
+        final = slice == old & old == new & slice > Equal & slice == [_]
+        result = slice
+    flag debug is set?
+        then debugMessage(old.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to replace.")
+    if slice.getLength() != 0
+        then
+            parts .= slice.split(old)
+            newSliceLength .= slice.getLength() - (old.getLength() - new.getLength()) * parts.getLength()
+            result = #slice.dummy(newSliceLength)
+            result += parts[0]
+            parse _, part <- parts.getAllExceptFirst()
+                result += new
+                result += part
+    if slice.string?()
+        then result:setStringFlag()
+
+proc setFirst(:slice, newItem)
+    rules
+        final = slice == [newItem]
+    slice:setItem(0, newItem)
+
+proc setItem(:slice, index, newItem)
+    rules
+        final = slice == [newItem] & index > BasicUnsignedInteger
+    flag debug is set?
+        then debugMessage(index.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
+    if slice.use?()
+        then slice = slice.clone()
+    oldItem := #slice[0]
+    C
+        oldItem_ = slice_->items[index_];
+        slice_->items[index_] = newItem_;
+    newItem.use()
+
+proc setLast(:slice, newItem)
+    rules
+        final = slice == [newItem]
+    slice:setItem(slice.getLength() - 1, newItem)
+
+func shl(slice, shifts)
+    rules
+        final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
+        result = slice
+    result = #slice.init(slice.getLength())
+    parse index, item <- slice
+        result:setItem(index, item << shifts)
+    if slice.string?()
+        then result:setStringFlag()
+
+proc shlEq(:slice, shifts)
+    rules
+        final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
+    for index := 0; index < slice.getLength(); index++
+        slice:setItem(index, slice[index] << shifts)
+
+func shr(slice, shifts)
+    rules
+        final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
+        result = slice
+    result = #slice.init(slice.getLength())
+    parse index, item <- slice
+        result:setItem(index, item >> shifts)
+    if slice.string?()
+        then result:setStringFlag()
+
+proc shrEq(:slice, shifts)
+    rules
+        final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
+    for index := 0; index < slice.getLength(); index++
+        slice:setItem(index, slice[index] >> shifts)
+
+func sort(slice, rise)
+    rules
+        final = slice == [_] & slice > Ordered & rise == Bool
+        result = slice
+    result = slice
+    result:sort(rise)
+
+proc sort(:slice, rise)
+    rules
+        final = slice == [_] & slice > Ordered & rise == Bool
+    unsortedRanges := [Pair(UInt64, UInt64)].dummy(128)
+    unsortedRanges += Pair(UInt64, UInt64).create(0, slice.getLength())
+    leftIndex := 0
+    rightEdge := 0
+    for
+        if leftIndex == rightEdge
+            then if unsortedRanges.getLength() == 0
+                then break
+                else
+                    range .= unsortedRanges.getLast()
+                    unsortedRanges = unsortedRanges.getAllExceptLast()
+                    leftIndex = range.first
+                    rightEdge = range.second
+        rangeLength .= rightEdge - leftIndex
+        mif
+            rangeLength > 2
+                randomIndex .= getStaticRandomNumber() % rangeLength + leftIndex
+                slice:swap(leftIndex, randomIndex)
+                currentItem .= slice[leftIndex]
+                swapLeftIndex := 0
+                swapRightIndex := 0
+                secondSwapIndexMaxValue := rightEdge - 1
+                for swapLeftIndex = leftIndex + 1; swapLeftIndex <= secondSwapIndexMaxValue; swapLeftIndex++
+                    if (rise && slice[swapLeftIndex] >= currentItem) || (!rise && slice[swapLeftIndex] <= currentItem)
+                        then
+                            for swapRightIndex = secondSwapIndexMaxValue; swapRightIndex > swapLeftIndex; swapRightIndex--
+                                if (rise && slice[swapRightIndex] < currentItem) || (!rise && slice[swapRightIndex] > currentItem)
+                                    then
+                                        slice:swap(swapLeftIndex, swapRightIndex)
+                                        secondSwapIndexMaxValue = swapRightIndex - 1
+                                        break
+                            if swapLeftIndex == swapRightIndex
+                                then break
+                newItemPosition .= swapLeftIndex - 1
+                slice:swap(leftIndex, newItemPosition)
+                leftRangeSize .= newItemPosition - leftIndex
+                righRangeSize .= rightEdge - newItemPosition - 1
+                if leftRangeSize > righRangeSize
+                    then if righRangeSize == 0
+                        then rightEdge = newItemPosition
+                        else
+                            unsortedRanges += Pair(UInt64, UInt64).create(leftIndex, newItemPosition)
+                            leftIndex = newItemPosition + 1
+                    else if leftRangeSize == 0
+                        then leftIndex = newItemPosition + 1
+                        else
+                            unsortedRanges += Pair(UInt64, UInt64).create(newItemPosition + 1, rightEdge)
+                            rightEdge = newItemPosition
+            rangeLength == 2
+                if (rise && slice[leftIndex] > slice[leftIndex + 1]) || (!rise && slice[leftIndex] < slice[leftIndex + 1])
+                    then slice:swap(leftIndex, leftIndex + 1)
+                fallthrough
+            default
+                if unsortedRanges.getLength() == 0
+                    then break all
+                    else leftIndex = rightEdge
+
+func sort(slice, lessFunc)
+    rules
+        final = slice == [_] & lessFunc == @(slice[0], slice[0]) -> Bool
+        result = slice
+    result = slice
+    result:sort(lessFunc)
+
+proc sort(:slice, lessFunc)
+    rules
+        final = slice == [_] & lessFunc == @(slice[0], slice[0]) -> Bool
+    unsortedRanges := [Pair(UInt64, UInt64)].dummy(128)
+    unsortedRanges += Pair(UInt64, UInt64).create(0, slice.getLength())
+    leftIndex := 0
+    rightEdge := 0
+    for
+        if leftIndex == rightEdge
+            then if unsortedRanges.getLength() == 0
+                then break
+                else
+                    range .= unsortedRanges.getLast()
+                    unsortedRanges = unsortedRanges.getAllExceptLast()
+                    leftIndex = range.first
+                    rightEdge = range.second
+        rangeLength .= rightEdge - leftIndex
+        mif
+            rangeLength > 2
+                randomIndex .= getStaticRandomNumber() % rangeLength + leftIndex
+                slice:swap(leftIndex, randomIndex)
+                currentItem .= slice[leftIndex]
+                swapLeftIndex := 0
+                swapRightIndex := 0
+                secondSwapIndexMaxValue := rightEdge - 1
+                for swapLeftIndex = leftIndex + 1; swapLeftIndex <= secondSwapIndexMaxValue; swapLeftIndex++
+                    if !@lessFunc(slice[swapLeftIndex], currentItem)
+                        then
+                            for swapRightIndex = secondSwapIndexMaxValue; swapRightIndex > swapLeftIndex; swapRightIndex--
+                                if @lessFunc(slice[swapRightIndex], currentItem)
+                                    then
+                                        slice:swap(swapLeftIndex, swapRightIndex)
+                                        secondSwapIndexMaxValue = swapRightIndex - 1
+                                        break
+                            if swapLeftIndex == swapRightIndex
+                                then break
+                newItemPosition .= swapLeftIndex - 1
+                slice:swap(leftIndex, newItemPosition)
+                leftRangeSize .= newItemPosition - leftIndex
+                righRangeSize .= rightEdge - newItemPosition - 1
+                if leftRangeSize > righRangeSize
+                    then if righRangeSize == 0
+                        then rightEdge = newItemPosition
+                        else
+                            unsortedRanges += Pair(UInt64, UInt64).create(leftIndex, newItemPosition)
+                            leftIndex = newItemPosition + 1
+                    else if leftRangeSize == 0
+                        then leftIndex = newItemPosition + 1
+                        else
+                            unsortedRanges += Pair(UInt64, UInt64).create(newItemPosition + 1, rightEdge)
+                            rightEdge = newItemPosition
+            rangeLength == 2
+                if !@lessFunc(slice[leftIndex], slice[leftIndex + 1])
+                    then slice:swap(leftIndex, leftIndex + 1)
+                fallthrough
+            default
+                if unsortedRanges.getLength() == 0
+                    then break all
+                    else leftIndex = rightEdge
+
+func split(slice, separator)
+    rules
+        final = slice == [separator] & slice > Equal
+        result = [slice]
+    if slice.getLength() == 0
+        then result = [slice]{#slice}
+        else
+            allSeparatorsPositions .= slice.lookAll(separator)
+            result = [slice].init(allSeparatorsPositions.getLength() + 1)
+            previousPosition := 0
+            parse index, separatorPosition <- allSeparatorsPositions
+                result:setItem(index, slice.getSlice(previousPosition, separatorPosition))
+                previousPosition = separatorPosition + 1
+            result:setLast(slice.getAllExceptFirstN(previousPosition))
+
+func split(slice, separators)
+    rules
+        final = slice == [separators[0]] & slice > Equal & separators == VAList(_)
+        result = [slice]
+    allSeparatorsPositions .= slice.lookAll(separators)
+    if slice.getLength() == 0
+        then result = [slice]{#slice}
+        else
+            result = [slice].init(allSeparatorsPositions.getLength() + 1)
+            previousPosition := 0
+            parse index, separatorPosition <- allSeparatorsPositions
+                result:setItem(index, slice.getSlice(previousPosition, separatorPosition.second))
+                previousPosition = separatorPosition.second + 1
+            result:setLast(slice.getAllExceptFirstN(previousPosition))
+
+func split(slice, separator)
+    rules
+        final = slice == separator & slice > Equal & slice == [_]
+        result = [slice]
+    allSeparatorsPositions .= slice.lookAll(separator)
+    if slice.getLength() == 0
+        then result = [slice]{#slice}
+        else
+            result = [slice].init(allSeparatorsPositions.getLength() + 1)
+            previousPosition := 0
+            parse index, separatorPosition <- allSeparatorsPositions
+                result:setItem(index, slice.getSlice(previousPosition, separatorPosition))
+                previousPosition = separatorPosition + separator.getLength()
+            result:setLast(slice.getAllExceptFirstN(previousPosition))
+
+func split(slice, separators)
+    rules
+        final = slice == separators[0] & slice > Equal & separators == VAList(_) & slice == [_]
+        result = [slice]
+    allSeparatorsPositions .= slice.lookAll(separators)
+    if slice.getLength() == 0
+        then result = [slice]{#slice}
+        else
+            result = [slice].init(allSeparatorsPositions.getLength() + 1)
+            previousPosition := 0
+            parse index, separator <- allSeparatorsPositions
+                result:setItem(index, slice.getSlice(previousPosition, separator.second))
+                previousPosition = separator.second + separator.first.getLength()
+            result:setLast(slice.getAllExceptFirstN(previousPosition))
+
+func string?(slice)
+    rules
+        final = slice == [_]
+        result = Bool
+    if #slice[0].getTypeNumber() == UInt8.getTypeNumber()
+        then
+            C
+                result_ = slice_.isString;
+
+proc swap(:slice, first, second)
+    rules
+        final = slice == [_] & first > BasicUnsignedInteger & second > BasicUnsignedInteger
+    flag debug is set?
+        then
+            debugMessage(first.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - first index is too large.")
+            debugMessage(second.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - second index is too large.")
+    if slice.use?()
+        then slice = slice.clone()
+    tmp := #slice[0]
+    enslave(tmp)
+    C
+        tmp_ = slice_->items[first_];
+        slice_->items[first_] = slice_->items[second_];
+        slice_->items[second_] = tmp_;
+
+func toString(slice)
+    rules
+        final = slice == [_] & slice > StringWriter
+        result = [UInt8]
+    if slice.string?()
+        then result = slice
+        else
+            result = "["
+            if slice.getLength() != 0
+                then
+                    parse _, item <- slice
+                        result += item.toString()
+                        result += ", "
+                    result = result.getAllExceptLastN(2)
+            result += ']'
+            result:setStringFlag()
+
+proc use(slice)
+    rules
+        final = slice == [_]
+    C
+        if (slice_.useCounter != (uint64_t*){0}) {
+            (*slice_.useCounter)++;
+        }
+
+func use?(slice)
+    rules
+        final = slice == [_]
+        result = Bool
+    C
+        if (slice_.useCounter != (uint64_t*){0}) {
+            result_ = *slice_.useCounter > 1;
+        }
+        result_ = result_ || ((void*)slice_.array == (void*){0} && (void*)slice_.items != (void*){0});
+
+func xor(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
+        result = slice1
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    result = #slice1.init(slice1.getLength())
+    parse index, item <- slice1
+        result:setItem(index, item ^ slice2[index])
+    if slice1.string?()
+        then result:setStringFlag()
+
+proc xorEq(:slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    parse index, item <- slice2
+        slice1:setItem(index, slice1[index] ^ item)

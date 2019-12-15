@@ -1,0 +1,107 @@
+group BasicUnsignedInteger
+//toSigned(a) -> b
+
+rules
+    1 = type > BasicUnsignedInteger
+    join 1 BasicInteger
+    join 1 UnsignedInteger
+
+func fromString(a, string) #4
+    rules
+        final =  a > BasicUnsignedInteger & string == [UInt8]
+        result = Box(a)
+    tenInIndexPower := 1.convertTo(#a)
+    if string.getLength() != 0
+        then
+            resultNumber := #a
+            for index := string.getLength() - 1; index != UInt64.maxValue(); index--
+                if char .= string[index]; char.digit?()
+                    then
+                        previous .= resultNumber
+                        resultNumber += (char - '0').convertTo(#a) * tenInIndexPower
+                        if previous > resultNumber
+                            then return
+                    else return
+                tenInIndexPower *= 10
+            result:put(resultNumber)
+
+func maxValue(a) #4
+    rules
+        final = a > BasicUnsignedInteger
+        result = a
+    C
+        result_ = - 1;
+
+func minValue(a) #4
+    rules
+        final = a > BasicUnsignedInteger
+        result = a
+
+func power(a, b) #4
+    rules
+        final = a > BasicUnsignedInteger & b == a
+        result = a
+    result = 1.convertTo(#a)
+    tmp := a
+    power := b
+    for
+        if (power & 1.convertTo(#b)) == 1.convertTo(#b)
+            then result *= tmp
+        power >>= 1
+        if power == #b
+            then break
+            else tmp *= tmp.clone()
+
+func random(maxValue) #4
+    rules
+        final = maxValue > BasicUnsignedInteger
+        result = maxValue
+    flag debug is set?
+        then debugMessage(maxValue == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
+    C
+        uint64_t randomNumber = (UINT64_MAX / RAND_MAX * rand() + rand()) / (UINT64_MAX / maxValue_);
+        result_ = randomNumber;
+
+func shl(a, shifts) #4
+    rules
+        final = a > BasicUnsignedInteger & shifts > BasicUnsignedInteger
+        result = a
+    flag debug is set?
+        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    C
+        result_ = a_ << shifts_;
+
+func shr(a, shifts) #4
+    rules
+        final = a > BasicUnsignedInteger & shifts > BasicUnsignedInteger
+        result = a
+    flag debug is set?
+        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    C
+        result_ = a_ >> shifts_;
+
+func toString(a) #4
+    include
+        #include <string.h>
+    rules
+        final = a > BasicUnsignedInteger
+        result = [UInt8]
+    length := #a.getTypeSize() * 3 - #a.getTypeSize() / 2
+    index := length
+    remain := a
+    C
+        char tmpResult[length_];
+        for (;;){
+            index_--;
+            char newChar = remain_ % 10 + 48;
+            remain_ /= 10;
+            tmpResult[index_] = newChar;
+            if (remain_ == 0){
+                break;
+            }
+        }
+        length_ -= index_;
+    result = [UInt8].init(length)
+    C
+        memcpy(result_.items, tmpResult + index_, length_);
+    result:setStringFlag()

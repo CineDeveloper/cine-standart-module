@@ -1,0 +1,139 @@
+group BasicFloat
+//require
+//abs(a) -> a
+//arcCos(a) -> a
+//arcCtg(a) -> a
+//arcSin(a) -> a
+//arcTg(a) -> a
+//ceil(a) -> a
+//cos(a) -> a
+//ctg(a) -> a
+//disassemble(a) -> Pair(a, a)
+//exp(a) -> a
+//floor(a) -> a
+//fromString(a, [UInt8]) -> a
+//lg(a) -> a
+//ln(a) -> a
+//log(a, a) -> a
+//mod(a) -> a
+//power(a, a) -> a
+//sin(a) -> a
+//sqrt(a) -> a
+//tg(a) -> a
+
+rules
+    1 = type > BasicFloat
+    join 1 BasicNumber
+    join 1 FloatNumber
+    join 1 SignedNumber
+    join 1 Binary
+
+func convertTo(from, to) #4
+    rules
+        final = from > BasicFloat & to > BasicFloat
+        result = to
+    C
+        result_ = from_;
+
+proc dec(:a) #4
+    rules
+        final = a > BasicFloat
+    C
+        *a_ = *a_ - 1.0;
+
+func div(a, b)
+    rules
+        final = a > BasicFloat & b == a
+        result = a
+    C
+        result_ = a_ / b_;
+    flag debug is set?
+        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+
+proc inc(:a) #4
+    rules
+        final = a > BasicFloat
+    C
+        *a_ = *a_ + 1.0;
+
+func minusInf(a) #4
+    rules
+        final = a > BasicFloat
+        result = a
+    C
+        result_ = -INFINITY;
+
+func nan?(a) #4
+    include
+        #include <math.h>
+    rules
+        final = a > BasicFloat
+        result = Bool
+    C
+        result_ = isnan(a_);
+
+func neg(a) #4
+    rules
+        final = a > BasicFloat
+        result = a
+    C
+        result_ = 0.0 - a_;
+
+func pi(a) #4
+    include
+        #include <math.h>
+    rules
+        final = a > BasicFloat
+        result = a
+    C
+        result_ = M_PI;
+
+func plusInf(a) #4
+    rules
+        final = a > BasicFloat
+        result = a
+    C
+        result_ = INFINITY;
+
+func random(maxValue) #4
+    include
+        #include <stdlib.h>
+    rules
+        final = maxValue > BasicFloat
+        result = maxValue
+    C
+        result_ = (double)(rand()) / (double)(RAND_MAX) * maxValue_;
+
+func round(a) #4
+    rules
+        final = a > BasicFloat
+        result = Int64
+    C
+        if (a_ >= 0.0){
+            result_ = a_ + 0.5;
+        } else {
+            result_ = a_ - 0.5;
+        }
+
+func toString(a) #4
+    include
+        #include <stdio.h>
+        #include <string.h>
+    rules
+        final = a > BasicFloat
+        result = [UInt8]
+    length := 0
+    C
+        char buf[313];
+        length_ = sprintf(buf, "%g", a_);
+    result = [UInt8].init(length)
+    C
+        memcpy(result_.items, buf, length_);
+    result:setStringFlag()
+
+func trunc(a) #4
+    rules
+        final = a > BasicFloat
+        result = Int64
+    C
+        result_ = a_;

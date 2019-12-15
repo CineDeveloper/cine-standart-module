@@ -1,0 +1,11 @@
+proc testFluid(:results)
+    rules
+        final = results == TestResults
+    results:test(Fluid.empty?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(!Fluid.item?(), builtIn_currentFile, builtIn_currentLine)
+    var .= 10.toFluid()
+    results:test(var.item?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(!var.empty?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(var[UInt64] == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test(var.getInnerTypeNumber() == UInt64.getTypeNumber(), builtIn_currentFile, builtIn_currentLine)
+    results:test(var.getTypeNumber() != UInt64.getTypeNumber(), builtIn_currentFile, builtIn_currentLine)

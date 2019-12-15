@@ -1,0 +1,13 @@
+proc testNumber(:results)
+    rules
+        final = results == TestResults
+    n := 15
+    results:test(n == 15, builtIn_currentFile, builtIn_currentLine)
+    n += 17
+    results:test(n == 32, builtIn_currentFile, builtIn_currentLine)
+    n /= 4
+    results:test(n == 8, builtIn_currentFile, builtIn_currentLine)
+    n *= 5
+    results:test(n == 40, builtIn_currentFile, builtIn_currentLine)
+    n -= 7
+    results:test(n == 33, builtIn_currentFile, builtIn_currentLine)

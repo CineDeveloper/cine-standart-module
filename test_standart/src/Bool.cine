@@ -1,0 +1,19 @@
+proc testBool(:results)
+    rules
+        final = results == TestResults
+    results:test(true, builtIn_currentFile, builtIn_currentLine)
+    results:test(!false, builtIn_currentFile, builtIn_currentLine)
+    results:test(!Bool, builtIn_currentFile, builtIn_currentLine)
+    results:test(true == true, builtIn_currentFile, builtIn_currentLine)
+    results:test(false == false, builtIn_currentFile, builtIn_currentLine)
+    results:test(true != false, builtIn_currentFile, builtIn_currentLine)
+    results:test(false != true, builtIn_currentFile, builtIn_currentLine)
+    results:test(Bool.fromString("true").item?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(Bool.fromString("true")[], builtIn_currentFile, builtIn_currentLine)
+    results:test(Bool.fromString("false").item?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(!Bool.fromString("false")[], builtIn_currentFile, builtIn_currentLine)
+    results:test(Bool.fromString("False").empty?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(Bool.fromString("True").empty?(), builtIn_currentFile, builtIn_currentLine)
+    results:test(false.toString() == "false", builtIn_currentFile, builtIn_currentLine)
+    results:test(true.toString() == "true", builtIn_currentFile, builtIn_currentLine)
+

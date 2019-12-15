@@ -1,0 +1,68 @@
+proc testBasicInteger(:results)
+    rules
+        final = results == TestResults
+    results:test((10 & -1) == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 & 0) == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 & 7) == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 & 8) == 8, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 & 2) == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 & 16) == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test(128.convertTo(Int8).convertTo(UInt64) == -128, builtIn_currentFile, builtIn_currentLine)
+    results:test(128.convertTo(UInt8).convertTo(UInt64) == 128, builtIn_currentFile, builtIn_currentLine)
+    results:test(255.convertTo(Int8).convertTo(UInt64) == -1, builtIn_currentFile, builtIn_currentLine)
+    results:test(255.convertTo(UInt8).convertTo(UInt64) == 255, builtIn_currentFile, builtIn_currentLine)
+    results:test(256.convertTo(Int8).convertTo(UInt64) == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test(257.convertTo(Int8).convertTo(UInt64) == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(257.convertTo(Double).inRange?(256.999, 257.001), builtIn_currentFile, builtIn_currentLine)
+    a := 2
+    a--
+    results:test(a == 1, builtIn_currentFile, builtIn_currentLine)
+    a--
+    results:test(a == 0, builtIn_currentFile, builtIn_currentLine)
+    a--
+    results:test(a == UInt64.maxValue(), builtIn_currentFile, builtIn_currentLine)
+    results:test(a == -1, builtIn_currentFile, builtIn_currentLine)
+    results:test(10.getHash() == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test(156.getHash() == 156, builtIn_currentFile, builtIn_currentLine)
+    results:test(156.getHashSize() == 8.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt8.getHashSize() == 1.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt16.getHashSize() == 2.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt32.getHashSize() == 4.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt64.getHashSize() == 8.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int8.getHashSize() == 1.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int16.getHashSize() == 2.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int32.getHashSize() == 4.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int64.getHashSize() == 8.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    a++
+    results:test(a == 0, builtIn_currentFile, builtIn_currentLine)
+    a++
+    results:test(a == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(10 % 3 == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(10 % 2 == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test(10 % 6 == 4, builtIn_currentFile, builtIn_currentLine)
+    results:test(10 % 7 == 3, builtIn_currentFile, builtIn_currentLine)
+    results:test(10 % 8 == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test(10 % 9 == 1, builtIn_currentFile, builtIn_currentLine)
+    a = 10
+    a %= 3
+    results:test(a == 1, builtIn_currentFile, builtIn_currentLine)
+    a = 10
+    a %= 2
+    results:test(a == 0, builtIn_currentFile, builtIn_currentLine)
+    a = 10
+    a %= 6
+    results:test(a == 4, builtIn_currentFile, builtIn_currentLine)
+    results:test(-1.not() == 0, builtIn_currentFile, builtIn_currentLine)
+    results:test(1.not() == -2, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 | -1) == -1, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 | 0) == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 | 7) == 15, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 | 8) == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 | 2) == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 | 16) == 26, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 ^ -1) == -11, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 ^ 0) == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 ^ 7) == 13, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 ^ 8) == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 ^ 2) == 8, builtIn_currentFile, builtIn_currentLine)
+    results:test((10 ^ 16) == 26, builtIn_currentFile, builtIn_currentLine)

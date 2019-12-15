@@ -1,0 +1,7 @@
+proc testInt(:results)
+    rules
+        final = results == TestResults
+    results:test(12.convertTo(Int8).toUnsigned() == 12.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(12.convertTo(Int16).toUnsigned() == 12.convertTo(UInt16), builtIn_currentFile, builtIn_currentLine)
+    results:test(12.convertTo(Int32).toUnsigned() == 12.convertTo(UInt32), builtIn_currentFile, builtIn_currentLine)
+    results:test(12.convertTo(Int64).toUnsigned() == 12.convertTo(UInt64), builtIn_currentFile, builtIn_currentLine)

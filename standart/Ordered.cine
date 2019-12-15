@@ -1,0 +1,30 @@
+group Ordered
+//require
+//greater(a, a) -> Bool
+//greaterOrEqual(a, a) -> Bool
+//less(a, a) -> Bool
+//lessOrEqual(a, a) -> Bool
+//equal(a, a) -> Bool
+
+rules
+    1 = type > Ordered
+    join 1 Equal
+
+func inRange?(a, begin, end) #4
+    rules
+        final = a > Ordered & begin == a & end == a
+        result = Bool
+    result = a >= begin && a <= end
+
+func max(a, b) #4
+    rules
+        final = a > Ordered & b == a
+        result = a
+    result = select(a > b, a, b)
+
+func min(a, b) #4
+    rules
+        final = a > Ordered & b == a
+        result = a
+    result = select(a < b, a, b)
+

@@ -1,0 +1,76 @@
+func foldl(f, a, slice)
+    rules
+        final = f == @(a, slice[0]) -> a & slice == [_]
+        result = a
+    result = a
+    parse _, item <- slice
+        result = @f(result, item)
+
+func foldr(f, a, slice)
+    rules
+        final = f == @(slice[0], a) -> a & slice == [_]
+        result = a
+    result = a
+    for index := slice.getLength() - 1; index != UInt64.maxValue(); index--
+        result = @f(slice[index], result)
+
+func map(f, slice)
+    rules
+        final = f == @(slice[0]) -> _ & slice == [_]
+        result = [f[-]]
+    result = [f[-]].init(slice.getLength())
+    parse index, item <- slice
+        result:setItem(index, @f(item))
+
+func map(f, a, slice)
+    rules
+        final = f == @(slice[0], a) -> _ & slice == [_]
+        result = [f[-]]
+    result = [f[-]].init(slice.getLength())
+    parse index, item <- slice
+        result:setItem(index, @f(item, a))
+
+func zip(slice1, slice2)
+    rules
+        final = slice1 == [_] & slice2 == [_]
+        result = [Pair(slice1[0], slice2[0])]
+    minLength .= slice1.getLength().min(slice2.getLength())
+    result = [Pair(slice1[0], slice2[0])].init(minLength)
+    for index := 0; index < minLength; index++
+        result:setItem(index, Pair(slice1[0], slice2[0]).create(slice1[index], slice2[index]))
+
+func zip(slice1, slice2, slice3)
+    rules
+        final = slice1 == [_] & slice2 == [_] & slice3 == [_]
+        result = [Triple(slice1[0], slice2[0], slice3[0])]
+    minLength .= slice1.getLength().min(slice2.getLength()).min(slice3.getLength())
+    result = [Triple(slice1[0], slice2[0], slice3[0])].init(minLength)
+    for index := 0; index < minLength; index++
+        result:setItem(index, Triple(slice1[0], slice2[0], slice3[0]).create(slice1[index], slice2[index], slice3[index]))
+
+func zipWith(f, slice1, slice2)
+    rules
+        final = f == @(slice1[0], slice2[0]) -> _ & slice1 == [_] & slice2 == [_]
+        result = [f[-]]
+    minLength .= slice1.getLength().min(slice2.getLength())
+    result = [f[-]].init(minLength)
+    for index := 0; index < minLength; index++
+        result:setItem(index, @f(slice1[index], slice2[index]))
+
+func zipWith(f, slice1, slice2, slice3)
+    rules
+        final = f == @(slice1[0], slice2[0], slice3[0]) -> _ & slice1 == [_] & slice2 == [_] & slice3 == [_]
+        result = [f[-]]
+    minLength .= slice1.getLength().min(slice2.getLength()).min(slice3.getLength())
+    result = [f[-]].init(minLength)
+    for index := 0; index < minLength; index++
+        result:setItem(index, @f(slice1[index], slice2[index], slice3[index]))
+
+func zipWith(f, slice1, slice2, slice3, slice4)
+    rules
+        final = f == @(slice1[0], slice2[0], slice3[0], slice4[0]) -> _ & slice1 == [_] & slice2 == [_] & slice3 == [_] & slice4 == [_]
+        result = [f[-]]
+    minLength .= slice1.getLength().min(slice2.getLength()).min(slice3.getLength()).min(slice4.getLength())
+    result = [f[-]].init(minLength)
+    for index := 0; index < minLength; index++
+        result:setItem(index, @f(slice1[index], slice2[index], slice3[index], slice4[index]))

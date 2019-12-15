@@ -1,0 +1,276 @@
+type Map(key, item)
+    private_keysAndItems [Box(Pair(key, item))]
+    private_trees [MapTreeNode]
+    private_numberOfHiddenItems UInt16
+
+proc add(:map, key, item)
+    rules
+        1 = map == Map(key, item)
+        2 = key > Hashed & key > Equal
+        final = 1 & 2
+    map += Pair(key, item).create(key, item)
+
+proc addEq(:map, keyAndItem)
+    rules
+        1 = map == Map(_, _) & keyAndItem == Pair(map[0], map[1])
+        2 = map[0] > Hashed & map[0] > Equal
+        final = 1 & 2
+    if !map.init?()
+        then map = #map.init()
+    key .= keyAndItem.first
+    keyHash := key.getSmallHash()
+    firstNodeOfTreeIndex := 0
+    currentNodeIndex := 0
+    countOfLoops .= #map[0].getSmallHashSize() * 2.convertTo(UInt8)
+    firstHash .= keyHash
+    itemIndex := 0
+    for
+        for loopID := UInt8; loopID < countOfLoops; loopID++
+            partOfKeyHash .= (keyHash & 15.convertTo(UInt32)).convertTo(UInt8)
+            keyHash >>= 4
+            fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+            nextNodeIndex .= map.private_trees[fullCurrentIndex][partOfKeyHash]
+            mif
+                nextNodeIndex == 0
+                    newNodeIndex .= map.private_trees.getLength() - firstNodeOfTreeIndex
+                    currentNode := map.private_trees[fullCurrentIndex]
+                    currentNode:setItem(partOfKeyHash, newNodeIndex)
+                    map:private_trees:setItem(fullCurrentIndex, currentNode)
+                    map:private_trees += MapTreeNode
+                    if newNodeIndex == 16777215
+                        then
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            keyHash = firstHash
+                            continue first
+                        else currentNodeIndex = newNodeIndex
+                nextNodeIndex == 16777215
+                    firstNodeOfTreeIndex += 16777215
+                    currentNodeIndex = 0
+                    keyHash = firstHash
+                    continue first
+                default
+                    currentNodeIndex = nextNodeIndex
+        for
+            fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+            if itemIndex = map.private_trees[fullCurrentIndex].getItemIndex(); itemIndex == 0
+                then
+                    itemIndex = map.private_keysAndItems.getLength()
+                    map:private_keysAndItems += Box(keyAndItem)
+                    break
+            if resultKeyAndItem .= map.private_keysAndItems[itemIndex]; resultKeyAndItem.item?() && resultKeyAndItem[].first == key
+                then break
+            nextNodeIndex .= map.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
+            mif
+                nextNodeIndex == 0
+                    newNodeIndex .= map.private_trees.getLength() - firstNodeOfTreeIndex
+                    currentNode := map.private_trees[fullCurrentIndex]
+                    currentNode:setNodeIndexWithOtherItemIndex(newNodeIndex)
+                    map:private_trees:setItem(fullCurrentIndex, currentNode)
+                    map:private_trees += MapTreeNode
+                    if newNodeIndex == 16777215
+                        then
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            keyHash = firstHash
+                            continue first
+                        else currentNodeIndex = newNodeIndex
+                nextNodeIndex == 16777215
+                    firstNodeOfTreeIndex += 16777215
+                    currentNodeIndex = 0
+                    keyHash = firstHash
+                    continue first
+                default
+                    currentNodeIndex = nextNodeIndex
+        break
+    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+    currentNode := map.private_trees[fullCurrentIndex]
+    currentNode:setItemIndex(itemIndex)
+    map:private_trees:setItem(fullCurrentIndex, currentNode)
+    map:private_keysAndItems:setItem(itemIndex, Box(Pair(map[0], map[1])).create(keyAndItem))
+
+func create(mapType, keysAndItems)
+    rules
+        1 = mapType == Map(_, _) & keysAndItems == [Pair(mapType[0], mapType[1])]
+        2 = mapType[0] > Hashed & mapType[0] > Equal
+        final = 1 & 2
+        result = mapType
+    parse _, keyAndItem <- keysAndItems
+        result += keyAndItem
+
+func getItem(map, key)
+    rules
+        1 = map == Map(key, _)
+        2 = key > Hashed & key > Equal
+        final = 1 & 2
+        result = Box(map[1])
+    if map.init?()
+        then
+            keyHash := key.getSmallHash()
+            firstNodeOfTreeIndex := 0
+            currentNodeIndex := 0
+            countOfLoops .= #key.getSmallHashSize() * 2.convertTo(UInt8)
+            firstHash .= keyHash
+            for
+                for loopID := UInt8; loopID < countOfLoops; loopID++
+                    partOfKeyHash .= (keyHash & 15.convertTo(UInt32)).convertTo(UInt8)
+                    keyHash >>= 4
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    nextNodeIndex .= map.private_trees[fullCurrentIndex][partOfKeyHash]
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            keyHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                for
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    itemIndex .= map.private_trees[fullCurrentIndex].getItemIndex()
+                    if itemIndex == 0
+                        then break
+                    if keyAndItem .= map.private_keysAndItems[itemIndex]; keyAndItem.item?() && keyAndItem[].first == key
+                        then
+                            result:put(keyAndItem[].second)
+                            break all
+                    nextNodeIndex .= map.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            keyHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                break
+
+func getLength(a)
+    rules
+        final = a == Map(_, _)
+        result = UInt64
+    if a.init?()
+        then result = a.private_keysAndItems.getLength() - 1 - a.private_numberOfHiddenItems.convertTo(UInt64)
+
+func init(a)
+    rules
+        final = a == Map(_, _)
+        result = a
+    result:private_keysAndItems = [Box(Pair(a[0], a[1]))].init(256)
+    result:private_keysAndItems = result.private_keysAndItems.getFirstN(1)
+    result:private_trees = [MapTreeNode].init(512)
+    result:private_trees = result.private_trees.getFirstN(1)
+
+func init?(a)
+    rules
+        final = a == Map(_, _)
+        result = Bool
+    result = a.private_trees.getLength() != 0
+
+func parse_first(map)
+    rules
+        final = map == Map(_, _)
+        result = UInt64
+    result = 1
+    for ; result < map.private_keysAndItems.getLength(); result++
+        if map.private_keysAndItems[result].item?()
+            then break
+
+func parse_haveItem?(map, index)
+    rules
+        final = map == Map(_, _) & index == UInt64
+        result = Bool
+    result = index < map.private_keysAndItems.getLength()
+
+func parse_item(map, index)
+    rules
+        final = map == Map(_, _) & index == UInt64
+        result = map[1]
+    result = map.private_keysAndItems[index][].second
+
+func parse_key(map, index)
+    rules
+        final = map == Map(_, _) & index == UInt64
+        result = map[0]
+    result = map.private_keysAndItems[index][].first
+
+func parse_next(map, index)
+    rules
+        final = map == Map(_, _) & index == UInt64
+        result = UInt64
+    result = index + 1
+    for ; result < map.private_keysAndItems.getLength(); result++
+        if map.private_keysAndItems[result].item?()
+            then break
+
+proc private_deleteHidden(:map)
+    rules
+        1 = map == Map(_, _)
+        2 = map[0] > Hashed & map[0] > Equal
+        final = 1 & 2
+    newMap := #map.init()
+    parse key, item <- map
+        newMap:add(key, item)
+    map = newMap
+
+proc subEq(:map, key)
+    rules
+        1 = map == Map(key, _)
+        2 = key > Hashed & key > Equal
+        final = 1 & 2
+    if map.init?()
+        then
+            keyHash := key.getSmallHash()
+            firstNodeOfTreeIndex := 0
+            currentNodeIndex := 0
+            countOfLoops .= #key.getSmallHashSize() * 2.convertTo(UInt8)
+            firstHash .= keyHash
+            for
+                for loopID := UInt8; loopID < countOfLoops; loopID++
+                    partOfKeyHash .= (keyHash & 15.convertTo(UInt32)).convertTo(UInt8)
+                    keyHash >>= 4
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    nextNodeIndex .= map.private_trees[fullCurrentIndex][partOfKeyHash]
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            keyHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                for
+                    fullCurrentIndex .= firstNodeOfTreeIndex + currentNodeIndex
+                    itemIndex .= map.private_trees[fullCurrentIndex].getItemIndex()
+                    if itemIndex == 0
+                        then break
+                    if keyAndItem .= map.private_keysAndItems[itemIndex]; keyAndItem.item?() && keyAndItem[].first == key
+                        then
+                            map:private_keysAndItems:setItem(itemIndex, Box(Pair(map[0], map[1])))
+                            nextNode .= map.private_trees[map.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()]
+                            currentNode := map.private_trees[fullCurrentIndex]
+                            currentNode:setItemIndex(nextNode.getItemIndex())
+                            currentNode:setNodeIndexWithOtherItemIndex(nextNode.getNodeIndexWithOtherItemIndex())
+                            map:private_trees:setItem(fullCurrentIndex, currentNode)
+                            map:private_numberOfHiddenItems++
+                            if map.private_numberOfHiddenItems == UInt16
+                                then map:private_deleteHidden()
+                            break all
+                    nextNodeIndex .= map.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
+                    mif
+                        nextNodeIndex == 0
+                            break all
+                        nextNodeIndex == 16777215
+                            firstNodeOfTreeIndex += 16777215
+                            currentNodeIndex = 0
+                            keyHash = firstHash
+                            continue first
+                        default
+                            currentNodeIndex = nextNodeIndex
+                break

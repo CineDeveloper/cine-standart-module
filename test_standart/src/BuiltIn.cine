@@ -1,0 +1,370 @@
+func test_return1()
+    rules
+        result = UInt64
+    return 12
+
+func test_return2()
+    rules
+        result = UInt64
+    result = 12
+    return
+
+func test_return3()
+    rules
+        result = UInt64
+    i .= 12
+    return 12
+
+func test_global1()
+    rules
+        result = UInt64
+    g <:> 0
+    g++
+    result = g
+
+func test_global2(a)
+    rules
+        final = a == UInt64
+        result = UInt64
+    g <.> a
+    result = g
+
+proc testBuiltIn(:results)
+    rules
+        final = results == TestResults
+    results:test(test_return1() == 12, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_return2() == 12, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_return3() == 12, builtIn_currentFile, builtIn_currentLine)
+    a := 0
+    for
+        a++
+        break
+    results:test(a == 1, builtIn_currentFile, builtIn_currentLine)
+    for
+        for
+            a++
+            break 2
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    for
+        for
+            a++
+            break all
+    results:test(a == 3, builtIn_currentFile, builtIn_currentLine)
+    for
+        if a++; a == 4
+            then continue
+            else break
+    results:test(a == 5, builtIn_currentFile, builtIn_currentLine)
+    for a != 7
+        for
+            a++
+            if a == 6
+                then continue
+                else continue 2
+    results:test(a == 7, builtIn_currentFile, builtIn_currentLine)
+    for a != 9
+        for
+            a++
+            if a == 8
+                then continue
+                else continue first
+    results:test(a == 9, builtIn_currentFile, builtIn_currentLine)
+    sum := 0
+    for a = 1; a < 11; a++
+        sum += a
+    results:test(sum == 55, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    sum = 0
+    for ; a < 11; a++
+        sum += a
+    results:test(sum == 55, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    sum = 0
+    for ; ; a++
+        sum += a
+        if a == 10
+            then break
+    results:test(sum == 55, builtIn_currentFile, builtIn_currentLine)
+    mif
+        false
+            a = 1
+        true
+            a = 2
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    mif
+        false
+            a = 1
+        true
+            a = 2
+        default
+            a = 3
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    mif
+        false
+            a = 1
+        false
+            a = 2
+    results:test(a == 0, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    mif
+        false
+            a = 1
+        false
+            a = 2
+        default
+            a = 3
+    results:test(a == 3, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        mif
+            false
+                a = 1
+            true
+                a = 2
+                break
+                fallthrough
+            default
+                a = 3
+        break
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        mif
+            false
+                a = 1
+            true
+                a = 2
+                break
+                fallthrough
+            default
+                a = 3
+        a = 4
+        break
+    results:test(a == 4, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        mif
+            false
+                a = 1
+            true
+                a = 2
+                break 2
+                fallthrough
+            default
+                a = 3
+        a = 4
+        break
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        mif
+            false
+                a = 1
+            true
+                a = 2
+                break all
+                fallthrough
+            default
+                a = 3
+        a = 4
+        break
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        a++
+        mif
+            a == 1
+                a++
+                continue
+            a == 3
+                a = 10
+                break 2
+                fallthrough
+            default
+                a = 7
+                break all
+        a = 4
+        break
+    results:test(a == 10, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        a++
+        mif
+            a == 1
+                a++
+                continue
+            a == 33; a == 3
+                a = 10
+                break 2
+                fallthrough
+            default
+                a = 7
+                break all
+        a = 4
+        break
+    results:test(a == 10, builtIn_currentFile, builtIn_currentLine)
+    p := Pair(UInt64, UInt64).create(10, 11)
+    p:first = 12
+    results:test(p.first == 12, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    if true
+        then a = 10
+        else a = 12
+    results:test(a == 10, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    if false
+        then a = 10
+        else a = 12
+    results:test(a == 12, builtIn_currentFile, builtIn_currentLine)
+    if true
+        then a = 13
+    results:test(a == 13, builtIn_currentFile, builtIn_currentLine)
+    if false
+        then a = 14
+    results:test(a == 13, builtIn_currentFile, builtIn_currentLine)
+    haveLink? UInt64
+        then a = 15
+    results:test(a == 13, builtIn_currentFile, builtIn_currentLine)
+    haveLink? UInt64
+        then a = 15
+        else a = 16
+    results:test(a == 16, builtIn_currentFile, builtIn_currentLine)
+    haveLink? [UInt64]
+        then a = 17
+    results:test(a == 17, builtIn_currentFile, builtIn_currentLine)
+    haveLink? Box(UInt64)
+        then a = 18
+    results:test(a == 17, builtIn_currentFile, builtIn_currentLine)
+    haveLink? Box([UInt64])
+        then a = 19
+    results:test(a == 19, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_global1() == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_global1() == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_global1() == 3, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_global2(10) == 10, builtIn_currentFile, builtIn_currentLine)
+    results:test(test_global2(13) == 10, builtIn_currentFile, builtIn_currentLine)
+    a = 7
+    case a of
+        2
+            a = 1
+        7
+            a = 2
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    case a of
+        1
+            a = 1
+        2
+            a = 2
+    results:test(a == 0, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    case a of
+        3
+            a = 1
+        0
+            a = 2
+        default
+            a = 3
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    case a of
+        3
+            a = 1
+        0
+            a = 2
+            fallthrough
+        default
+            a = 3
+    results:test(a == 3, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    case a of
+        1
+            a = 1
+        2
+            a = 2
+        default
+            a = 3
+    results:test(a == 3, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        case a of
+            1
+                a = 1
+            0
+                a = 2
+                break
+                fallthrough
+            default
+                a = 3
+        break
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        case a of
+            1
+                a = 1
+            0
+                a = 2
+                break
+                fallthrough
+            default
+                a = 3
+        a = 4
+        break
+    results:test(a == 4, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        case a of
+            1
+                a = 1
+            0
+                a = 2
+                break 2
+                fallthrough
+            default
+                a = 3
+        a = 4
+        break
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    for
+        a++
+        case a of
+            1
+                a++
+                continue
+            3
+                a = 10
+                break 2
+                fallthrough
+            default
+                a = 7
+                break all
+        a = 4
+        break
+    results:test(a == 10, builtIn_currentFile, builtIn_currentLine)
+    a = 0
+    case UInt8.getTypeNumber() of
+        UInt8
+            a = 1
+        UInt64
+            a = 2
+        default
+            a = 3
+    results:test(a == 1, builtIn_currentFile, builtIn_currentLine)
+    a = 20
+    case a of
+        1; 2; 3
+            a = 1
+        4; 5; 20
+            a = 2
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    str .= "string"
+    case str of
+        "str"; "s"; "trings"; "sstring"
+            a = 1
+        "string"
+            a = 2
+    results:test(a == 2, builtIn_currentFile, builtIn_currentLine)

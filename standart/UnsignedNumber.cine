@@ -1,0 +1,15 @@
+group UnsignedNumber
+//require
+//add(a, a) -> a
+//dec(:a)
+//div(a, a) -> a
+//fromString(a, [UInt8]) -> Box(a)
+//inc(:a)
+//mul(a, a) -> a
+//power(a, a) -> a
+//sub(a, a) -> a
+//toString(a) -> [UInt8]
+
+rules
+    1 = type > UnsignedNumber
+    join 1 Number

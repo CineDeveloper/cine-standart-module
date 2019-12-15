@@ -1,0 +1,28 @@
+group Binary
+
+proc addEq(:data, a) #4
+    include
+        #include <string.h>
+    rules
+        final = data == BinaryData & a > Binary
+    length .= #a.getTypeSize()
+    newData := [UInt8]
+    enslave(newData)
+    C
+        uint8_t newData[length_];
+        memcpy(newData, &a_, length_);
+        newData_.items = newData;
+        newData_.length = length_;
+        newData_.capacity = length_;
+    data:private_data += newData
+
+func getFromBinaryData(a, data, :position) #4
+    include
+        #include <string.h>
+    rules
+        final = a > Binary & data == BinaryData & position == UInt64
+        result = a
+    length .= #a.getTypeSize()
+    C
+        memcpy(&result_, data_.private_data_.items + *position_, length_);
+    position += length

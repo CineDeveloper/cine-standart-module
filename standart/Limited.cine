@@ -1,0 +1,4 @@
+group Limited
+//require
+//minValue(a) -> a
+//maxValue(a) -> a

@@ -1,0 +1,1402 @@
+type VAList(itemsType) C(8, link, "struct ^^ {##itemsType## items[32]; uint8_t length;}", "struct ^^", "#include <inttypes.h>")
+
+func clone(list)
+    rules
+        final = list == VAList(_)
+        result = list
+    result = list
+
+func convertTo(list, sliceType)
+    include
+        #include <string.h>
+    rules
+        final = list == VAList(sliceType[0]) & sliceType == [_]
+        result = sliceType
+    length .= list.getLength().convertTo(UInt64)
+    if length != 0
+        then
+            result = #sliceType.init(length)
+            haveLink? list[0]
+                then
+                    parse index, item <- list
+                        result:setItem(index.convertTo(UInt64), item)
+                else
+                    itemSize .= #list[0].getTypeSize()
+                    C
+                        memcpy(result_.items, list_.items, length_ * itemSize_);
+
+func create(listType)
+    rules
+        final = listType == VAList(_)
+        result = listType
+    result = #listType
+
+func create(listType, item)
+    rules
+        final = listType == VAList(item)
+        result = listType
+    C
+        result_.length = 1;
+        result_.items[0] = item_;
+    result.use()
+
+func create(listType, item1, item2)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        final = 1 & 2 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 2;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+    result.use()
+
+func create(listType, item1, item2, item3)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        final = 1 & 2 & 3 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 3;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        final = 1 & 2 & 3 & 4 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 4;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 5;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 6;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 7;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 8;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 9;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 10;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 11;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 12;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 13;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 14;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 15;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 16;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 17;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 18;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 19;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 20;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 21;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 22;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 23;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 24;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 25;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 26;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        27 = item27 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 27;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+        result_.items[26] = item27_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        27 = item27 == listType[0]
+        28 = item28 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 28;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+        result_.items[26] = item27_;
+        result_.items[27] = item28_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        27 = item27 == listType[0]
+        28 = item28 == listType[0]
+        29 = item29 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 29;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+        result_.items[26] = item27_;
+        result_.items[27] = item28_;
+        result_.items[28] = item29_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, item30)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        27 = item27 == listType[0]
+        28 = item28 == listType[0]
+        29 = item29 == listType[0]
+        30 = item30 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 30;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+        result_.items[26] = item27_;
+        result_.items[27] = item28_;
+        result_.items[28] = item29_;
+        result_.items[29] = item30_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, item30, item31)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        27 = item27 == listType[0]
+        28 = item28 == listType[0]
+        29 = item29 == listType[0]
+        30 = item30 == listType[0]
+        31 = item31 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 31;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+        result_.items[26] = item27_;
+        result_.items[27] = item28_;
+        result_.items[28] = item29_;
+        result_.items[29] = item30_;
+        result_.items[30] = item31_;
+    result.use()
+
+func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, item30, item31, item32)
+    rules
+        1 = item1 == listType[0]
+        2 = item2 == listType[0]
+        3 = item3 == listType[0]
+        4 = item4 == listType[0]
+        5 = item5 == listType[0]
+        6 = item6 == listType[0]
+        7 = item7 == listType[0]
+        8 = item8 == listType[0]
+        9 = item9 == listType[0]
+        10 = item10 == listType[0]
+        11 = item11 == listType[0]
+        12 = item12 == listType[0]
+        13 = item13 == listType[0]
+        14 = item14 == listType[0]
+        15 = item15 == listType[0]
+        16 = item16 == listType[0]
+        17 = item17 == listType[0]
+        18 = item18 == listType[0]
+        19 = item19 == listType[0]
+        20 = item20 == listType[0]
+        21 = item21 == listType[0]
+        22 = item22 == listType[0]
+        23 = item23 == listType[0]
+        24 = item24 == listType[0]
+        25 = item25 == listType[0]
+        26 = item26 == listType[0]
+        27 = item27 == listType[0]
+        28 = item28 == listType[0]
+        29 = item29 == listType[0]
+        30 = item30 == listType[0]
+        31 = item31 == listType[0]
+        32 = item32 == listType[0]
+        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & listType == VAList(_)
+        result = listType
+    C
+        result_.length = 32;
+        result_.items[0] = item1_;
+        result_.items[1] = item2_;
+        result_.items[2] = item3_;
+        result_.items[3] = item4_;
+        result_.items[4] = item5_;
+        result_.items[5] = item6_;
+        result_.items[6] = item7_;
+        result_.items[7] = item8_;
+        result_.items[8] = item9_;
+        result_.items[9] = item10_;
+        result_.items[10] = item11_;
+        result_.items[11] = item12_;
+        result_.items[12] = item13_;
+        result_.items[13] = item14_;
+        result_.items[14] = item15_;
+        result_.items[15] = item16_;
+        result_.items[16] = item17_;
+        result_.items[17] = item18_;
+        result_.items[18] = item19_;
+        result_.items[19] = item20_;
+        result_.items[20] = item21_;
+        result_.items[21] = item22_;
+        result_.items[22] = item23_;
+        result_.items[23] = item24_;
+        result_.items[24] = item25_;
+        result_.items[25] = item26_;
+        result_.items[26] = item27_;
+        result_.items[27] = item28_;
+        result_.items[28] = item29_;
+        result_.items[29] = item30_;
+        result_.items[30] = item31_;
+        result_.items[31] = item32_;
+    result.use()
+
+proc free(list)
+    rules
+        final = list == VAList(_)
+    for index := UInt8; index < list.getLength(); index++
+        list[index].free()
+
+func getItem(list, index)
+    rules
+        final = list == VAList(_) & index > BasicUnsignedInteger
+        result = list[0]
+    flag debug is set?
+        then debugMessage(index.convertTo(UInt8) >= list.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
+    C
+        result_ = list_.items[index_];
+    result.use()
+
+func getLength(list)
+    rules
+        final = list == VAList(_)
+        result = UInt8
+    C
+        result_ = list_.length;
+
+func parse_first(list)
+    rules
+        final = list == VAList(_)
+        result = UInt8
+    result = UInt8
+
+func parse_haveItem?(list, index)
+    rules
+        final = list == VAList(_) & index == UInt8
+        result = Bool
+    result = index < list.getLength()
+
+func parse_item(list, index)
+    rules
+        final = list == VAList(_) & index == UInt8
+        result = list[0]
+    result = list[index]
+
+func parse_key(list, index)
+    rules
+        final = list == VAList(_) & index == UInt8
+        result = UInt8
+    result = index
+
+func parse_next(list, index)
+    rules
+        final = list == VAList(_) & index == UInt8
+        result = UInt8
+    result = index + 1.convertTo(UInt8)
+
+proc use(list)
+    rules
+        final = list == VAList(_)
+    for index := UInt8; index < list.getLength(); index++
+        list[index].use()

@@ -1,0 +1,14 @@
+proc testAny(:results)
+    rules
+        final = results == TestResults
+    results:test(UInt8.getTypeSize() == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt16.getTypeSize() == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt32.getTypeSize() == 4, builtIn_currentFile, builtIn_currentLine)
+    results:test(UInt64.getTypeSize() == 8, builtIn_currentFile, builtIn_currentLine)
+    results:test(Int8.getTypeSize() == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(Int16.getTypeSize() == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test(Int32.getTypeSize() == 4, builtIn_currentFile, builtIn_currentLine)
+    results:test(Int64.getTypeSize() == 8, builtIn_currentFile, builtIn_currentLine)
+    results:test(Int8.getTypeNumber() != UInt8.getTypeNumber(), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int8.getTypeNumber() != Int16.getTypeNumber(), builtIn_currentFile, builtIn_currentLine)
+    results:test(Int8.getTypeNumber() == Int8.getTypeNumber(), builtIn_currentFile, builtIn_currentLine)

@@ -1,0 +1,30 @@
+group Hashed
+//require
+//getHash(a) -> UInt64
+//getHashSize(a) -> UInt8
+
+func getSmallHash(a) #4
+    rules
+        final = a > Hashed
+        result = UInt32
+    bigHash .= a.getHash()
+    result = bigHash.convertTo(UInt32)
+    if a.getHashSize() > 4.convertTo(UInt8)
+        then
+            result += result << 10
+            result ^= result >> 6
+            result += getStaticRandomNumber().convertTo(UInt32)
+            result += result << 10
+            result ^= result >> 6
+            result += (bigHash >> 32).convertTo(UInt32)
+            result += result << 10
+            result ^= result >> 6
+            result += result << 3
+            result ^= result >> 11
+            result += result << 15
+
+func getSmallHashSize(a) #4
+    rules
+        final = a > Hashed
+        result = UInt8
+    result = min(a.getHashSize(), 4.convertTo(UInt8))

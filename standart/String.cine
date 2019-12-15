@@ -1,0 +1,61 @@
+func digits?(string)
+    rules
+        final = string == [UInt8]
+        result = Bool
+    parse _, char <- string
+        if result = char.digit?(); !result
+            then break
+
+func letters?(string)
+    rules
+        final = string == [UInt8]
+        result = Bool
+    parse _, char <- string
+        if result = char.letter?(); !result
+            then break
+
+func lower?(string)
+    rules
+        final = string == [UInt8]
+        result = Bool
+    parse _, char <- string
+        if result = char.lower?(); !result
+            then break
+
+func toLower(string)
+    rules
+        final = string == [UInt8]
+        result = string
+    result = [UInt8].init(string.getLength())
+    parse index, item <- string
+        result:setItem(index, item.toLower())
+    result:setStringFlag()
+
+proc toLower(:string)
+    rules
+        final = string == [UInt8]
+    parse index, item <- string
+        string:setItem(index, item.toLower())
+
+func toUpper(string)
+    rules
+        final = string == [UInt8]
+        result = string
+    result = [UInt8].init(string.getLength())
+    parse index, item <- string
+        result:setItem(index, item.toUpper())
+    result:setStringFlag()
+
+proc toUpper(:string)
+    rules
+        final = string == [UInt8]
+    parse index, item <- string
+        string:setItem(index, item.toUpper())
+
+func upper?(string)
+    rules
+        final = string == [UInt8]
+        result = Bool
+    parse _, char <- string
+        if result = char.upper?(); !result
+            then break

@@ -1,0 +1,65 @@
+//0-23 - nodes(0-15), 24-27 - mapItemIndex, 28-29 - nodeIndexWithOtherMapItemIndex
+type MapTreeNode C(2, "struct ^^ {uint16_t nodes[30] __attribute__((aligned(2)));}", "struct ^^", "#include <inttypes.h>")
+
+func getItem(mtn, nodeIndex)
+    rules
+        final = mtn == MapTreeNode & nodeIndex == UInt8
+        result = UInt64
+    flag debug is set?
+        then debugMessage(nodeIndex > 15.convertTo(UInt8), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node index is to big.")
+    C
+        if (nodeIndex_ % 2 == 0){
+            uint8_t const firstRealIndex = nodeIndex_ / 2 * 3;
+            result_ = (uint32_t)mtn_.nodes[firstRealIndex] | (uint32_t)(mtn_.nodes[firstRealIndex + 1] & 255) << 16;
+        } else {
+            uint8_t const firstRealIndex = nodeIndex_ / 2 * 3 + 1;
+            result_ = (uint32_t)mtn_.nodes[firstRealIndex] >> 8 | (uint32_t)(mtn_.nodes[firstRealIndex + 1]) << 8;
+        }
+
+func getItemIndex(mtn)
+    rules
+        final = mtn == MapTreeNode
+        result = UInt64
+    C
+        result_ = (uint64_t)mtn_.nodes[24] | (uint64_t)mtn_.nodes[25] << 16 | (uint64_t)mtn_.nodes[26] << 32 | (uint64_t)mtn_.nodes[27] << 48;
+
+func getNodeIndexWithOtherItemIndex(mtn)
+    rules
+        final = mtn == MapTreeNode
+        result = UInt64
+    C
+        result_ = (uint32_t)mtn_.nodes[28] | (uint32_t)mtn_.nodes[29] << 16;
+
+proc setItem(:mtn, nodeIndex, nodeItem)
+    rules
+        final = mtn == MapTreeNode & nodeIndex == UInt8 & nodeItem == UInt64
+    flag debug is set?
+        then
+            debugMessage(nodeIndex > 15.convertTo(UInt8), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node index is to big.")
+            debugMessage(nodeItem > 16777215, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node item is to big.")
+    C
+        if (nodeIndex_ % 2 == 0){
+            uint8_t const firstRealIndex = nodeIndex_ / 2 * 3;
+            mtn_->nodes[firstRealIndex] = nodeItem_;
+            mtn_->nodes[firstRealIndex + 1] = (mtn_->nodes[firstRealIndex + 1] & 65280) | nodeItem_ >> 16;
+        } else {
+            uint8_t const firstRealIndex = nodeIndex_ / 2 * 3 + 1;
+            mtn_->nodes[firstRealIndex] = (mtn_->nodes[firstRealIndex] & 255) | (nodeItem_ & 255) << 8;
+            mtn_->nodes[firstRealIndex + 1] = nodeItem_ >> 8;
+        }
+
+proc setItemIndex(:mtn, itemIndex)
+    rules
+        final = mtn == MapTreeNode & itemIndex == UInt64
+    C
+        mtn_->nodes[24] = itemIndex_;
+        mtn_->nodes[25] = itemIndex_ >> 16;
+        mtn_->nodes[26] = itemIndex_ >> 32;
+        mtn_->nodes[27] = itemIndex_ >> 48;
+
+proc setNodeIndexWithOtherItemIndex(:mtn, nodeIndex)
+    rules
+        final = mtn == MapTreeNode & nodeIndex == UInt64
+    C
+        mtn_->nodes[28] = nodeIndex_;
+        mtn_->nodes[29] = nodeIndex_ >> 16;

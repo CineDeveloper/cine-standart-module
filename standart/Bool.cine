@@ -1,0 +1,36 @@
+rules
+    1 = type == Bool
+    join 1 Equal
+    join 1 Binary
+    join 1 StringWriter
+    join 1 StringReader
+
+func equal(a, b)
+    rules
+        final = a == Bool & b == a
+        result = Bool
+    C
+        result_ = a_ == b_;
+
+func fromString(a, string)
+    rules
+        final = a == Bool & string == [UInt8]
+        result = Box(a)
+    mif
+        string == "true"
+            result:put(true)
+        string == "false"
+            result:put(false)
+
+func neg(a)
+    rules
+        final = a == Bool
+        result = Bool
+    C
+        result_ = !a_;
+
+func toString(a)
+    rules
+        final = a == Bool
+        result = [UInt8]
+    result = select(a, "true", "false")

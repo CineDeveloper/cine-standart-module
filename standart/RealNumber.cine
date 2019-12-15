@@ -1,0 +1,29 @@
+group RealNumber
+//require
+//add(a, a) -> a
+//dec(:a)
+//div(a, a) -> a
+//equal(a, a) -> Bool
+//fromString(a, [UInt8]) -> Box(a)
+//greater(a, a) -> Bool
+//greaterOrEqual(a, a) -> Bool
+//inc(:a)
+//less(a, a) -> Bool
+//lessOrEqual(a, a) -> Bool
+//mod(a, a) -> a
+//mul(a, a) -> a
+//power(a, a) -> a
+//round(a) -> Int64
+//sub(a, a) -> a
+//toString(a) -> [UInt8]
+//trunc(a) -> Int64
+
+rules
+    1 = type > RealNumber
+    join 1 Number
+    join 1 Ordered
+
+proc modEq(:a, b) #4
+    rules
+        final = a > RealNumber & b == a
+    a = a % b

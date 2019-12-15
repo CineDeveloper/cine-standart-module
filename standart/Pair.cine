@@ -1,0 +1,117 @@
+type Pair(first, second)
+    first first
+    second second
+
+rules
+    1 = type == Pair(_, _) & type[0] > Binary & type[1] > Binary
+    join 1 Binary
+    2 = type == Pair(_, _) & type[0] > Equal & type[1] > Equal
+    join 2 Equal
+    3 = type == Pair(_, _) & type[0] > StringWriter & type[1] > StringWriter
+    join 3 StringWriter
+    4 = type == Pair(_, _) & type[0] > Hashed & type[1] > Hashed
+    join 4 Hashed
+    5 = type == Pair(_, _) & type[0] > Bits & type[1] > Bits
+    join 5 Bits
+
+proc addEq(:data, pair)
+    rules
+        final = data == BinaryData & pair == Pair(_, _) & pair > Binary
+    data += pair.first
+    data += pair.second
+
+func and(a, b)
+    rules
+        final = a == Pair(_, _) & a > Bits & a == b
+        result = a
+    result:first = a.first & b.first
+    result:second = a.second & b.second
+
+func create(pairType, first, second)
+    rules
+        final = pairType == Pair(first, second)
+        result = pairType
+    result:first = first
+    result:second = second
+
+func equal(a, b)
+    rules
+        final = a == Pair(_, _) & a > Equal & a == b
+        result = Bool
+    result = a.first == b.first && a.second == b.second
+
+func getFromBinaryData(pair, data, :position)
+    rules
+        final = pair == Pair(_, _) & pair > Binary & data == BinaryData & position == UInt64
+        result = pair
+    result:first = #pair[0].getFromBinaryData(data, position)
+    result:second = #pair[1].getFromBinaryData(data, position)
+
+func getHash(pair)
+    rules
+        final = pair == Pair(_, _) & pair > Hashed
+        result = UInt64
+    result = pair.first.getHash()
+    result += result << 10
+    result ^= result >> 6
+    result += getStaticRandomNumber()
+    result += result << 10
+    result ^= result >> 6
+    result += pair.second.getHash()
+    result += result << 10
+    result ^= result >> 6
+    result += result << 3
+    result ^= result >> 11
+    result += result << 15
+
+func getHashSize(pair)
+    rules
+        final = pair == Pair(_, _) & pair > Hashed
+        result = UInt8
+    result = 8.convertTo(UInt8)
+
+func not(pair)
+    rules
+        final = pair == Pair(_, _) & pair > Bits
+        result = pair
+    result:first = pair.first.not()
+    result:second = pair.second.not()
+
+func or(a, b)
+    rules
+        final = a == Pair(_, _) & a > Bits & a == b
+        result = a
+    result:first = a.first | b.first
+    result:second = a.second | b.second
+
+func shl(pair, shifts)
+    rules
+        final = pair == Pair(_, _) & pair > Bits & shifts > BasicUnsignedInteger
+        result = pair
+    result:first = pair.first << shifts
+    result:second = pair.second << shifts
+
+func shr(pair, shifts)
+    rules
+        final = pair == Pair(_, _) & pair > Bits & shifts > BasicUnsignedInteger
+        result = pair
+    result:first = pair.first >> shifts
+    result:second = pair.second >> shifts
+
+func toString(pair)
+    rules
+        final = pair == Pair(_, _) & pair > StringWriter
+        result = [UInt8]
+    result += '('
+    result += pair.first.toString()
+    result += ", "
+    result += pair.second.toString()
+    result += ')'
+    result:setStringFlag()
+
+func xor(a, b)
+    rules
+        final = a == Pair(_, _) & a > Bits & a == b
+        result = a
+    result:first = a.first ^ b.first
+    result:second = a.second ^ b.second
