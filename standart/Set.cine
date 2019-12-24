@@ -159,10 +159,8 @@ func init(a)
     rules
         final = a == Set(_)
         result = a
-    result:private_items = [Box(a[0])].init(256)
-    result:private_items = result.private_items.getFirstN(1)
-    result:private_trees = [MapTreeNode].init(512)
-    result:private_trees = result.private_trees.getFirstN(1)
+    result:private_items = [Box(a[0])].init(256).getFirstN(1)
+    result:private_trees = [MapTreeNode].init(512).getFirstN(1)
 
 func init?(a)
     rules
