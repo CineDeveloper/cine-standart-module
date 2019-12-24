@@ -2,4 +2,3 @@ proc testOS(:results)
     rules
         final = results == TestResults
     results:test(getEnvironmentVariable("aBcDeFg").empty?(), builtIn_currentFile, builtIn_currentLine)
-    results:test(getEnvironmentVariable("CINE_BINARIES").item?(), builtIn_currentFile, builtIn_currentLine)
