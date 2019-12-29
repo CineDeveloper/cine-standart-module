@@ -23,8 +23,9 @@ func loadFile(fileName)
             C
                 fseek(file, 0L, SEEK_END);
                 fileSize_ = ftell(file);
-            if fileSize != 0
-                then
+            if fileSize == 0
+                then result:put(BinaryData)
+                else
                     binaryData := BinaryData
                     binaryData:private_data = [UInt8].init(fileSize)
                     readedLength := 0
