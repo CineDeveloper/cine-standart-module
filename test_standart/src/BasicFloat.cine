@@ -1,8 +1,8 @@
 proc testBasicFloat(:results)
     rules
         final = results == TestResults
-    results:test(1.12.convertTo(Float).inRange?(1.119.convertTo(Float), 1.121.convertTo(Float)), builtIn_currentFile, builtIn_currentLine)
-    results:test(1.12.convertTo(Float).convertTo(Double).inRange?(1.119, 1.121), builtIn_currentFile, builtIn_currentLine)
+    results:test(1.12.convertTo(Float32).inRange?(1.119.convertTo(Float32), 1.121.convertTo(Float32)), builtIn_currentFile, builtIn_currentLine)
+    results:test(1.12.convertTo(Float32).convertTo(Float64).inRange?(1.119, 1.121), builtIn_currentFile, builtIn_currentLine)
     a := 10.0
     a--
     results:test(a.inRange?(8.999, 9.001), builtIn_currentFile, builtIn_currentLine)
@@ -11,7 +11,7 @@ proc testBasicFloat(:results)
     a++
     results:test(a.inRange?(5.499, 5.501), builtIn_currentFile, builtIn_currentLine)
     results:test(a.neg().inRange?(-5.501, -5.499), builtIn_currentFile, builtIn_currentLine)
-    results:test(Double.pi().inRange?(3.1415, 3.1416), builtIn_currentFile, builtIn_currentLine)
+    results:test(Float64.pi().inRange?(3.1415, 3.1416), builtIn_currentFile, builtIn_currentLine)
     results:test(4.6.round() == 5.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
     results:test(4.4.round() == 4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)
     results:test(-4.4.round() == -4.convertTo(Int64), builtIn_currentFile, builtIn_currentLine)

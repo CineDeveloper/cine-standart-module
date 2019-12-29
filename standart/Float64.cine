@@ -1,12 +1,12 @@
 rules
-    1 = type == Double
+    1 = type == Float64
     join 1 BasicFloat
 
 func abs(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = fabs(a_);
@@ -15,7 +15,7 @@ func arcCos(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     flag debug is set?
         then debugMessage(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
@@ -26,7 +26,7 @@ func arcCtg(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = (double)(M_PI) / 2.0 - atan(a_);
@@ -35,7 +35,7 @@ func arcSin(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     flag debug is set?
         then debugMessage(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
@@ -46,7 +46,7 @@ func arcTg(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = atan(a_);
@@ -55,7 +55,7 @@ func ceil(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = ceil(a_);
@@ -64,7 +64,7 @@ func cos(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = cos(a_);
@@ -73,7 +73,7 @@ func ctg(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = (double)(1.0) / tan(a_);
@@ -82,7 +82,7 @@ func disassemble(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = Pair(a, a)
     C
         result_.second_ = modf(a_, &(result_.first_));
@@ -91,7 +91,7 @@ func exp(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = exp(a_);
@@ -100,7 +100,7 @@ func floor(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = floor(a_);
@@ -109,7 +109,7 @@ func fromString(a, string)
     include
         #include <string.h>
     rules
-        final = a == Double & string == [UInt8]
+        final = a == Float64 & string == [UInt8]
         result = Box(a)
     if string.getLength().inRange?(1, 312)
         then
@@ -128,7 +128,7 @@ func lg(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = log10(a_);
@@ -137,7 +137,7 @@ func ln(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = log(a_);
@@ -146,7 +146,7 @@ func log(a, base)
     include
         #include <math.h>
     rules
-        final = a == Double & base == a
+        final = a == Float64 & base == a
         result = a
     C
         result_ = log(a_) / log(base_);
@@ -155,7 +155,7 @@ func mod(a, b)
     include
         #include <math.h>
     rules
-        final = a == Double & b == a
+        final = a == Float64 & b == a
         result = a
     C
         result_ = fmod(a_, b_);
@@ -166,7 +166,7 @@ func power(a, b)
     include
         #include <math.h>
     rules
-        final = a == Double & b == a
+        final = a == Float64 & b == a
         result = a
     C
         result_ = pow(a_, b_);
@@ -177,7 +177,7 @@ func sin(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = sin(a_);
@@ -186,7 +186,7 @@ func sqrt(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = sqrt(a_);
@@ -197,7 +197,7 @@ func tg(a)
     include
         #include <math.h>
     rules
-        final = a == Double
+        final = a == Float64
         result = a
     C
         result_ = tan(a_);

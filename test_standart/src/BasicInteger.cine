@@ -13,7 +13,7 @@ proc testBasicInteger(:results)
     results:test(255.convertTo(UInt8).convertTo(UInt64) == 255, builtIn_currentFile, builtIn_currentLine)
     results:test(256.convertTo(Int8).convertTo(UInt64) == 0, builtIn_currentFile, builtIn_currentLine)
     results:test(257.convertTo(Int8).convertTo(UInt64) == 1, builtIn_currentFile, builtIn_currentLine)
-    results:test(257.convertTo(Double).inRange?(256.999, 257.001), builtIn_currentFile, builtIn_currentLine)
+    results:test(257.convertTo(Float64).inRange?(256.999, 257.001), builtIn_currentFile, builtIn_currentLine)
     a := 2
     a--
     results:test(a == 1, builtIn_currentFile, builtIn_currentLine)
