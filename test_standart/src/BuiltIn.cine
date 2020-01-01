@@ -349,3 +349,49 @@ proc testBuiltIn(:results)
         "string"
             a = 2
     results:test(a == 2, builtIn_currentFile, builtIn_currentLine)
+    a = 2
+    if > a == 2
+        then results:test(true, builtIn_currentFile, builtIn_currentLine)
+        else results:test(false, builtIn_currentFile, builtIn_currentLine)
+    if < a == 2
+        then results:test(true, builtIn_currentFile, builtIn_currentLine)
+        else results:test(false, builtIn_currentFile, builtIn_currentLine)
+    if > a == 3
+        then results:test(false, builtIn_currentFile, builtIn_currentLine)
+        else results:test(true, builtIn_currentFile, builtIn_currentLine)
+    if < a == 3
+        then results:test(false, builtIn_currentFile, builtIn_currentLine)
+        else results:test(true, builtIn_currentFile, builtIn_currentLine)
+    if a = 3; > a == 3
+        then results:test(true, builtIn_currentFile, builtIn_currentLine)
+        else results:test(false, builtIn_currentFile, builtIn_currentLine)
+    if a = 4; > a == 4
+        then results:test(true, builtIn_currentFile, builtIn_currentLine)
+        else results:test(false, builtIn_currentFile, builtIn_currentLine)
+    if a = 3; > a == 4
+        then results:test(false, builtIn_currentFile, builtIn_currentLine)
+        else results:test(true, builtIn_currentFile, builtIn_currentLine)
+    if a = 4; > a == 3
+        then results:test(false, builtIn_currentFile, builtIn_currentLine)
+        else results:test(true, builtIn_currentFile, builtIn_currentLine)
+    a = 2
+    mif
+        > a == 2
+            results:test(true, builtIn_currentFile, builtIn_currentLine)
+        default
+            results:test(false, builtIn_currentFile, builtIn_currentLine)
+    mif
+        < a == 2
+            results:test(true, builtIn_currentFile, builtIn_currentLine)
+        default
+            results:test(false, builtIn_currentFile, builtIn_currentLine)
+    mif
+        a == 3; > a == 2
+            results:test(true, builtIn_currentFile, builtIn_currentLine)
+        default
+            results:test(false, builtIn_currentFile, builtIn_currentLine)
+    mif
+        a == 3; < a == 2
+            results:test(true, builtIn_currentFile, builtIn_currentLine)
+        default
+            results:test(false, builtIn_currentFile, builtIn_currentLine)
