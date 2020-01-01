@@ -12,9 +12,9 @@ proc testBinaryData(:results)
     data += [UInt8]
     data += 14.convertTo(UInt8)
     data += -18.convertTo(Int16)
-    results:test(data.writeToFile("/tmp/standart-test"), builtIn_currentFile, builtIn_currentLine)
+    results:test(data.writeToFile("/tmp/standart_test_file"), builtIn_currentFile, builtIn_currentLine)
     data = BinaryData
-    file .= "/tmp/standart-test".loadFile()
+    file .= "/tmp/standart_test_file".loadFile()
     results:test(file.item?(), builtIn_currentFile, builtIn_currentLine)
     data = file[]
     position := 0

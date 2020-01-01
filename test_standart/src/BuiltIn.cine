@@ -15,20 +15,6 @@ func test_return3()
     i .= 12
     return 12
 
-func test_global1()
-    rules
-        result = UInt64
-    g <:> 0
-    g++
-    result = g
-
-func test_global2(a)
-    rules
-        final = a == UInt64
-        result = UInt64
-    g <.> a
-    result = g
-
 proc testBuiltIn(:results)
     rules
         final = results == TestResults
@@ -240,11 +226,6 @@ proc testBuiltIn(:results)
     haveLink? Box([UInt64])
         then a = 19
     results:test(a == 19, builtIn_currentFile, builtIn_currentLine)
-    results:test(test_global1() == 1, builtIn_currentFile, builtIn_currentLine)
-    results:test(test_global1() == 2, builtIn_currentFile, builtIn_currentLine)
-    results:test(test_global1() == 3, builtIn_currentFile, builtIn_currentLine)
-    results:test(test_global2(10) == 10, builtIn_currentFile, builtIn_currentLine)
-    results:test(test_global2(13) == 10, builtIn_currentFile, builtIn_currentLine)
     a = 7
     case a of
         2
