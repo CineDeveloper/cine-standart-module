@@ -395,3 +395,9 @@ proc testBuiltIn(:results)
             results:test(true, builtIn_currentFile, builtIn_currentLine)
         default
             results:test(false, builtIn_currentFile, builtIn_currentLine)
+    a = #a
+    results:test(a == 0, builtIn_currentFile, builtIn_currentLine)
+    b .= #[a]
+    results:test(b.getTypeNumber() == [UInt64].getTypeNumber(), builtIn_currentFile, builtIn_currentLine)
+    C
+        ##b## c = (##b##){0}; //3213
