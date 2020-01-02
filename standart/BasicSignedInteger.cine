@@ -7,12 +7,16 @@ rules
     join 1 SignedInteger
 
 func abs(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger
         result = a
     result = select(a < #a, a.neg(), a)
 
 func add(a, b)
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger & b == a
         result = a
@@ -29,6 +33,8 @@ func add(a, b)
         result_ = a_ + b_;
 
 func fromString(a, string) #4
+    attributes
+        alwaysInline
     rules
         final =  a > BasicSignedInteger & string == [UInt8]
         result = Box(a)
@@ -58,6 +64,8 @@ func fromString(a, string) #4
                             else result:put(resultNumber)
 
 func maxValue(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger
         result = a
@@ -68,12 +76,16 @@ func maxValue(a) #4
         result_ = unsignedA_;
 
 func minValue(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger
         result = a
     result = #a.maxValue().not()
 
 func mul(a, b)
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger & b == a
         result = a
@@ -90,6 +102,8 @@ func mul(a, b)
         result_ = a_ * b_;
 
 func neg(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger
         result = a
@@ -99,6 +113,8 @@ func neg(a) #4
         result_ = 0 - a_;
 
 func power(a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger & b == a
         result = a
@@ -116,6 +132,10 @@ func power(a, b) #4
                     else tmp *= tmp.clone()
 
 func random(maxValue) #4
+    attributes
+        alwaysInline
+    include
+        #include <stdlib.h>
     rules
         final = maxValue > BasicSignedInteger
         result = maxValue
@@ -126,6 +146,8 @@ func random(maxValue) #4
         result_ = randomNumber;
 
 func shl(a, shifts) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger & shifts > BasicUnsignedInteger
         result = a
@@ -138,6 +160,8 @@ func shl(a, shifts) #4
         result_ = unsignedResult_;
 
 func shr(a, shifts) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger & shifts > BasicUnsignedInteger
         result = a
@@ -150,6 +174,8 @@ func shr(a, shifts) #4
         result_ = unsignedResult_;
 
 func sub(a, b)
+    attributes
+        alwaysInline
     rules
         final = a > BasicSignedInteger & b == a
         result = a
@@ -166,6 +192,8 @@ func sub(a, b)
         result_ = a_ - b_;
 
 func toString(a) #4
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules

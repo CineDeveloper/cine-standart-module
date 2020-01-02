@@ -2,6 +2,8 @@
 type MapTreeNode C(2, "struct ^^ {uint16_t nodes[30] __attribute__((aligned(2)));}", "struct ^^", "#include <inttypes.h>")
 
 func getItem(mtn, nodeIndex)
+    attributes
+        alwaysInline
     rules
         final = mtn == MapTreeNode & nodeIndex == UInt8
         result = UInt64
@@ -17,6 +19,8 @@ func getItem(mtn, nodeIndex)
         }
 
 func getItemIndex(mtn)
+    attributes
+        alwaysInline
     rules
         final = mtn == MapTreeNode
         result = UInt64
@@ -24,6 +28,8 @@ func getItemIndex(mtn)
         result_ = (uint64_t)mtn_.nodes[24] | (uint64_t)mtn_.nodes[25] << 16 | (uint64_t)mtn_.nodes[26] << 32 | (uint64_t)mtn_.nodes[27] << 48;
 
 func getNodeIndexWithOtherItemIndex(mtn)
+    attributes
+        alwaysInline
     rules
         final = mtn == MapTreeNode
         result = UInt64
@@ -31,6 +37,8 @@ func getNodeIndexWithOtherItemIndex(mtn)
         result_ = (uint32_t)mtn_.nodes[28] | (uint32_t)mtn_.nodes[29] << 16;
 
 proc setItem(:mtn, nodeIndex, nodeItem)
+    attributes
+        alwaysInline
     rules
         final = mtn == MapTreeNode & nodeIndex == UInt8 & nodeItem == UInt64
     flag debug is set?
@@ -49,6 +57,8 @@ proc setItem(:mtn, nodeIndex, nodeItem)
         }
 
 proc setItemIndex(:mtn, itemIndex)
+    attributes
+        alwaysInline
     rules
         final = mtn == MapTreeNode & itemIndex == UInt64
     C
@@ -58,6 +68,8 @@ proc setItemIndex(:mtn, itemIndex)
         mtn_->nodes[27] = itemIndex_ >> 48;
 
 proc setNodeIndexWithOtherItemIndex(:mtn, nodeIndex)
+    attributes
+        alwaysInline
     rules
         final = mtn == MapTreeNode & nodeIndex == UInt64
     C

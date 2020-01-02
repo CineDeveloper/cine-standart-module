@@ -1,16 +1,22 @@
 func convertTo(from, to) #9
+    attributes
+        alwaysInline
     rules
         final = from == to
         result = to
     result = from
 
 func getTypeSize(a)
+    attributes
+        alwaysInline
     rules
         result = UInt64
     C
         result_ = sizeof(##a##);
 
 func getTypeNumber(a)
+    attributes
+        alwaysInline
     rules
         result = UInt64
     result = builtInTypeNumber(a)

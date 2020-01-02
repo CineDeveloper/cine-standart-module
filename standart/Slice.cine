@@ -77,6 +77,8 @@ proc addEq(:slice, lastPart)
         then slice:setStringFlag()
 
 func and(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
         result = slice1
@@ -89,6 +91,8 @@ func and(slice1, slice2)
         then result:setStringFlag()
 
 proc andEq(:slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
     flag debug is set?
@@ -97,6 +101,8 @@ proc andEq(:slice1, slice2)
         slice1:setItem(index, slice1[index] & item)
 
 func asSlice(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = slice
@@ -105,6 +111,8 @@ func asSlice(slice)
         result_.isString = false;
 
 func asString(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = slice
@@ -131,24 +139,32 @@ func clone(slice)
         then result:setStringFlag()
 
 func contain?(slice, item)
+    attributes
+        alwaysInline
     rules
         final = slice == [item] & slice > Equal
         result = Bool
     result = slice.look(item).item?()
 
 func contain?(slice, itemsList)
+    attributes
+        alwaysInline
     rules
         final = slice == [itemsList[0]] & slice > Equal & itemsList == VAList(_)
         result = Bool
     result = slice.look(itemsList).item?()
 
 func contain?(slice, subSlice)
+    attributes
+        alwaysInline
     rules
         final = slice == subSlice & slice > Equal & slice == [_]
         result = Bool
     result = slice.look(subSlice).item?()
 
 func contain?(slice, subSlicesList)
+    attributes
+        alwaysInline
     rules
         final = slice == subSlicesList[0] & slice > Equal & slice == [_] & subSlicesList == VAList(_)
         result = Bool
@@ -188,6 +204,8 @@ proc copyToLast(:slice, source)
     slice:copy(slice.getLength() - source.getLength(), slice.getLength(), source)
 
 func count(slice, item)
+    attributes
+        alwaysInline
     rules
         final = slice == [item] & slice > Equal
         result = UInt64
@@ -196,6 +214,8 @@ func count(slice, item)
             then result++
 
 func count(slice, itemsList)
+    attributes
+        alwaysInline
     rules
         final = slice == [itemsList[0]] & slice > Equal & itemsList == VAList(_)
         result = UInt64
@@ -209,6 +229,8 @@ func count(slice, itemsList)
                     break
 
 func count(slice, subSlice)
+    attributes
+        alwaysInline
     rules
         final = slice == subSlice & slice > Equal & slice == [_]
         result = UInt64
@@ -228,6 +250,8 @@ func count(slice, subSlice)
             else mutSlice = mutSlice.getAllExceptFirst()
 
 func count(slice, subSlicesList)
+    attributes
+        alwaysInline
     rules
         final = slice == subSlicesList[0] & slice > Equal & slice == [_] & subSlicesList == VAList(_)
         result = UInt64
@@ -261,6 +285,8 @@ func count(slice, subSlicesList)
         mutSlice = mutSlice.getAllExceptFirstN(countOfDeletingItems)
 
 func dummy(sliceType, numberOfItems)
+    attributes
+        alwaysInline
     include
         #include <stdlib.h>
         #include <stdio.h>
@@ -282,6 +308,8 @@ func dummy(sliceType, numberOfItems)
                 result_.initCapacity = numberOfItems_;
 
 func equal(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Equal
         result = Bool
@@ -330,30 +358,40 @@ proc free(slice)
                 free(slice_.array);
 
 func getAllExceptFirst(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = slice
     result = slice.getSlice(1, slice.getLength())
 
 func getAllExceptFirstN(slice, n)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & n > BasicUnsignedInteger
         result = slice
     result = slice.getSlice(n, slice.getLength())
 
 func getAllExceptLast(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = slice
     result = slice.getSlice(0, slice.getLength() - 1)
 
 func getAllExceptLastN(slice, n)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & n > BasicUnsignedInteger
         result = slice
     result = slice.getSlice(0, slice.getLength() - n.convertTo(UInt64))
 
 func getCapacity(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = UInt64
@@ -361,12 +399,16 @@ func getCapacity(slice)
         result_ = slice_.capacity;
 
 func getFirst(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = slice[0]
     result = slice[0]
 
 func getFirstN(slice, n)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & n > BasicUnsignedInteger
         result = slice
@@ -385,6 +427,8 @@ func getFromBinaryData(sliceType, data, :position)
         then result:setStringFlag()
 
 func getHash(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice > Hashed
         result = UInt64
@@ -401,12 +445,16 @@ func getHash(slice)
     result += result << 15
 
 func getHashSize(sliceType)
+    attributes
+        alwaysInline
     rules
         final = sliceType == [_] & sliceType > Hashed
         result = UInt8
     result = 8.convertTo(UInt8)
 
 func getInitCapacity(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = UInt64
@@ -414,6 +462,8 @@ func getInitCapacity(slice)
         result_ = slice_.initCapacity;
 
 func getItem(slice, index)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & index > BasicUnsignedInteger
         result = slice[0]
@@ -424,18 +474,24 @@ func getItem(slice, index)
     result.use()
 
 func getLast(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = slice[0]
     result = slice[slice.getLength() - 1]
 
 func getLastN(slice, n)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & n > BasicUnsignedInteger
         result = slice
     result = slice.getSlice(slice.getLength() - n.convertTo(UInt64), slice.getLength())
 
 func getLength(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = UInt64
@@ -443,6 +499,8 @@ func getLength(slice)
         result_ = slice_.length;
 
 func getSlice(slice, from, to)
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules
@@ -468,6 +526,8 @@ func getSlice(slice, from, to)
         then result:setStringFlag()
 
 func greater(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
         result = Bool
@@ -483,6 +543,8 @@ func greater(slice1, slice2)
     result = slice1.getLength() > slice2.getLength()
 
 func greaterOrEqual(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
         result = Bool
@@ -498,6 +560,8 @@ func greaterOrEqual(slice1, slice2)
     result = slice1.getLength() >= slice2.getLength()
 
 func hasPrefix?(slice, prefix)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice == prefix & slice > Equal
         result = Bool
@@ -507,6 +571,8 @@ func hasPrefix?(slice, prefix)
         then result = slice.getFirstN(prefix.getLength()) == prefix
 
 func hasSuffix?(slice, suffix)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice == suffix & slice > Equal
         result = Bool
@@ -516,6 +582,8 @@ func hasSuffix?(slice, suffix)
         then result = slice.getLastN(suffix.getLength()) == suffix
 
 func init(sliceType, numberOfItems)
+    attributes
+        alwaysInline
     rules
         final = sliceType == [_] & numberOfItems > BasicUnsignedInteger
         result = sliceType
@@ -1694,6 +1762,8 @@ proc join(:slice, js1, js2, js3, js4, js5, js6, js7, js8, js9, js10, js11, js12,
     slice += js16
 
 func less(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
         result = Bool
@@ -1709,6 +1779,8 @@ func less(slice1, slice2)
     result = slice1.getLength() < slice2.getLength()
 
 func lessOrEqual(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Ordered
         result = Bool
@@ -1724,6 +1796,8 @@ func lessOrEqual(slice1, slice2)
     result = slice1.getLength() <= slice2.getLength()
 
 func look(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & slice > Equal
         result = Box(UInt64)
@@ -1734,6 +1808,8 @@ func look(slice, lookFor)
                 break
 
 func look(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal
         result = Box(Pair(slice[0], UInt64))
@@ -1747,6 +1823,8 @@ func look(slice, lookFor)
                     return
 
 func look(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & slice > Equal & slice == [_]
         result = Box(UInt64)
@@ -1770,6 +1848,8 @@ func look(slice, lookFor)
                 mutSlice = mutSlice.getAllExceptFirst()
 
 func look(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_)
         result = Box(Pair(slice, UInt64))
@@ -1803,6 +1883,8 @@ func look(slice, lookFor)
         mutSlice = mutSlice.getAllExceptFirst()
 
 func lookAll(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & slice > Equal
         result = [UInt64]
@@ -1811,6 +1893,8 @@ func lookAll(slice, lookFor)
             then result += index
 
 func lookAll(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & slice > Equal & lookFor == VAList(_)
         result = [Pair(slice[0], UInt64)]
@@ -1824,6 +1908,8 @@ func lookAll(slice, lookFor)
                     break
 
 func lookAll(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & slice == [_] & slice > Equal
         result = [UInt64]
@@ -1847,6 +1933,8 @@ func lookAll(slice, lookFor)
         mutSlice = mutSlice.getAllExceptFirstN(countOfDeletingItems)
 
 func lookAll(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & slice == [_] & slice > Equal & lookFor == VAList(_)
         result = [Pair(slice, UInt64)]
@@ -1883,6 +1971,8 @@ func lookAll(slice, lookFor)
         mutSlice = mutSlice.getAllExceptFirstN(countOfDeletingItems)
 
 func lookFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal
         result = Box(UInt64)
@@ -1891,6 +1981,8 @@ func lookFromAtoB(slice, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_)
         result = Box(Pair(slice[0], UInt64))
@@ -1899,6 +1991,8 @@ func lookFromAtoB(slice, a, b, lookFor)
         then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_]
         result = Box(UInt64)
@@ -1907,6 +2001,8 @@ func lookFromAtoB(slice, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_)
         result = Box(Pair(slice, UInt64))
@@ -1915,6 +2011,8 @@ func lookFromAtoB(slice, a, b, lookFor)
         then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookLast(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & slice > Equal
         result = Box(UInt64)
@@ -1925,6 +2023,8 @@ func lookLast(slice, lookFor)
                 break
 
 func lookLast(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal
         result = Box(Pair(slice[0], UInt64))
@@ -1938,6 +2038,8 @@ func lookLast(slice, lookFor)
                     return
 
 func lookLast(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & slice > Equal & slice == [_]
         result = Box(UInt64)
@@ -1956,6 +2058,8 @@ func lookLast(slice, lookFor)
                 result = Box(UInt64)
 
 func lookLast(slice, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_)
         result = Box(Pair(slice, UInt64))
@@ -1988,6 +2092,8 @@ func lookLast(slice, lookFor)
         mutSlice = mutSlice.getFirstN(lastItemAndIndex[].second)
 
 func lookLastFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal
         result = Box(UInt64)
@@ -1996,6 +2102,8 @@ func lookLastFromAtoB(slice, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookLastFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_)
         result = Box(Pair(slice[0], UInt64))
@@ -2004,6 +2112,8 @@ func lookLastFromAtoB(slice, a, b, lookFor)
         then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookLastFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_]
         result = Box(UInt64)
@@ -2012,6 +2122,8 @@ func lookLastFromAtoB(slice, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookLastFromAtoB(slice, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_)
         result = Box(Pair(slice, UInt64))
@@ -2020,6 +2132,8 @@ func lookLastFromAtoB(slice, a, b, lookFor)
         then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookLastN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & slice > Equal & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2035,6 +2149,8 @@ func lookLastN(slice, n, lookFor)
                 else mutN--
 
 func lookLastN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal & n > BasicUnsignedInteger
         result = Box(Pair(slice[0], UInt64))
@@ -2055,6 +2171,8 @@ func lookLastN(slice, n, lookFor)
                         break
 
 func lookLastN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & slice > Equal & slice == [_] & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2081,6 +2199,8 @@ func lookLastN(slice, n, lookFor)
         sliceContainFirstChar = sliceContainFirstChar.getFirstN(lastItemIndex[])
 
 func lookLastN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
         result = Box(Pair(slice, UInt64))
@@ -2121,6 +2241,8 @@ func lookLastN(slice, n, lookFor)
         sliceContainFirstChar = sliceContainFirstChar.getFirstN(lastItemAndIndex[].second)
 
 func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2129,6 +2251,8 @@ func lookLastNFromAtoB(slice, n, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_) & n > BasicUnsignedInteger
         result = Box(Pair(slice[0], UInt64))
@@ -2137,6 +2261,8 @@ func lookLastNFromAtoB(slice, n, a, b, lookFor)
         then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2145,6 +2271,8 @@ func lookLastNFromAtoB(slice, n, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookLastNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
         result = Box(Pair(slice, UInt64))
@@ -2153,6 +2281,8 @@ func lookLastNFromAtoB(slice, n, a, b, lookFor)
         then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & slice > Equal & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2168,6 +2298,8 @@ func lookN(slice, n, lookFor)
                 else mutN--
 
 func lookN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & lookFor == VAList(_) & slice > Equal & n > BasicUnsignedInteger
         result = Box(Pair(slice[0], UInt64))
@@ -2188,6 +2320,8 @@ func lookN(slice, n, lookFor)
                         break
 
 func lookN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & slice > Equal & slice == [_] & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2218,6 +2352,8 @@ func lookN(slice, n, lookFor)
         resultIndex += addToResultItem
 
 func lookN(slice, n, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
         result = Box(Pair(slice, UInt64))
@@ -2261,6 +2397,8 @@ func lookN(slice, n, lookFor)
         mutSlice = mutSlice.getAllExceptFirstN(addToResultItem)
 
 func lookNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2269,6 +2407,8 @@ func lookNFromAtoB(slice, n, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == [lookFor[0]] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & lookFor == VAList(_) & n > BasicUnsignedInteger
         result = Box(Pair(slice[0], UInt64))
@@ -2277,6 +2417,8 @@ func lookNFromAtoB(slice, n, a, b, lookFor)
         then result:put(Pair(slice[0], UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func lookNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & n > BasicUnsignedInteger
         result = Box(UInt64)
@@ -2285,6 +2427,8 @@ func lookNFromAtoB(slice, n, a, b, lookFor)
         then result:put(result[] + a.convertTo(UInt64))
 
 func lookNFromAtoB(slice, n, a, b, lookFor)
+    attributes
+        alwaysInline
     rules
         final = slice == lookFor[0] & a > BasicUnsignedInteger & b > BasicUnsignedInteger & slice > Equal & slice == [_] & lookFor == VAList(_) & n > BasicUnsignedInteger
         result = Box(Pair(slice, UInt64))
@@ -2293,6 +2437,8 @@ func lookNFromAtoB(slice, n, a, b, lookFor)
         then result:put(Pair(slice, UInt64).create(result[].first, result[].second + a.convertTo(UInt64)))
 
 func not(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice > Bits
         result = slice
@@ -2303,6 +2449,8 @@ func not(slice)
         then result:setStringFlag()
 
 func or(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
         result = slice1
@@ -2315,6 +2463,8 @@ func or(slice1, slice2)
         then result:setStringFlag()
 
 proc orEq(:slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
     flag debug is set?
@@ -2323,42 +2473,56 @@ proc orEq(:slice1, slice2)
         slice1:setItem(index, slice1[index] | item)
 
 func parse_first(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = UInt64
     result = 0
 
 func parse_haveItem?(slice, index)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & index == UInt64
         result = Bool
     result = index < slice.getLength()
 
 func parse_item(slice, index)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & index == UInt64
         result = slice[0]
     result = slice[index]
 
 func parse_key(slice, index)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & index == UInt64
         result = UInt64
     result = index
 
 func parse_next(slice, index)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & index == UInt64
         result = UInt64
     result = index + 1
 
 proc setStringFlag(:slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
     C
         slice_->isString = true;
 
 func replace(slice, old, new)
+    attributes
+        alwaysInline
     rules
         final = slice == [old] & old == new & slice > Equal
         result = slice
@@ -2368,6 +2532,8 @@ func replace(slice, old, new)
         result:setItem(index, new)
 
 func replace(slice, old, new)
+    attributes
+        alwaysInline
     rules
         final = slice == old & old == new & slice > Equal & slice == [_]
         result = slice
@@ -2380,17 +2546,20 @@ func replace(slice, old, new)
             result = #slice.dummy(newSliceLength)
             result += parts[0]
             parse _, part <- parts.getAllExceptFirst()
-                result += new
-                result += part
+                result:join(new, part)
     if slice.string?()
         then result:setStringFlag()
 
 proc setFirst(:slice, newItem)
+    attributes
+        alwaysInline
     rules
         final = slice == [newItem]
     slice:setItem(0, newItem)
 
 proc setItem(:slice, index, newItem)
+    attributes
+        alwaysInline
     rules
         final = slice == [newItem] & index > BasicUnsignedInteger
     flag debug is set?
@@ -2404,11 +2573,15 @@ proc setItem(:slice, index, newItem)
     newItem.use()
 
 proc setLast(:slice, newItem)
+    attributes
+        alwaysInline
     rules
         final = slice == [newItem]
     slice:setItem(slice.getLength() - 1, newItem)
 
 func shl(slice, shifts)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
         result = slice
@@ -2419,12 +2592,16 @@ func shl(slice, shifts)
         then result:setStringFlag()
 
 proc shlEq(:slice, shifts)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
     for index := 0; index < slice.getLength(); index++
         slice:setItem(index, slice[index] << shifts)
 
 func shr(slice, shifts)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
         result = slice
@@ -2435,6 +2612,8 @@ func shr(slice, shifts)
         then result:setStringFlag()
 
 proc shrEq(:slice, shifts)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & slice > Bits & shifts > BasicUnsignedInteger
     for index := 0; index < slice.getLength(); index++
@@ -2575,6 +2754,8 @@ proc sort(:slice, lessFunc)
                     else leftIndex = rightEdge
 
 func split(slice, separator)
+    attributes
+        alwaysInline
     rules
         final = slice == [separator] & slice > Equal
         result = [slice]
@@ -2590,6 +2771,8 @@ func split(slice, separator)
             result:setLast(slice.getAllExceptFirstN(previousPosition))
 
 func split(slice, separators)
+    attributes
+        alwaysInline
     rules
         final = slice == [separators[0]] & slice > Equal & separators == VAList(_)
         result = [slice]
@@ -2605,6 +2788,8 @@ func split(slice, separators)
             result:setLast(slice.getAllExceptFirstN(previousPosition))
 
 func split(slice, separator)
+    attributes
+        alwaysInline
     rules
         final = slice == separator & slice > Equal & slice == [_]
         result = [slice]
@@ -2620,6 +2805,8 @@ func split(slice, separator)
             result:setLast(slice.getAllExceptFirstN(previousPosition))
 
 func split(slice, separators)
+    attributes
+        alwaysInline
     rules
         final = slice == separators[0] & slice > Equal & separators == VAList(_) & slice == [_]
         result = [slice]
@@ -2635,6 +2822,8 @@ func split(slice, separators)
             result:setLast(slice.getAllExceptFirstN(previousPosition))
 
 func string?(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = Bool
@@ -2644,6 +2833,8 @@ func string?(slice)
                 result_ = slice_.isString;
 
 proc swap(:slice, first, second)
+    attributes
+        alwaysInline
     rules
         final = slice == [_] & first > BasicUnsignedInteger & second > BasicUnsignedInteger
     flag debug is set?
@@ -2670,13 +2861,13 @@ func toString(slice)
             if slice.getLength() != 0
                 then
                     parse _, item <- slice
-                        result += item.toString()
-                        result += ", "
+                        result:join(item.toString(), ", ")
                     result = result.getAllExceptLastN(2)
             result += ']'
-            result:setStringFlag()
 
 proc use(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
     C
@@ -2685,6 +2876,8 @@ proc use(slice)
         }
 
 func use?(slice)
+    attributes
+        alwaysInline
     rules
         final = slice == [_]
         result = Bool
@@ -2695,6 +2888,8 @@ func use?(slice)
         result_ = result_ || ((void*)slice_.array == (void*){0} && (void*)slice_.items != (void*){0});
 
 func xor(slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
         result = slice1
@@ -2707,6 +2902,8 @@ func xor(slice1, slice2)
         then result:setStringFlag()
 
 proc xorEq(:slice1, slice2)
+    attributes
+        alwaysInline
     rules
         final = slice1 == [_] & slice2 == slice1 & slice1 > Bits
     flag debug is set?

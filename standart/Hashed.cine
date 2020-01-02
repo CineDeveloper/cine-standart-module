@@ -4,6 +4,8 @@ group Hashed
 //getHashSize(a) -> UInt8
 
 func getSmallHash(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > Hashed
         result = UInt32
@@ -24,6 +26,8 @@ func getSmallHash(a) #4
             result += result << 15
 
 func getSmallHashSize(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > Hashed
         result = UInt8

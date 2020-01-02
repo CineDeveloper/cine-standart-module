@@ -1,6 +1,8 @@
 group Binary
 
 proc addEq(:data, a) #4
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules
@@ -17,6 +19,8 @@ proc addEq(:data, a) #4
     data:private_data += newData
 
 func getFromBinaryData(a, data, :position) #4
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules

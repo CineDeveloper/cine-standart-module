@@ -2,18 +2,24 @@ type BinaryData
     private_data [UInt8]
 
 func convertTo(from, to)
+    attributes
+        alwaysInline
     rules
         final = from == BinaryData & to == [UInt8]
         result = [UInt8]
     result = from.private_data
 
 func convertTo(from, to)
+    attributes
+        alwaysInline
     rules
         final = from == [UInt8] & to == BinaryData
         result = BinaryData
     result:private_data = from
 
 func getLength(data)
+    attributes
+        alwaysInline
     rules
         final = data == BinaryData
         result = UInt64

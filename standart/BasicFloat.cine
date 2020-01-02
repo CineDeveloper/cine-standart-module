@@ -29,6 +29,8 @@ rules
     join 1 Binary
 
 func convertTo(from, to) #4
+    attributes
+        alwaysInline
     rules
         final = from > BasicFloat & to > BasicFloat
         result = to
@@ -36,12 +38,16 @@ func convertTo(from, to) #4
         result_ = from_;
 
 proc dec(:a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
     C
         *a_ = *a_ - 1.0;
 
 func div(a, b)
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat & b == a
         result = a
@@ -51,12 +57,16 @@ func div(a, b)
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 proc inc(:a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
     C
         *a_ = *a_ + 1.0;
 
 func minusInf(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = a
@@ -66,6 +76,8 @@ func minusInf(a) #4
 func nan?(a) #4
     include
         #include <math.h>
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = Bool
@@ -73,6 +85,8 @@ func nan?(a) #4
         result_ = isnan(a_);
 
 func neg(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = a
@@ -82,6 +96,8 @@ func neg(a) #4
 func pi(a) #4
     include
         #include <math.h>
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = a
@@ -89,6 +105,8 @@ func pi(a) #4
         result_ = M_PI;
 
 func plusInf(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = a
@@ -98,6 +116,8 @@ func plusInf(a) #4
 func random(maxValue) #4
     include
         #include <stdlib.h>
+    attributes
+        alwaysInline
     rules
         final = maxValue > BasicFloat
         result = maxValue
@@ -105,6 +125,8 @@ func random(maxValue) #4
         result_ = (double)(rand()) / (double)(RAND_MAX) * maxValue_;
 
 func round(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = Int64
@@ -116,6 +138,8 @@ func round(a) #4
         }
 
 func toString(a) #4
+    attributes
+        alwaysInline
     include
         #include <stdio.h>
         #include <string.h>
@@ -132,6 +156,8 @@ func toString(a) #4
     result:setStringFlag()
 
 func trunc(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicFloat
         result = Int64

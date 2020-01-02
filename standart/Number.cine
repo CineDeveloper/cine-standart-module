@@ -16,21 +16,29 @@ rules
     join 1 StringWriter
 
 proc addEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Number & b == a
     a = a + b
 
 proc divEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Number & b == a
     a = a / b
 
 proc mulEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Number & b == a
     a = a * b
 
 proc subEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Number & b == a
     a = a - b

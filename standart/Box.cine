@@ -20,6 +20,8 @@ proc addEq(:data, a)
         then data += a.private_item
 
 func create(boxType, item)
+    attributes
+        alwaysInline
     rules
         final = boxType == Box(item)
         result = Box(item)
@@ -27,12 +29,16 @@ func create(boxType, item)
     result:private_haveItem = true
 
 func empty?(a)
+    attributes
+        alwaysInline
     rules
         final = a == Box(_)
         result = Bool
     result = !a.private_haveItem
 
 func equal(a, b)
+    attributes
+        alwaysInline
     rules
         final = a > Equal & a == b & a == Box(_)
         result = Bool
@@ -60,6 +66,8 @@ func getFromBinaryData(a, data, :position)
         then result:private_item = #a[0].getFromBinaryData(data, position)
 
 func getItem(a)
+    attributes
+        alwaysInline
     rules
         final = a == Box(_)
         result = a[0]
@@ -69,12 +77,16 @@ func getItem(a)
         then result = a.private_item
 
 func item?(a)
+    attributes
+        alwaysInline
     rules
         final = a == Box(_)
         result = Bool
     result = a.private_haveItem
 
 proc put(:box, item)
+    attributes
+        alwaysInline
     rules
         final = box == Box(item)
     box = #box.create(item)
@@ -85,8 +97,5 @@ func toString(a)
         result = [UInt8]
     if a.item?()
         then
-            result += '('
-            result += a[].toString()
-            result += ')'
+            result = "(".join(a[].toString(), ")")
         else result = "()"
-    result:setStringFlag()

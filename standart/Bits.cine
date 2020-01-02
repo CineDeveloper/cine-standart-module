@@ -8,26 +8,36 @@ group Bits
 //xor(a, a) -> a
 
 proc andEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Bits & b == a
     a = a & b
 
 proc orEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Bits & b == a
     a = a | b
 
 proc shlEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Bits & b > BasicUnsignedInteger
     a = a << b
 
 proc shrEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Bits & b > BasicUnsignedInteger
     a = a >> b
 
 proc xorEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Bits & b == a
     a = a ^ b

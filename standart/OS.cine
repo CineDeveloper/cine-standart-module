@@ -5,6 +5,8 @@ proc exit()
         exit(0);
 
 func getCMDArgument(index)
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules
@@ -21,6 +23,8 @@ func getCMDArgument(index)
         }
 
 func getCMDArguments()
+    attributes
+        alwaysInline
     rules
         result = [[UInt8]]
     if count .= getCMDArgumetsCount(); count != 0
@@ -30,12 +34,16 @@ func getCMDArguments()
                 result:setItem(index, getCMDArgument(index+1)[])
 
 func getCMDArgumetsCount()
+    attributes
+        alwaysInline
     rules
         result = UInt64
     C
         result_ = __argc - 1;
 
 func getEnvironmentVariable(name)
+    attributes
+        alwaysInline
     include
         #include <stdlib.h>
         #include <string.h>
@@ -59,12 +67,16 @@ func getEnvironmentVariable(name)
         }
 
 func getStaticRandomNumber()
+    attributes
+        alwaysInline
     rules
         result = UInt64
     C
         result_ = __staticRandomNumber__;
 
 func getLineFromSTDIN()
+    attributes
+        noInline
     include
         #include <stdio.h>
         #include <string.h>
@@ -92,6 +104,8 @@ func getLineFromSTDIN()
     result:setStringFlag()
 
 proc panic(message)
+    attributes
+        noInline
     include
         #include <stdio.h>
         #include <stdlib.h>

@@ -1,12 +1,16 @@
 type VAList(itemsType) C(8, link, "struct ^^ {##itemsType## items[32]; uint8_t length;}", "struct ^^", "#include <inttypes.h>")
 
 func clone(list)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_)
         result = list
     result = list
 
 func convertTo(list, sliceType)
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules
@@ -26,12 +30,16 @@ func convertTo(list, sliceType)
                         memcpy(result_.items, list_.items, length_ * itemSize_);
 
 func create(listType)
+    attributes
+        alwaysInline
     rules
         final = listType == VAList(_)
         result = listType
     result = #listType
 
 func create(listType, item)
+    attributes
+        alwaysInline
     rules
         final = listType == VAList(item)
         result = listType
@@ -41,6 +49,8 @@ func create(listType, item)
     result.use()
 
 func create(listType, item1, item2)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -53,6 +63,8 @@ func create(listType, item1, item2)
     result.use()
 
 func create(listType, item1, item2, item3)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -67,6 +79,8 @@ func create(listType, item1, item2, item3)
     result.use()
 
 func create(listType, item1, item2, item3, item4)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -83,6 +97,8 @@ func create(listType, item1, item2, item3, item4)
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -101,6 +117,8 @@ func create(listType, item1, item2, item3, item4, item5)
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -121,6 +139,8 @@ func create(listType, item1, item2, item3, item4, item5, item6)
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -143,6 +163,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7)
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -167,6 +189,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8)
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -193,6 +217,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -221,6 +247,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -251,6 +279,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -283,6 +313,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -317,6 +349,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -353,6 +387,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -391,6 +427,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -431,6 +469,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -473,6 +513,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -517,6 +559,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -563,6 +607,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -611,6 +657,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -661,6 +709,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -713,6 +763,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -767,6 +819,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -823,6 +877,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -881,6 +937,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -941,6 +999,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -1003,6 +1063,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -1067,6 +1129,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -1133,6 +1197,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, item30)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -1201,6 +1267,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, item30, item31)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -1271,6 +1339,8 @@ func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, it
     result.use()
 
 func create(listType, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18, item19, item20, item21, item22, item23, item24, item25, item26, item27, item28, item29, item30, item31, item32)
+    attributes
+        alwaysInline
     rules
         1 = item1 == listType[0]
         2 = item2 == listType[0]
@@ -1349,6 +1419,8 @@ proc free(list)
         list[index].free()
 
 func getItem(list, index)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_) & index > BasicUnsignedInteger
         result = list[0]
@@ -1359,6 +1431,8 @@ func getItem(list, index)
     result.use()
 
 func getLength(list)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_)
         result = UInt8
@@ -1366,36 +1440,48 @@ func getLength(list)
         result_ = list_.length;
 
 func parse_first(list)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_)
         result = UInt8
     result = UInt8
 
 func parse_haveItem?(list, index)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_) & index == UInt8
         result = Bool
     result = index < list.getLength()
 
 func parse_item(list, index)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_) & index == UInt8
         result = list[0]
     result = list[index]
 
 func parse_key(list, index)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_) & index == UInt8
         result = UInt8
     result = index
 
 func parse_next(list, index)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_) & index == UInt8
         result = UInt8
     result = index + 1.convertTo(UInt8)
 
 proc use(list)
+    attributes
+        alwaysInline
     rules
         final = list == VAList(_)
     for index := UInt8; index < list.getLength(); index++

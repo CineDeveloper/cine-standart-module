@@ -6,6 +6,8 @@ rules
     join 1 StringReader
 
 func equal(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Bool & b == a
         result = Bool
@@ -13,6 +15,8 @@ func equal(a, b)
         result_ = a_ == b_;
 
 func fromString(a, string)
+    attributes
+        alwaysInline
     rules
         final = a == Bool & string == [UInt8]
         result = Box(a)
@@ -23,6 +27,8 @@ func fromString(a, string)
             result:put(false)
 
 func neg(a)
+    attributes
+        alwaysInline
     rules
         final = a == Bool
         result = Bool
@@ -30,6 +36,8 @@ func neg(a)
         result_ = !a_;
 
 func toString(a)
+    attributes
+        alwaysInline
     rules
         final = a == Bool
         result = [UInt8]

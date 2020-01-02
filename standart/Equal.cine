@@ -3,6 +3,8 @@ group Equal
 //equal(a, a) -> Bool
 
 func notEqual(a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > Equal & a == b
         result = Bool

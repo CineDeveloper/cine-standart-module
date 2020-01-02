@@ -19,6 +19,8 @@ rules
     join 1 Binary
 
 func and(a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger & b == a
         result = a
@@ -26,6 +28,8 @@ func and(a, b) #4
         result_ = a_ & b_;
 
 func convertTo(from, to) #4
+    attributes
+        alwaysInline
     rules
         final = from > BasicInteger & (to > BasicInteger | to > BasicFloat)
         result = to
@@ -33,12 +37,16 @@ func convertTo(from, to) #4
         result_ = from_;
 
 proc dec(:a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger
     C
         (*a_)--;
 
 func getHash(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger
         result = UInt64
@@ -46,18 +54,24 @@ func getHash(a) #4
         result_ = a_;
 
 func getHashSize(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger
         result = UInt8
     result = #a.getTypeSize().convertTo(UInt8)
 
 proc inc(:a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger
     C
         (*a_)++;
 
 func mod(a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger & b == a
         result = a
@@ -67,11 +81,15 @@ func mod(a, b) #4
         result_ = a_ % b_;
 
 proc modEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger & b == a
     a = a % b
 
 func not(a) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger
         result = a
@@ -79,6 +97,8 @@ func not(a) #4
         result_ = ~a_;
 
 func or(a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger & b == a
         result = a
@@ -86,6 +106,8 @@ func or(a, b) #4
         result_ = a_ | b_;
 
 func xor(a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > BasicInteger & b == a
         result = a

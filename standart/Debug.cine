@@ -1,4 +1,6 @@
 proc debugMessage(predicate, message)
+    attributes
+        noInline
     rules
         final = predicate == Bool & message == [UInt8]
     flag debug is set?
@@ -6,6 +8,8 @@ proc debugMessage(predicate, message)
             then printLn("DEBUG: ", message)
 
 proc debugMessage(message)
+    attributes
+        noInline
     rules
         final = message == [UInt8]
     flag debug is set?

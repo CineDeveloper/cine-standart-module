@@ -3,6 +3,8 @@ rules
     join 1 BasicSignedInteger
 
 func toUnsigned(a)
+    attributes
+        alwaysInline
     rules
         final = a == Int64
         result = UInt64

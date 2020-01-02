@@ -23,6 +23,8 @@ proc addEq(:data, triple)
     data += triple.third
 
 func and(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Triple(_, _, _) & a > Bits & a == b
         result = a
@@ -31,6 +33,8 @@ func and(a, b)
     result:third = a.third & b.third
 
 func create(tripleType, first, second, third)
+    attributes
+        alwaysInline
     rules
         final = tripleType == Triple(first, second, third)
         result = tripleType
@@ -39,6 +43,8 @@ func create(tripleType, first, second, third)
     result:third = third
 
 func equal(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Triple(_, _, _) & a > Equal & a == b
         result = Bool
@@ -53,6 +59,8 @@ func getFromBinaryData(triple, data, :position)
     result:third = #triple[2].getFromBinaryData(data, position)
 
 func getHash(triple)
+    attributes
+        alwaysInline
     rules
         final = triple == Triple(_, _, _) & triple > Hashed
         result = UInt64
@@ -73,12 +81,16 @@ func getHash(triple)
     result += result << 15
 
 func getHashSize(triple)
+    attributes
+        alwaysInline
     rules
         final = triple == Triple(_, _, _) & triple > Hashed
         result = UInt8
     result = 8.convertTo(UInt8)
 
 func not(triple)
+    attributes
+        alwaysInline
     rules
         final = triple == Triple(_, _, _) & triple > Bits
         result = triple
@@ -87,6 +99,8 @@ func not(triple)
     result:third = triple.third.not()
 
 func or(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Triple(_, _, _) & a > Bits & a == b
         result = a
@@ -95,6 +109,8 @@ func or(a, b)
     result:third = a.third | b.third
 
 func shl(triple, shifts)
+    attributes
+        alwaysInline
     rules
         final = triple == Triple(_, _, _) & triple > Bits & shifts > BasicUnsignedInteger
         result = triple
@@ -103,6 +119,8 @@ func shl(triple, shifts)
     result:third = triple.third << shifts
 
 func shr(triple, shifts)
+    attributes
+        alwaysInline
     rules
         final = triple == Triple(_, _, _) & triple > Bits & shifts > BasicUnsignedInteger
         result = triple
@@ -114,16 +132,15 @@ func toString(triple)
     rules
         final = triple == Triple(_, _, _) & triple > StringWriter
         result = [UInt8]
-    result += '('
-    result += triple.first.toString()
-    result += ", "
-    result += triple.second.toString()
-    result += ", "
-    result += triple.third.toString()
-    result += ')'
-    result:setStringFlag()
+    result = "(".join({
+        triple.first.toString(), ", ",
+        triple.second.toString(), ", " ,
+        triple.third.toString(), ")")
+    }
 
 func xor(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Triple(_, _, _) & a > Bits & a == b
         result = a

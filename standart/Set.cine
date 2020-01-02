@@ -149,6 +149,8 @@ func getItem(set, item)
                 break
 
 func getLength(a)
+    attributes
+        alwaysInline
     rules
         final = a == Set(_)
         result = UInt64
@@ -156,6 +158,8 @@ func getLength(a)
         then result = a.private_items.getLength() - 1 - a.private_numberOfHiddenItems.convertTo(UInt64)
 
 func init(a)
+    attributes
+        alwaysInline
     rules
         final = a == Set(_)
         result = a
@@ -163,12 +167,16 @@ func init(a)
     result:private_trees = [MapTreeNode].init(512).getFirstN(1)
 
 func init?(a)
+    attributes
+        alwaysInline
     rules
         final = a == Set(_)
         result = Bool
     result = a.private_trees.getLength() != 0
 
 func parse_first(set)
+    attributes
+        alwaysInline
     rules
         final = set == Set(_)
         result = UInt64
@@ -178,23 +186,31 @@ func parse_first(set)
             then break
 
 func parse_haveItem?(set, index)
+    attributes
+        alwaysInline
     rules
         final = set == Set(_) & index == UInt64
         result = Bool
     result = index < set.private_items.getLength()
 
 func parse_item(set, index)
+    attributes
+        alwaysInline
     rules
         final = set == Set(_) & index == UInt64
         result = Bool
 
 func parse_key(set, index)
+    attributes
+        alwaysInline
     rules
         final = set == Set(_) & index == UInt64
         result = set[0]
     result = set.private_items[index][]
 
 func parse_next(set, index)
+    attributes
+        alwaysInline
     rules
         final = set == Set(_) & index == UInt64
         result = UInt64
@@ -204,6 +220,8 @@ func parse_next(set, index)
             then break
 
 proc private_deleteHidden(:set)
+    attributes
+        noInline
     rules
         1 = set == Set(_)
         2 = set[0] > Hashed & set[0] > Equal
@@ -255,7 +273,7 @@ proc subEq(:set, item)
                             currentNode:setNodeIndexWithOtherItemIndex(nextNode.getNodeIndexWithOtherItemIndex())
                             set:private_trees:setItem(fullCurrentIndex, currentNode)
                             set:private_numberOfHiddenItems++
-                            if set.private_numberOfHiddenItems == UInt16
+                            if < set.private_numberOfHiddenItems == UInt16
                                 then set:private_deleteHidden()
                             break all
                     nextNodeIndex .= set.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()

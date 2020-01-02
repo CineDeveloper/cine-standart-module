@@ -3,6 +3,8 @@ rules
     join 1 BasicUnsignedInteger
 
 func toSigned(a)
+    attributes
+        alwaysInline
     rules
         final = a == UInt16
         result = Int16

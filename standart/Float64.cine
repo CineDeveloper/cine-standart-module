@@ -3,6 +3,8 @@ rules
     join 1 BasicFloat
 
 func abs(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -12,6 +14,8 @@ func abs(a)
         result_ = fabs(a_);
 
 func arcCos(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -23,6 +27,8 @@ func arcCos(a)
         result_ = acos(a_);
 
 func arcCtg(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -32,6 +38,8 @@ func arcCtg(a)
         result_ = (double)(M_PI) / 2.0 - atan(a_);
 
 func arcSin(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -43,6 +51,8 @@ func arcSin(a)
         result_ = asin(a_);
 
 func arcTg(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -52,6 +62,8 @@ func arcTg(a)
         result_ = atan(a_);
 
 func ceil(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -61,6 +73,8 @@ func ceil(a)
         result_ = ceil(a_);
 
 func cos(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -70,6 +84,8 @@ func cos(a)
         result_ = cos(a_);
 
 func ctg(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -79,6 +95,8 @@ func ctg(a)
         result_ = (double)(1.0) / tan(a_);
 
 func disassemble(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -88,6 +106,8 @@ func disassemble(a)
         result_.second_ = modf(a_, &(result_.first_));
 
 func exp(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -97,6 +117,8 @@ func exp(a)
         result_ = exp(a_);
 
 func floor(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -106,6 +128,8 @@ func floor(a)
         result_ = floor(a_);
 
 func fromString(a, string)
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules
@@ -125,6 +149,8 @@ func fromString(a, string)
                 }
 
 func lg(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -134,6 +160,8 @@ func lg(a)
         result_ = log10(a_);
 
 func ln(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -143,6 +171,8 @@ func ln(a)
         result_ = log(a_);
 
 func log(a, base)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -152,6 +182,8 @@ func log(a, base)
         result_ = log(a_) / log(base_);
 
 func mod(a, b)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -163,6 +195,8 @@ func mod(a, b)
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 func power(a, b)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -174,6 +208,8 @@ func power(a, b)
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 func sin(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -183,6 +219,8 @@ func sin(a)
         result_ = sin(a_);
 
 func sqrt(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules
@@ -194,6 +232,8 @@ func sqrt(a)
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 func tg(a)
+    attributes
+        alwaysInline
     include
         #include <math.h>
     rules

@@ -150,6 +150,8 @@ func getItem(map, key)
                 break
 
 func getLength(a)
+    attributes
+        alwaysInline
     rules
         final = a == Map(_, _)
         result = UInt64
@@ -157,6 +159,8 @@ func getLength(a)
         then result = a.private_keysAndItems.getLength() - 1 - a.private_numberOfHiddenItems.convertTo(UInt64)
 
 func init(a)
+    attributes
+        alwaysInline
     rules
         final = a == Map(_, _)
         result = a
@@ -164,12 +168,16 @@ func init(a)
     result:private_trees = [MapTreeNode].init(512).getFirstN(1)
 
 func init?(a)
+    attributes
+        alwaysInline
     rules
         final = a == Map(_, _)
         result = Bool
     result = a.private_trees.getLength() != 0
 
 func parse_first(map)
+    attributes
+        alwaysInline
     rules
         final = map == Map(_, _)
         result = UInt64
@@ -179,24 +187,32 @@ func parse_first(map)
             then break
 
 func parse_haveItem?(map, index)
+    attributes
+        alwaysInline
     rules
         final = map == Map(_, _) & index == UInt64
         result = Bool
     result = index < map.private_keysAndItems.getLength()
 
 func parse_item(map, index)
+    attributes
+        alwaysInline
     rules
         final = map == Map(_, _) & index == UInt64
         result = map[1]
     result = map.private_keysAndItems[index][].second
 
 func parse_key(map, index)
+    attributes
+        alwaysInline
     rules
         final = map == Map(_, _) & index == UInt64
         result = map[0]
     result = map.private_keysAndItems[index][].first
 
 func parse_next(map, index)
+    attributes
+        alwaysInline
     rules
         final = map == Map(_, _) & index == UInt64
         result = UInt64
@@ -206,6 +222,8 @@ func parse_next(map, index)
             then break
 
 proc private_deleteHidden(:map)
+    attributes
+        noInline
     rules
         1 = map == Map(_, _)
         2 = map[0] > Hashed & map[0] > Equal
@@ -257,7 +275,7 @@ proc subEq(:map, key)
                             currentNode:setNodeIndexWithOtherItemIndex(nextNode.getNodeIndexWithOtherItemIndex())
                             map:private_trees:setItem(fullCurrentIndex, currentNode)
                             map:private_numberOfHiddenItems++
-                            if map.private_numberOfHiddenItems == UInt16
+                            if < map.private_numberOfHiddenItems == UInt16
                                 then map:private_deleteHidden()
                             break all
                     nextNodeIndex .= map.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()

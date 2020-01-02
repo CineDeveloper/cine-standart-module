@@ -21,6 +21,8 @@ proc addEq(:data, pair)
     data += pair.second
 
 func and(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Pair(_, _) & a > Bits & a == b
         result = a
@@ -28,6 +30,8 @@ func and(a, b)
     result:second = a.second & b.second
 
 func create(pairType, first, second)
+    attributes
+        alwaysInline
     rules
         final = pairType == Pair(first, second)
         result = pairType
@@ -35,6 +39,8 @@ func create(pairType, first, second)
     result:second = second
 
 func equal(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Pair(_, _) & a > Equal & a == b
         result = Bool
@@ -48,6 +54,8 @@ func getFromBinaryData(pair, data, :position)
     result:second = #pair[1].getFromBinaryData(data, position)
 
 func getHash(pair)
+    attributes
+        alwaysInline
     rules
         final = pair == Pair(_, _) & pair > Hashed
         result = UInt64
@@ -65,12 +73,16 @@ func getHash(pair)
     result += result << 15
 
 func getHashSize(pair)
+    attributes
+        alwaysInline
     rules
         final = pair == Pair(_, _) & pair > Hashed
         result = UInt8
     result = 8.convertTo(UInt8)
 
 func not(pair)
+    attributes
+        alwaysInline
     rules
         final = pair == Pair(_, _) & pair > Bits
         result = pair
@@ -78,6 +90,8 @@ func not(pair)
     result:second = pair.second.not()
 
 func or(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Pair(_, _) & a > Bits & a == b
         result = a
@@ -85,6 +99,8 @@ func or(a, b)
     result:second = a.second | b.second
 
 func shl(pair, shifts)
+    attributes
+        alwaysInline
     rules
         final = pair == Pair(_, _) & pair > Bits & shifts > BasicUnsignedInteger
         result = pair
@@ -92,6 +108,8 @@ func shl(pair, shifts)
     result:second = pair.second << shifts
 
 func shr(pair, shifts)
+    attributes
+        alwaysInline
     rules
         final = pair == Pair(_, _) & pair > Bits & shifts > BasicUnsignedInteger
         result = pair
@@ -102,14 +120,14 @@ func toString(pair)
     rules
         final = pair == Pair(_, _) & pair > StringWriter
         result = [UInt8]
-    result += '('
-    result += pair.first.toString()
-    result += ", "
-    result += pair.second.toString()
-    result += ')'
-    result:setStringFlag()
+    result = "(".join({
+        pair.first.toString(), ", ",
+        pair.second.toString(), ")")
+    }
 
 func xor(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Pair(_, _) & a > Bits & a == b
         result = a

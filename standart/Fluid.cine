@@ -1,12 +1,16 @@
 type Fluid C(8, link, "struct ^^ {uint64_t typeNumber; void* object; uint64_t* useCounter; void (*free)(void*);}", "struct ^^", "#include <inttypes.h>")
 
 func clone(a)
+    attributes
+        alwaysInline
     rules
         final = a == Fluid
         result = a
     result = a
 
 func empty?(fluid)
+    attributes
+        alwaysInline
     rules
         final = fluid == Fluid
         result = Bool
@@ -32,6 +36,8 @@ proc free(a)
                 free(a_.useCounter);
 
 func getInnerTypeNumber(a)
+    attributes
+        alwaysInline
     rules
         final = a == Fluid
         result = UInt64
@@ -39,6 +45,8 @@ func getInnerTypeNumber(a)
         result_ = a_.typeNumber;
 
 func getItem(fluid, innerType)
+    attributes
+        alwaysInline
     rules
         final = fluid == Fluid
         result = innerType
@@ -49,6 +57,8 @@ func getItem(fluid, innerType)
     result.use()
 
 func item?(fluid)
+    attributes
+        alwaysInline
     rules
         final = fluid == Fluid
         result = Bool
@@ -59,6 +69,8 @@ proc private_fluidFree(:a)
     a.free()
 
 func toFluid(a)
+    attributes
+        alwaysInline
     include
         #include <stddef.h>
         #include <stdio.h>
@@ -80,6 +92,8 @@ func toFluid(a)
         result_.free = (void (*)(void*))freeFunction_;
 
 proc use(a)
+    attributes
+        alwaysInline
     rules
         final = a == Fluid
     C

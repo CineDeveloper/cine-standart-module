@@ -1,4 +1,6 @@
 func digits?(string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
         result = Bool
@@ -7,6 +9,8 @@ func digits?(string)
             then break
 
 func letters?(string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
         result = Bool
@@ -15,6 +19,8 @@ func letters?(string)
             then break
 
 func lower?(string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
         result = Bool
@@ -23,6 +29,8 @@ func lower?(string)
             then break
 
 func toLower(string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
         result = string
@@ -32,12 +40,16 @@ func toLower(string)
     result:setStringFlag()
 
 proc toLower(:string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
     parse index, item <- string
         string:setItem(index, item.toLower())
 
 func toUpper(string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
         result = string
@@ -47,12 +59,16 @@ func toUpper(string)
     result:setStringFlag()
 
 proc toUpper(:string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
     parse index, item <- string
         string:setItem(index, item.toUpper())
 
 func upper?(string)
+    attributes
+        alwaysInline
     rules
         final = string == [UInt8]
         result = Bool

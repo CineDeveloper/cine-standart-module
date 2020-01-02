@@ -2,6 +2,8 @@ type TestResults
     success, fail, all UInt64
 
 proc test(:results, expectTrue, currentFile, currentLine)
+    attributes
+        alwaysInline
     rules
         final = results == TestResults & expectTrue == Bool & currentFile == [UInt8] & currentLine == [UInt8]
     results:all++
@@ -12,6 +14,8 @@ proc test(:results, expectTrue, currentFile, currentLine)
             print("File: ", currentFile, ", line: ", currentLine, ". Test fail.\n")
 
 proc show(testResults)
+    attributes
+        alwaysInline
     include
         #include <stdio.h>
     rules

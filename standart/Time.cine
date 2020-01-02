@@ -7,6 +7,8 @@ rules
     join 1 StringWriter
 
 func convertTo(from, to)
+    attributes
+        alwaysInline
     rules
         1 = from == Time & to == UInt64
         2 = from == UInt64 & to == Time
@@ -16,6 +18,8 @@ func convertTo(from, to)
         result_ = from_;
 
 func current(timeType)
+    attributes
+        alwaysInline
     rules
         final = timeType == Time
         result = timeType
@@ -23,6 +27,8 @@ func current(timeType)
         result_ = time(NULL);
 
 func equal(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Time & a == b
         result = Bool
@@ -30,6 +36,8 @@ func equal(a, b)
         result_ = a_ == b_;
 
 func greater(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Time & a == b
         result = Bool
@@ -37,6 +45,8 @@ func greater(a, b)
         result_ = a_ > b_;
 
 func greaterOrEqual(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Time & a == b
         result = Bool
@@ -44,6 +54,8 @@ func greaterOrEqual(a, b)
         result_ = a_ >= b_;
 
 func less(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Time & a == b
         result = Bool
@@ -51,6 +63,8 @@ func less(a, b)
         result_ = a_ < b_;
 
 func lessOrEqual(a, b)
+    attributes
+        alwaysInline
     rules
         final = a == Time & a == b
         result = Bool
@@ -58,6 +72,8 @@ func lessOrEqual(a, b)
         result_ = a_ <= b_;
 
 func toString(time)
+    attributes
+        alwaysInline
     include
         #include <string.h>
     rules

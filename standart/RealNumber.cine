@@ -24,6 +24,8 @@ rules
     join 1 Ordered
 
 proc modEq(:a, b) #4
+    attributes
+        alwaysInline
     rules
         final = a > RealNumber & b == a
     a = a % b
