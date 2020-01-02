@@ -15,6 +15,43 @@ func test_return3()
     i .= 12
     return 12
 
+func testFunc(a) #1
+    attributes
+        id = "test Function"
+    rules
+        final = a == UInt64
+        result = UInt64
+    result = a + 1
+
+func testFunc(a)
+    rules
+        final = a == UInt64
+        result = UInt64
+    result = a + 2
+
+func testFunc(a) #9
+    rules
+        final = a == UInt64
+        result = UInt64
+    result = a + 3
+
+proc testProc(:a) #1
+    attributes
+        id = "test Procedure"
+    rules
+        final = a == UInt64
+    a++
+
+proc testProc(:a)
+    rules
+        final = a == UInt64
+    a += 2
+
+proc testProc(:a) #9
+    rules
+        final = a == UInt64
+    a += 3
+
 proc testBuiltIn(:results)
     rules
         final = results == TestResults
@@ -401,3 +438,23 @@ proc testBuiltIn(:results)
     results:test(b.getTypeNumber() == [UInt64].getTypeNumber(), builtIn_currentFile, builtIn_currentLine)
     C
         ##b## c = (##b##){0}; //3213
+    results:test(builtInCallFunctionByID("test Function", 10) == 11, builtIn_currentFile, builtIn_currentLine)
+    f .= builtInGetFunctionByID("test Function", @(UInt64) -> UInt64)
+    results:test(@f(10) == 11, builtIn_currentFile, builtIn_currentLine)
+    results:test(testFunc(10) == 13, builtIn_currentFile, builtIn_currentLine)
+    f1 .= @func(testFunc)(UInt64)
+    results:test(@f1(10) == 13, builtIn_currentFile, builtIn_currentLine)
+    a = 3
+    builtInCallFunctionByID("test Procedure", a)
+    results:test(a == 4, builtIn_currentFile, builtIn_currentLine)
+    a = 3
+    pr .= builtInGetFunctionByID("test Procedure", @(:UInt64))
+    @pr(a)
+    results:test(a == 4, builtIn_currentFile, builtIn_currentLine)
+    a = 3
+    testProc(a)
+    results:test(a == 6, builtIn_currentFile, builtIn_currentLine)
+    a = 3
+    pr1 .= @proc(testProc)(:UInt64)
+    @pr1(a)
+    results:test(a == 6, builtIn_currentFile, builtIn_currentLine)
