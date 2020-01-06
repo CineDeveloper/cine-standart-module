@@ -187,9 +187,10 @@ func parse_next(map Map(_, _), index UInt64) UInt64
         if map.private_keysAndItems[result].item?()
             then break
 
-proc private_deleteHidden(:map Map(_, _))
+proc unnamed(:map Map(_, _)) #1
     attributes
         noInline
+        id = "private delete hidden items in map procedure (standart module)"
     rules
         final = map[0] > Hashed & map[0] > Equal
     newMap := #map.init()
@@ -238,7 +239,7 @@ proc subEq(:map Map(_, _), key map[0])
                             map:private_trees:setItem(fullCurrentIndex, currentNode)
                             map:private_numberOfHiddenItems++
                             if < map.private_numberOfHiddenItems == UInt16
-                                then map:private_deleteHidden()
+                                then builtInCallFunctionByID("private delete hidden items in map procedure (standart module)", map)
                             break all
                     nextNodeIndex .= map.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
                     mif

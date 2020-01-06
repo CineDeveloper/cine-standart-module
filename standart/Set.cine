@@ -185,9 +185,10 @@ func parse_next(set Set(_), index UInt64) UInt64
         if set.private_items[result].item?()
             then break
 
-proc private_deleteHidden(:set Set(_))
+proc unnamed(:set Set(_)) #1
     attributes
         noInline
+        id = "private delete hidden items in set procedure (standart module)"
     rules
         final = set[0] > Hashed & set[0] > Equal
     newSet := #set.init()
@@ -236,7 +237,7 @@ proc subEq(:set Set(_), item set[0])
                             set:private_trees:setItem(fullCurrentIndex, currentNode)
                             set:private_numberOfHiddenItems++
                             if < set.private_numberOfHiddenItems == UInt16
-                                then set:private_deleteHidden()
+                                then builtInCallFunctionByID("private delete hidden items in set procedure (standart module)", set)
                             break all
                     nextNodeIndex .= set.private_trees[fullCurrentIndex].getNodeIndexWithOtherItemIndex()
                     mif

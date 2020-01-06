@@ -48,7 +48,9 @@ func item?(fluid Fluid) Bool
     C
         result_ = fluid_.object != (void*){0};
 
-proc private_fluidFree(:a)
+proc unnamed(:a) #1
+    attributes
+        id = "private free function in fluid (standart module)"
     a.free()
 
 func toFluid(a) Fluid
@@ -59,7 +61,7 @@ func toFluid(a) Fluid
         #include <stdio.h>
     a.use()
     typeNumber .= a.getTypeNumber()
-    freeFunction .= @proc(private_fluidFree)(:a)
+    freeFunction .= builtInGetFunctionByID("private free function in fluid (standart module)", @(:a))
     C
         result_.typeNumber = typeNumber_;
         result_.object = malloc(sizeof(##a##));
