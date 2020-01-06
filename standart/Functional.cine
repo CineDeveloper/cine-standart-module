@@ -1,39 +1,46 @@
-func foldl(f, a, slice)
+func filter(f, slice [_]) slice
     attributes
         alwaysInline
     rules
-        final = f == @(a, slice[0]) -> a & slice == [_]
-        result = a
+        final = f == @(slice[0]) -> Bool
+    parse _, item <- slice
+        if @f(item)
+            then result += item
+    if slice.string?()
+        then result:setStringFlag()
+
+func foldl(f, a, slice [_]) a
+    attributes
+        alwaysInline
+    rules
+        final = f == @(a, slice[0]) -> a
     result = a
     parse _, item <- slice
         result = @f(result, item)
 
-func foldr(f, a, slice)
+func foldr(f, a, slice [_]) a
     attributes
         alwaysInline
     rules
-        final = f == @(slice[0], a) -> a & slice == [_]
-        result = a
+        final = f == @(slice[0], a) -> a
     result = a
     for index := slice.getLength() - 1; index != UInt64.maxValue(); index--
         result = @f(slice[index], result)
 
-func map(f, slice)
+func map(f, slice [_]) [f[-]]
     attributes
         alwaysInline
     rules
-        final = f == @(slice[0]) -> _ & slice == [_]
-        result = [f[-]]
+        final = f == @(slice[0]) -> _
     result = [f[-]].init(slice.getLength())
     parse index, item <- slice
         result:setItem(index, @f(item))
 
-func map(f, a, slice)
+func map(f, a, slice [_]) [f[-]]
     attributes
         alwaysInline
     rules
-        final = f == @(slice[0], a) -> _ & slice == [_]
-        result = [f[-]]
+        final = f == @(slice[0], a) -> _
     result = [f[-]].init(slice.getLength())
     parse index, item <- slice
         result:setItem(index, @f(item, a))
