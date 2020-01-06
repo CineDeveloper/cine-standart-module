@@ -1,55 +1,37 @@
-func digit?(a)
+func digit?(a UInt8) Bool
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = Bool
     result = a.inRange?('0', '9')
 
-func letter?(a)
+func letter?(a UInt8) Bool
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = Bool
     result = a.lower?() || a.upper?()
 
-func lower?(a)
+func lower?(a UInt8) Bool
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = Bool
     result = a.inRange?('a', 'z')
 
-func toLower(a)
+func toLower(a UInt8) a
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = a
     if a.upper?()
         then
             C
                 result_ = a_ + 32;
         else result = a
 
-func toUpper(a)
+func toUpper(a UInt8) a
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = a
     if a.lower?()
         then
             C
                 result_ = a_ - 32;
         else result = a
 
-func upper?(a)
+func upper?(a UInt8) Bool
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = Bool
     result = a.inRange?('A', 'Z')

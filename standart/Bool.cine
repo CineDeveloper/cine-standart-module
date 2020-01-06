@@ -5,40 +5,28 @@ rules
     join 1 StringWriter
     join 1 StringReader
 
-func equal(a, b)
+func equal(a Bool, b a) a
     attributes
         alwaysInline
-    rules
-        final = a == Bool & b == a
-        result = Bool
     C
         result_ = a_ == b_;
 
-func fromString(a, string)
+func fromString(a Bool, string [UInt8]) Box(a)
     attributes
         alwaysInline
-    rules
-        final = a == Bool & string == [UInt8]
-        result = Box(a)
     mif
         string == "true"
             result:put(true)
         string == "false"
             result:put(false)
 
-func neg(a)
+func neg(a Bool) a
     attributes
         alwaysInline
-    rules
-        final = a == Bool
-        result = Bool
     C
         result_ = !a_;
 
-func toString(a)
+func toString(a Bool) [UInt8]
     attributes
         alwaysInline
-    rules
-        final = a == Bool
-        result = [UInt8]
     result = select(a, "true", "false")

@@ -1,11 +1,9 @@
 type TestResults
     success, fail, all UInt64
 
-proc test(:results, expectTrue, currentFile, currentLine)
+proc test(:results TestResults, expectTrue Bool, currentFile [UInt8], currentLine [UInt8])
     attributes
         alwaysInline
-    rules
-        final = results == TestResults & expectTrue == Bool & currentFile == [UInt8] & currentLine == [UInt8]
     results:all++
     if expectTrue
         then results:success++
@@ -13,12 +11,10 @@ proc test(:results, expectTrue, currentFile, currentLine)
             results:fail++
             print("File: ", currentFile, ", line: ", currentLine, ". Test fail.\n")
 
-proc show(testResults)
+proc show(testResults TestResults)
     attributes
         alwaysInline
     include
         #include <stdio.h>
-    rules
-        final = testResults == TestResults
     C
         printf("success: \x1B[32m%" PRIu64 "\x1B[0m, fail: \x1B[31m%" PRIu64 "\x1B[0m %" PRIu64 "/%" PRIu64 "\n", testResults_.success_, testResults_.fail_, testResults_.success_ + testResults_.fail_, testResults_.all_);

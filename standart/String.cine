@@ -1,77 +1,55 @@
-func digits?(string)
+func digits?(string [UInt8]) Bool
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
-        result = Bool
     parse _, char <- string
         if result = char.digit?(); !result
             then break
 
-func letters?(string)
+func letters?(string [UInt8]) Bool
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
-        result = Bool
     parse _, char <- string
         if result = char.letter?(); !result
             then break
 
-func lower?(string)
+func lower?(string [UInt8]) Bool
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
-        result = Bool
     parse _, char <- string
         if result = char.lower?(); !result
             then break
 
-func toLower(string)
+func toLower(string [UInt8]) [UInt8]
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
-        result = string
     result = [UInt8].init(string.getLength())
     parse index, item <- string
         result:setItem(index, item.toLower())
     result:setStringFlag()
 
-proc toLower(:string)
+proc toLower(:string [UInt8])
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
     parse index, item <- string
         string:setItem(index, item.toLower())
 
-func toUpper(string)
+func toUpper(string [UInt8]) [UInt8]
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
-        result = string
     result = [UInt8].init(string.getLength())
     parse index, item <- string
         result:setItem(index, item.toUpper())
     result:setStringFlag()
 
-proc toUpper(:string)
+proc toUpper(:string [UInt8])
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
     parse index, item <- string
         string:setItem(index, item.toUpper())
 
-func upper?(string)
+func upper?(string [UInt8]) Bool
     attributes
         alwaysInline
-    rules
-        final = string == [UInt8]
-        result = Bool
     parse _, char <- string
         if result = char.upper?(); !result
             then break

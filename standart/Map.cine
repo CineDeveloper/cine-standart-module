@@ -3,18 +3,14 @@ type Map(key, item)
     private_trees [MapTreeNode]
     private_numberOfHiddenItems UInt16
 
-proc add(:map, key, item)
+proc add(:map Map(_, _), key map[0], item map[1])
     rules
-        1 = map == Map(key, item)
-        2 = key > Hashed & key > Equal
-        final = 1 & 2
+        final = key > Hashed & key > Equal
     map += Pair(key, item).create(key, item)
 
-proc addEq(:map, keyAndItem)
+proc addEq(:map Map(_, _), keyAndItem Pair(map[0], map[1]))
     rules
-        1 = map == Map(_, _) & keyAndItem == Pair(map[0], map[1])
-        2 = map[0] > Hashed & map[0] > Equal
-        final = 1 & 2
+        final = map[0] > Hashed & map[0] > Equal
     if !map.init?()
         then map = #map.init()
     key .= keyAndItem.first
@@ -89,21 +85,15 @@ proc addEq(:map, keyAndItem)
     map:private_trees:setItem(fullCurrentIndex, currentNode)
     map:private_keysAndItems:setItem(itemIndex, Box(Pair(map[0], map[1])).create(keyAndItem))
 
-func create(mapType, keysAndItems)
+func create(mapType Map(_, _), keysAndItems [Pair(mapType[0], mapType[1])]) mapType
     rules
-        1 = mapType == Map(_, _) & keysAndItems == [Pair(mapType[0], mapType[1])]
-        2 = mapType[0] > Hashed & mapType[0] > Equal
-        final = 1 & 2
-        result = mapType
+        final = mapType[0] > Hashed & mapType[0] > Equal
     parse _, keyAndItem <- keysAndItems
         result += keyAndItem
 
-func getItem(map, key)
+func getItem(map Map(_, _), key map[0]) Box(map[1])
     rules
-        1 = map == Map(key, _)
-        2 = key > Hashed & key > Equal
-        final = 1 & 2
-        result = Box(map[1])
+        final = key > Hashed & key > Equal
     if map.init?()
         then
             keyHash := key.getSmallHash()
@@ -149,95 +139,67 @@ func getItem(map, key)
                             currentNodeIndex = nextNodeIndex
                 break
 
-func getLength(a)
+func getLength(a Map(_, _)) UInt64
     attributes
         alwaysInline
-    rules
-        final = a == Map(_, _)
-        result = UInt64
     if a.init?()
         then result = a.private_keysAndItems.getLength() - 1 - a.private_numberOfHiddenItems.convertTo(UInt64)
 
-func init(a)
+func init(a Map(_, _)) a
     attributes
         alwaysInline
-    rules
-        final = a == Map(_, _)
-        result = a
     result:private_keysAndItems = [Box(Pair(a[0], a[1]))].init(256).getFirstN(1)
     result:private_trees = [MapTreeNode].init(512).getFirstN(1)
 
-func init?(a)
+func init?(a Map(_, _)) Bool
     attributes
         alwaysInline
-    rules
-        final = a == Map(_, _)
-        result = Bool
     result = a.private_trees.getLength() != 0
 
-func parse_first(map)
+func parse_first(map Map(_, _)) UInt64
     attributes
         alwaysInline
-    rules
-        final = map == Map(_, _)
-        result = UInt64
     result = 1
     for ; result < map.private_keysAndItems.getLength(); result++
         if map.private_keysAndItems[result].item?()
             then break
 
-func parse_haveItem?(map, index)
+func parse_haveItem?(map Map(_, _), index UInt64) Bool
     attributes
         alwaysInline
-    rules
-        final = map == Map(_, _) & index == UInt64
-        result = Bool
     result = index < map.private_keysAndItems.getLength()
 
-func parse_item(map, index)
+func parse_item(map Map(_, _), index UInt64) map[1]
     attributes
         alwaysInline
-    rules
-        final = map == Map(_, _) & index == UInt64
-        result = map[1]
     result = map.private_keysAndItems[index][].second
 
-func parse_key(map, index)
+func parse_key(map Map(_, _), index UInt64) map[0]
     attributes
         alwaysInline
-    rules
-        final = map == Map(_, _) & index == UInt64
-        result = map[0]
     result = map.private_keysAndItems[index][].first
 
-func parse_next(map, index)
+func parse_next(map Map(_, _), index UInt64) UInt64
     attributes
         alwaysInline
-    rules
-        final = map == Map(_, _) & index == UInt64
-        result = UInt64
     result = index + 1
     for ; result < map.private_keysAndItems.getLength(); result++
         if map.private_keysAndItems[result].item?()
             then break
 
-proc private_deleteHidden(:map)
+proc private_deleteHidden(:map Map(_, _))
     attributes
         noInline
     rules
-        1 = map == Map(_, _)
-        2 = map[0] > Hashed & map[0] > Equal
-        final = 1 & 2
+        final = map[0] > Hashed & map[0] > Equal
     newMap := #map.init()
     parse key, item <- map
         newMap:add(key, item)
     map = newMap
 
-proc subEq(:map, key)
+proc subEq(:map Map(_, _), key map[0])
     rules
-        1 = map == Map(key, _)
-        2 = key > Hashed & key > Equal
-        final = 1 & 2
+        final = key > Hashed & key > Equal
     if map.init?()
         then
             keyHash := key.getSmallHash()

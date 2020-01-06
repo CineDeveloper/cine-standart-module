@@ -1,27 +1,19 @@
 type Fluid C(8, link, "struct ^^ {uint64_t typeNumber; void* object; uint64_t* useCounter; void (*free)(void*);}", "struct ^^", "#include <inttypes.h>")
 
-func clone(a)
+func clone(a Fluid) a
     attributes
         alwaysInline
-    rules
-        final = a == Fluid
-        result = a
     result = a
 
-func empty?(fluid)
+func empty?(fluid Fluid) Bool
     attributes
         alwaysInline
-    rules
-        final = fluid == Fluid
-        result = Bool
     C
         result_ = fluid_.object == (void*){0};
 
-proc free(a)
+proc free(a Fluid)
     include
         #include <stdlib.h>
-    rules
-        final = a == Fluid
     needToFree := false
     C
         if (a_.useCounter != (uint64_t*){0}) {
@@ -35,47 +27,36 @@ proc free(a)
                 free(a_.object);
                 free(a_.useCounter);
 
-func getInnerTypeNumber(a)
+func getInnerTypeNumber(a Fluid) UInt64
     attributes
         alwaysInline
-    rules
-        final = a == Fluid
-        result = UInt64
     C
         result_ = a_.typeNumber;
 
-func getItem(fluid, innerType)
+func getItem(fluid Fluid, innerType) innerType
     attributes
         alwaysInline
-    rules
-        final = fluid == Fluid
-        result = innerType
     flag debug is set?
         then debugMessage(fluid.getInnerTypeNumber() != #innerType.getTypeNumber(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the inner type does not match the type being extracted.")
     C
         result_ = *(##innerType##*)(fluid_.object);
     result.use()
 
-func item?(fluid)
+func item?(fluid Fluid) Bool
     attributes
         alwaysInline
-    rules
-        final = fluid == Fluid
-        result = Bool
     C
         result_ = fluid_.object != (void*){0};
 
 proc private_fluidFree(:a)
     a.free()
 
-func toFluid(a)
+func toFluid(a) Fluid
     attributes
         alwaysInline
     include
         #include <stddef.h>
         #include <stdio.h>
-    rules
-        result = Fluid
     a.use()
     typeNumber .= a.getTypeNumber()
     freeFunction .= @proc(private_fluidFree)(:a)
@@ -91,11 +72,9 @@ func toFluid(a)
         *result_.useCounter = 1;
         result_.free = (void (*)(void*))freeFunction_;
 
-proc use(a)
+proc use(a Fluid)
     attributes
         alwaysInline
-    rules
-        final = a == Fluid
     C
         if (a_.useCounter != (uint64_t*){0}) {
             (*a_.useCounter)++;

@@ -1,12 +1,10 @@
 group Binary
 
-proc addEq(:data, a) #4
+proc addEq(:data BinaryData, a > Binary) #4
     attributes
         alwaysInline
     include
         #include <string.h>
-    rules
-        final = data == BinaryData & a > Binary
     length .= #a.getTypeSize()
     newData := [UInt8]
     enslave(newData)
@@ -18,14 +16,11 @@ proc addEq(:data, a) #4
         newData_.capacity = length_;
     data:private_data += newData
 
-func getFromBinaryData(a, data, :position) #4
+func getFromBinaryData(a > Binary, data BinaryData, :position UInt64) a #4
     attributes
         alwaysInline
     include
         #include <string.h>
-    rules
-        final = a > Binary & data == BinaryData & position == UInt64
-        result = a
     length .= #a.getTypeSize()
     C
         memcpy(&result_, data_.private_data_.items + *position_, length_);

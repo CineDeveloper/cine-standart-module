@@ -1,12 +1,9 @@
-func loadFile(fileName)
+func loadFile(fileName [UInt8]) Box(BinaryData)
     include
         #include <stdio.h>
         #include <stdlib.h>
         #include <stddef.h>
         #include <string.h>
-    rules
-        final = fileName == [UInt8]
-        result = Box(BinaryData)
     fileNameLength .= fileName.getLength()
     flag debug is set?
         then debugMessage(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")

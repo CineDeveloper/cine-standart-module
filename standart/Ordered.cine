@@ -10,27 +10,18 @@ rules
     1 = type > Ordered
     join 1 Equal
 
-func inRange?(a, begin, end) #4
+func inRange?(a > Ordered, begin a, end a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > Ordered & begin == a & end == a
-        result = Bool
     result = a >= begin && a <= end
 
-func max(a, b) #4
+func max(a > Ordered, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > Ordered & b == a
-        result = a
     result = select(a > b, a, b)
 
-func min(a, b) #4
+func min(a > Ordered, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > Ordered & b == a
-        result = a
     result = select(a < b, a, b)
 

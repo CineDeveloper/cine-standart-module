@@ -2,139 +2,103 @@ rules
     1 = type == Float64
     join 1 BasicFloat
 
-func abs(a)
+func abs(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = fabs(a_);
 
-func arcCos(a)
+func arcCos(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     flag debug is set?
         then debugMessage(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
     C
         result_ = acos(a_);
 
-func arcCtg(a)
+func arcCtg(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = (double)(M_PI) / 2.0 - atan(a_);
 
-func arcSin(a)
+func arcSin(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     flag debug is set?
         then debugMessage(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
     C
         result_ = asin(a_);
 
-func arcTg(a)
+func arcTg(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = atan(a_);
 
-func ceil(a)
+func ceil(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = ceil(a_);
 
-func cos(a)
+func cos(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = cos(a_);
 
-func ctg(a)
+func ctg(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = (double)(1.0) / tan(a_);
 
-func disassemble(a)
+func disassemble(a Float64) Pair(a, a)
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = Pair(a, a)
     C
         result_.second_ = modf(a_, &(result_.first_));
 
-func exp(a)
+func exp(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = exp(a_);
 
-func floor(a)
+func floor(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = floor(a_);
 
-func fromString(a, string)
+func fromString(a Float64, string [UInt8]) Box(a)
     attributes
         alwaysInline
     include
         #include <string.h>
-    rules
-        final = a == Float64 & string == [UInt8]
-        result = Box(a)
     if string.getLength().inRange?(1, 312)
         then
             C
@@ -148,96 +112,72 @@ func fromString(a, string)
                     result_.private_item_ = 0.0;
                 }
 
-func lg(a)
+func lg(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = log10(a_);
 
-func ln(a)
+func ln(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = log(a_);
 
-func log(a, base)
+func log(a Float64, base a) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64 & base == a
-        result = a
     C
         result_ = log(a_) / log(base_);
 
-func mod(a, b)
+func mod(a Float64, b a) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64 & b == a
-        result = a
     C
         result_ = fmod(a_, b_);
     flag debug is set?
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
-func power(a, b)
+func power(a Float64, b a) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64 & b == a
-        result = a
     C
         result_ = pow(a_, b_);
     flag debug is set?
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
-func sin(a)
+func sin(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = sin(a_);
 
-func sqrt(a)
+func sqrt(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = sqrt(a_);
     flag debug is set?
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
-func tg(a)
+func tg(a Float64) a
     attributes
         alwaysInline
     include
         #include <math.h>
-    rules
-        final = a == Float64
-        result = a
     C
         result_ = tan(a_);

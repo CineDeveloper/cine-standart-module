@@ -3,12 +3,9 @@ group Hashed
 //getHash(a) -> UInt64
 //getHashSize(a) -> UInt8
 
-func getSmallHash(a) #4
+func getSmallHash(a > Hashed) UInt32 #4
     attributes
         alwaysInline
-    rules
-        final = a > Hashed
-        result = UInt32
     bigHash .= a.getHash()
     result = bigHash.convertTo(UInt32)
     if a.getHashSize() > 4.convertTo(UInt8)
@@ -25,10 +22,7 @@ func getSmallHash(a) #4
             result ^= result >> 11
             result += result << 15
 
-func getSmallHashSize(a) #4
+func getSmallHashSize(a > Hashed) UInt8 #4
     attributes
         alwaysInline
-    rules
-        final = a > Hashed
-        result = UInt8
     result = min(a.getHashSize(), 4.convertTo(UInt8))

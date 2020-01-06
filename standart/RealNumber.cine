@@ -23,9 +23,7 @@ rules
     join 1 Number
     join 1 Ordered
 
-proc modEq(:a, b) #4
+proc modEq(:a > RealNumber, b a) #4
     attributes
         alwaysInline
-    rules
-        final = a > RealNumber & b == a
     a = a % b

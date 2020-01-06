@@ -52,6 +52,12 @@ proc testProc(:a) #9
         final = a == UInt64
     a += 3
 
+func testFunc_1(a UInt64) a
+    result = 1
+
+func testFunc_2(a > BasicUnsignedInteger) a
+    result = 2.convertTo(#a)
+
 proc testBuiltIn(:results)
     rules
         final = results == TestResults
@@ -458,3 +464,6 @@ proc testBuiltIn(:results)
     pr1 .= @proc(testProc)(:UInt64)
     @pr1(a)
     results:test(a == 6, builtIn_currentFile, builtIn_currentLine)
+    results:test(testFunc_1(UInt64) == 1, builtIn_currentFile, builtIn_currentLine)
+    results:test(testFunc_2(UInt64) == 2, builtIn_currentFile, builtIn_currentLine)
+    results:test(testFunc_2(UInt8) == 2.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)

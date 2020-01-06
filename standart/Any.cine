@@ -1,22 +1,15 @@
-func convertTo(from, to) #9
+func convertTo(from, to from) to #9
     attributes
         alwaysInline
-    rules
-        final = from == to
-        result = to
     result = from
 
-func getTypeSize(a)
+func getTypeSize(a) UInt64
     attributes
         alwaysInline
-    rules
-        result = UInt64
     C
         result_ = sizeof(##a##);
 
-func getTypeNumber(a)
+func getTypeNumber(a) UInt64
     attributes
         alwaysInline
-    rules
-        result = UInt64
     result = builtInTypeNumber(a)

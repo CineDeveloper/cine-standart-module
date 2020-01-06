@@ -1,16 +1,12 @@
-proc debugMessage(predicate, message)
+proc debugMessage(predicate Bool, message [UInt8])
     attributes
         noInline
-    rules
-        final = predicate == Bool & message == [UInt8]
     flag debug is set?
         then if predicate
             then printLn("DEBUG: ", message)
 
-proc debugMessage(message)
+proc debugMessage(message [UInt8])
     attributes
         noInline
-    rules
-        final = message == [UInt8]
     flag debug is set?
         then printLn("DEBUG: ", message)

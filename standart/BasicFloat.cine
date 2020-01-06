@@ -28,108 +28,77 @@ rules
     join 1 SignedNumber
     join 1 Binary
 
-func convertTo(from, to) #4
+func convertTo(from > BasicFloat, to > BasicFloat) to #4
     attributes
         alwaysInline
-    rules
-        final = from > BasicFloat & to > BasicFloat
-        result = to
     C
         result_ = from_;
 
-proc dec(:a) #4
+proc dec(:a > BasicFloat) #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
     C
         *a_ = *a_ - 1.0;
 
-func div(a, b)
+func div(a > BasicFloat, b a) a
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat & b == a
-        result = a
     C
         result_ = a_ / b_;
     flag debug is set?
         then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
-proc inc(:a) #4
+proc inc(:a > BasicFloat) #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
     C
         *a_ = *a_ + 1.0;
 
-func minusInf(a) #4
+func minusInf(a > BasicFloat) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = a
     C
         result_ = -INFINITY;
 
-func nan?(a) #4
+func nan?(a > BasicFloat) Bool #4
     include
         #include <math.h>
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = Bool
     C
         result_ = isnan(a_);
 
-func neg(a) #4
+func neg(a > BasicFloat) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = a
     C
         result_ = 0.0 - a_;
 
-func pi(a) #4
+func pi(a > BasicFloat) a #4
     include
         #include <math.h>
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = a
     C
         result_ = M_PI;
 
-func plusInf(a) #4
+func plusInf(a > BasicFloat) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = a
     C
         result_ = INFINITY;
 
-func random(maxValue) #4
+func random(maxValue > BasicFloat) maxValue #4
     include
         #include <stdlib.h>
     attributes
         alwaysInline
-    rules
-        final = maxValue > BasicFloat
-        result = maxValue
     C
         result_ = (double)(rand()) / (double)(RAND_MAX) * maxValue_;
 
-func round(a) #4
+func round(a > BasicFloat) Int64 #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = Int64
     C
         if (a_ >= 0.0){
             result_ = a_ + 0.5;
@@ -137,15 +106,12 @@ func round(a) #4
             result_ = a_ - 0.5;
         }
 
-func toString(a) #4
+func toString(a > BasicFloat) [UInt8] #4
     attributes
         alwaysInline
     include
         #include <stdio.h>
         #include <string.h>
-    rules
-        final = a > BasicFloat
-        result = [UInt8]
     length := 0
     C
         char buf[313];
@@ -155,11 +121,8 @@ func toString(a) #4
         memcpy(result_.items, buf, length_);
     result:setStringFlag()
 
-func trunc(a) #4
+func trunc(a > BasicFloat) Int64 #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicFloat
-        result = Int64
     C
         result_ = a_;

@@ -2,10 +2,7 @@ group Equal
 //require
 //equal(a, a) -> Bool
 
-func notEqual(a, b) #4
+func notEqual(a > Equal, b a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > Equal & a == b
-        result = Bool
     result = !a.equal(b)

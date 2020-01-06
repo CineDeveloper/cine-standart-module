@@ -4,14 +4,11 @@ proc exit()
     C
         exit(0);
 
-func getCMDArgument(index)
+func getCMDArgument(index UInt64) Box([UInt8])
     attributes
         alwaysInline
     include
         #include <string.h>
-    rules
-        final = index == UInt64
-        result = Box([UInt8])
     count .= getCMDArgumetsCount()
     C
         if (index_ <= count_) {
@@ -22,34 +19,27 @@ func getCMDArgument(index)
             result_.private_haveItem_ = true;
         }
 
-func getCMDArguments()
+func getCMDArguments() [[UInt8]]
     attributes
         alwaysInline
-    rules
-        result = [[UInt8]]
     if count .= getCMDArgumetsCount(); count != 0
         then
             result = [[UInt8]].init(count)
             for index := 0; index < count; index++
                 result:setItem(index, getCMDArgument(index+1)[])
 
-func getCMDArgumetsCount()
+func getCMDArgumetsCount() UInt64
     attributes
         alwaysInline
-    rules
-        result = UInt64
     C
         result_ = __argc - 1;
 
-func getEnvironmentVariable(name)
+func getEnvironmentVariable(name [UInt8]) Box([UInt8])
     attributes
         alwaysInline
     include
         #include <stdlib.h>
         #include <string.h>
-    rules
-        final = name == [UInt8]
-        result = Box([UInt8])
     length .= name.getLength()
     flag debug is set?
         then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - variable name is empty.")
@@ -66,22 +56,18 @@ func getEnvironmentVariable(name)
             result_.private_haveItem_ = true;
         }
 
-func getStaticRandomNumber()
+func getStaticRandomNumber() UInt64
     attributes
         alwaysInline
-    rules
-        result = UInt64
     C
         result_ = __staticRandomNumber__;
 
-func getLineFromSTDIN()
+func getLineFromSTDIN() [UInt8]
     attributes
         noInline
     include
         #include <stdio.h>
         #include <string.h>
-    rules
-        result = [UInt8]
     bufferString := [UInt8]
     enslave(bufferString)
     C
@@ -103,63 +89,43 @@ func getLineFromSTDIN()
                 break
     result:setStringFlag()
 
-proc panic(message)
+proc panic(message [UInt8])
     attributes
         noInline
     include
         #include <stdio.h>
         #include <stdlib.h>
-    rules
-        final = message == [UInt8]
     C
         fprintf(stderr, "%.*s\n", (int)(message_.length), (char*)(message_.items));
         exit(1);
 
-proc print(a1)
+proc print(a1 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        final = 1
     str1 .= a1.toString()
     C
         printf("%.*s", (int)(str1_.length), (char*)(str1_.items));
 
-proc print(a1, a2)
+proc print(a1 > StringWriter, a2 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        final = 1 & 2
     str1 .= a1.toString()
     str2 .= a2.toString()
     C
         printf("%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items));
 
-proc print(a1, a2, a3)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        final = 1 & 2 & 3
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
     C
         printf("%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items));
 
-proc print(a1, a2, a3, a4)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        final = 1 & 2 & 3 & 4
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -167,16 +133,9 @@ proc print(a1, a2, a3, a4)
     C
         printf("%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items));
 
-proc print(a1, a2, a3, a4, a5)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -185,17 +144,9 @@ proc print(a1, a2, a3, a4, a5)
     C
         printf("%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items));
 
-proc print(a1, a2, a3, a4, a5, a6)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -205,18 +156,9 @@ proc print(a1, a2, a3, a4, a5, a6)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -227,19 +169,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -251,20 +183,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -277,21 +198,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -305,22 +214,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -335,23 +231,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -367,24 +249,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -401,25 +268,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        14 = a14 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -437,26 +288,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        14 = a14 > StringWriter
-        15 = a15 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -475,27 +309,9 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items));
 
-proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        14 = a14 > StringWriter
-        15 = a15 > StringWriter
-        16 = a16 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -515,51 +331,521 @@ proc print(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items));
 
-proc printLn(a1)
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        final = 1
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter, a30 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    str30 .= a30.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter, a30 > StringWriter, a31 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    str30 .= a30.toString()
+    str31 .= a31.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items), (int)(str31_.length), (char*)(str31_.items));
+
+proc print(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter, a30 > StringWriter, a31 > StringWriter, a32 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    str30 .= a30.toString()
+    str31 .= a31.toString()
+    str32 .= a32.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items), (int)(str31_.length), (char*)(str31_.items), (int)(str32_.length), (char*)(str32_.items));
+
+proc printLn(a1 > StringWriter)
+    include
+        #include <stdio.h>
     str1 .= a1.toString()
     C
         printf("%.*s\n", (int)(str1_.length), (char*)(str1_.items));
 
-proc printLn(a1, a2)
+proc printLn(a1 > StringWriter, a2 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        final = 1 & 2
     str1 .= a1.toString()
     str2 .= a2.toString()
     C
         printf("%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items));
 
-proc printLn(a1, a2, a3)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        final = 1 & 2 & 3
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
     C
         printf("%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items));
 
-proc printLn(a1, a2, a3, a4)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        final = 1 & 2 & 3 & 4
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -567,16 +853,9 @@ proc printLn(a1, a2, a3, a4)
     C
         printf("%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items));
 
-proc printLn(a1, a2, a3, a4, a5)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -585,17 +864,9 @@ proc printLn(a1, a2, a3, a4, a5)
     C
         printf("%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -605,18 +876,9 @@ proc printLn(a1, a2, a3, a4, a5, a6)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -627,19 +889,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -651,20 +903,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -677,21 +918,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -705,22 +934,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -735,23 +951,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -767,24 +969,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -801,25 +988,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        14 = a14 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -837,26 +1008,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        14 = a14 > StringWriter
-        15 = a15 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -875,27 +1029,9 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15)
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items));
 
-proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16)
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter)
     include
         #include <stdio.h>
-    rules
-        1 = a1 > StringWriter
-        2 = a2 > StringWriter
-        3 = a3 > StringWriter
-        4 = a4 > StringWriter
-        5 = a5 > StringWriter
-        6 = a6 > StringWriter
-        7 = a7 > StringWriter
-        8 = a8 > StringWriter
-        9 = a9 > StringWriter
-        10 = a10 > StringWriter
-        11 = a11 > StringWriter
-        12 = a12 > StringWriter
-        13 = a13 > StringWriter
-        14 = a14 > StringWriter
-        15 = a15 > StringWriter
-        16 = a16 > StringWriter
-        final = 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16
     str1 .= a1.toString()
     str2 .= a2.toString()
     str3 .= a3.toString()
@@ -914,3 +1050,491 @@ proc printLn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a
     str16 .= a16.toString()
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter, a30 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    str30 .= a30.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter, a30 > StringWriter, a31 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    str30 .= a30.toString()
+    str31 .= a31.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items), (int)(str31_.length), (char*)(str31_.items));
+
+proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > StringWriter, a5 > StringWriter, a6 > StringWriter, a7 > StringWriter, a8 > StringWriter, a9 > StringWriter, a10 > StringWriter, a11 > StringWriter, a12 > StringWriter, a13 > StringWriter, a14 > StringWriter, a15 > StringWriter, a16 > StringWriter, a17 > StringWriter, a18 > StringWriter, a19 > StringWriter, a20 > StringWriter, a21 > StringWriter, a22 > StringWriter, a23 > StringWriter, a24 > StringWriter, a25 > StringWriter, a26 > StringWriter, a27 > StringWriter, a28 > StringWriter, a29 > StringWriter, a30 > StringWriter, a31 > StringWriter, a32 > StringWriter)
+    include
+        #include <stdio.h>
+    str1 .= a1.toString()
+    str2 .= a2.toString()
+    str3 .= a3.toString()
+    str4 .= a4.toString()
+    str5 .= a5.toString()
+    str6 .= a6.toString()
+    str7 .= a7.toString()
+    str8 .= a8.toString()
+    str9 .= a9.toString()
+    str10 .= a10.toString()
+    str11 .= a11.toString()
+    str12 .= a12.toString()
+    str13 .= a13.toString()
+    str14 .= a14.toString()
+    str15 .= a15.toString()
+    str16 .= a16.toString()
+    str17 .= a17.toString()
+    str18 .= a18.toString()
+    str19 .= a19.toString()
+    str20 .= a20.toString()
+    str21 .= a21.toString()
+    str22 .= a22.toString()
+    str23 .= a23.toString()
+    str24 .= a24.toString()
+    str25 .= a25.toString()
+    str26 .= a26.toString()
+    str27 .= a27.toString()
+    str28 .= a28.toString()
+    str29 .= a29.toString()
+    str30 .= a30.toString()
+    str31 .= a31.toString()
+    str32 .= a32.toString()
+    C
+        printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items), (int)(str31_.length), (char*)(str31_.items), (int)(str32_.length), (char*)(str32_.items));

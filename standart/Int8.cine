@@ -2,12 +2,9 @@ rules
     1 = type == Int8
     join 1 BasicSignedInteger
 
-func toUnsigned(a)
+func toUnsigned(a Int8) UInt8
     attributes
         alwaysInline
-    rules
-        final = a == Int8
-        result = UInt8
     flag debug is set?
         then debugMessage(a < #a, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - assign a negative number to the unsigned variable.")
     C

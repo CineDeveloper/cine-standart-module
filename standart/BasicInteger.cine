@@ -18,98 +18,70 @@ rules
     join 1 Hashed
     join 1 Binary
 
-func and(a, b) #4
+func and(a > BasicInteger, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger & b == a
-        result = a
     C
         result_ = a_ & b_;
 
-func convertTo(from, to) #4
+func convertTo(from > BasicInteger, to) to #4
     attributes
         alwaysInline
     rules
-        final = from > BasicInteger & (to > BasicInteger | to > BasicFloat)
-        result = to
+        final = to > BasicInteger | to > BasicFloat
     C
         result_ = from_;
 
-proc dec(:a) #4
+proc dec(:a > BasicInteger) #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger
     C
         (*a_)--;
 
-func getHash(a) #4
+func getHash(a > BasicInteger) UInt64 #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger
-        result = UInt64
     C
         result_ = a_;
 
-func getHashSize(a) #4
+func getHashSize(a > BasicInteger) UInt8 #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger
-        result = UInt8
     result = #a.getTypeSize().convertTo(UInt8)
 
-proc inc(:a) #4
+proc inc(:a > BasicInteger) #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger
     C
         (*a_)++;
 
-func mod(a, b) #4
+func mod(a > BasicInteger, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger & b == a
-        result = a
     flag debug is set?
         then debugMessage(b == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - division by zero.")
     C
         result_ = a_ % b_;
 
-proc modEq(:a, b) #4
+proc modEq(:a > BasicInteger, b a) #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger & b == a
     a = a % b
 
-func not(a) #4
+func not(a > BasicInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger
-        result = a
     C
         result_ = ~a_;
 
-func or(a, b) #4
+func or(a > BasicInteger, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger & b == a
-        result = a
     C
         result_ = a_ | b_;
 
-func xor(a, b) #4
+func xor(a > BasicInteger, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicInteger & b == a
-        result = a
     C
         result_ = a_ ^ b_;

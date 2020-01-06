@@ -2,12 +2,9 @@ rules
     1 = type == Int32
     join 1 BasicSignedInteger
 
-func toUnsigned(a)
+func toUnsigned(a Int32) UInt32
     attributes
         alwaysInline
-    rules
-        final = a == Int32
-        result = UInt32
     flag debug is set?
         then debugMessage(a < #a, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - assign a negative number to the unsigned variable.")
     C

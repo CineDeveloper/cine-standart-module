@@ -13,85 +13,58 @@ rules
     join 1 StringWriter
     join 1 StringReader
 
-func add(a, b) #4
+func add(a > BasicNumber, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = a
     C
         result_ = a_ + b_;
 
-func div(a, b) #4
+func div(a > BasicNumber, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = a
     flag debug is set?
         then debugMessage(b == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - division by zero.")
     C
         result_ = a_ / b_;
 
-func equal(a, b) #4
+func equal(a > BasicNumber, b a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = Bool
     C
         result_ = a_ == b_;
 
-func greater(a, b) #4
+func greater(a > BasicNumber, b a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = Bool
     C
         result_ = a_ > b_;
 
-func greaterOrEqual(a, b) #4
+func greaterOrEqual(a > BasicNumber, b a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = Bool
     C
         result_ = a_ >= b_;
 
-func less(a, b) #4
+func less(a > BasicNumber, b a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = Bool
     C
         result_ = a_ < b_;
 
-func lessOrEqual(a, b) #4
+func lessOrEqual(a > BasicNumber, b a) Bool #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = Bool
     C
         result_ = a_ <= b_;
 
-func mul(a, b) #4
+func mul(a > BasicNumber, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = a
     C
         result_ = a_ * b_;
 
-func sub(a, b) #4
+func sub(a > BasicNumber, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicNumber & b == a
-        result = a
     C
         result_ = a_ - b_;

@@ -15,55 +15,48 @@ rules
     5 = type == Triple(_, _, _) & type[0] > Bits & type[1] > Bits & type[2] > Bits
     join 5 Bits
 
-proc addEq(:data, triple)
+proc addEq(:data BinaryData, triple Triple(_, _, _))
     rules
-        final = data == BinaryData & triple == Triple(_, _, _) & triple > Binary
+        final = triple > Binary
     data += triple.first
     data += triple.second
     data += triple.third
 
-func and(a, b)
+func and(a Triple(_, _, _), b a) a
     attributes
         alwaysInline
     rules
-        final = a == Triple(_, _, _) & a > Bits & a == b
-        result = a
+        final = a > Bits
     result:first = a.first & b.first
     result:second = a.second & b.second
     result:third = a.third & b.third
 
-func create(tripleType, first, second, third)
+func create(tripleType Triple(_, _, _), first tripleType[0], second tripleType[1], third tripleType[2]) tripleType
     attributes
         alwaysInline
-    rules
-        final = tripleType == Triple(first, second, third)
-        result = tripleType
     result:first = first
     result:second = second
     result:third = third
 
-func equal(a, b)
+func equal(a Triple(_, _, _), b a) Bool
     attributes
         alwaysInline
     rules
-        final = a == Triple(_, _, _) & a > Equal & a == b
-        result = Bool
+        final = a > Equal
     result = a.first == b.first && a.second == b.second && a.third == b.third
 
-func getFromBinaryData(triple, data, :position)
+func getFromBinaryData(triple Triple(_, _, _), data BinaryData, :position UInt64) triple
     rules
-        final = triple == Triple(_, _, _) & triple > Binary & data == BinaryData & position == UInt64
-        result = triple
+        final = triple > Binary
     result:first = #triple[0].getFromBinaryData(data, position)
     result:second = #triple[1].getFromBinaryData(data, position)
     result:third = #triple[2].getFromBinaryData(data, position)
 
-func getHash(triple)
+func getHash(triple Triple(_, _, _)) UInt64
     attributes
         alwaysInline
     rules
-        final = triple == Triple(_, _, _) & triple > Hashed
-        result = UInt64
+        final = triple > Hashed
     result = triple.first.getHash()
     result += result << 10
     result ^= result >> 6
@@ -80,70 +73,63 @@ func getHash(triple)
     result ^= result >> 11
     result += result << 15
 
-func getHashSize(triple)
+func getHashSize(triple Triple(_, _, _)) UInt8
     attributes
         alwaysInline
     rules
-        final = triple == Triple(_, _, _) & triple > Hashed
-        result = UInt8
+        final = triple > Hashed
     result = 8.convertTo(UInt8)
 
-func not(triple)
+func not(triple Triple(_, _, _)) triple
     attributes
         alwaysInline
     rules
-        final = triple == Triple(_, _, _) & triple > Bits
-        result = triple
+        final = triple > Bits
     result:first = triple.first.not()
     result:second = triple.second.not()
     result:third = triple.third.not()
 
-func or(a, b)
+func or(a Triple(_, _, _), b a) a
     attributes
         alwaysInline
     rules
-        final = a == Triple(_, _, _) & a > Bits & a == b
-        result = a
+        final = a > Bits
     result:first = a.first | b.first
     result:second = a.second | b.second
     result:third = a.third | b.third
 
-func shl(triple, shifts)
+func shl(triple Triple(_, _, _), shifts > BasicUnsignedInteger) triple
     attributes
         alwaysInline
     rules
-        final = triple == Triple(_, _, _) & triple > Bits & shifts > BasicUnsignedInteger
-        result = triple
+        final = triple > Bits
     result:first = triple.first << shifts
     result:second = triple.second << shifts
     result:third = triple.third << shifts
 
-func shr(triple, shifts)
+func shr(triple Triple(_, _, _), shifts > BasicUnsignedInteger) triple
     attributes
         alwaysInline
     rules
-        final = triple == Triple(_, _, _) & triple > Bits & shifts > BasicUnsignedInteger
-        result = triple
+        final = triple > Bits
     result:first = triple.first >> shifts
     result:second = triple.second >> shifts
     result:third = triple.third >> shifts
 
-func toString(triple)
+func toString(triple Triple(_, _, _)) [UInt8]
     rules
-        final = triple == Triple(_, _, _) & triple > StringWriter
-        result = [UInt8]
+        final = triple > StringWriter
     result = "(".join({
         triple.first.toString(), ", ",
         triple.second.toString(), ", " ,
         triple.third.toString(), ")")
     }
 
-func xor(a, b)
+func xor(a Triple(_, _, _), b a) a
     attributes
         alwaysInline
     rules
-        final = a == Triple(_, _, _) & a > Bits & a == b
-        result = a
+        final = a > Bits
     result:first = a.first ^ b.first
     result:second = a.second ^ b.second
     result:third = a.third ^ b.third

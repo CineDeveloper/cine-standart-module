@@ -14,51 +14,44 @@ rules
     5 = type == Pair(_, _) & type[0] > Bits & type[1] > Bits
     join 5 Bits
 
-proc addEq(:data, pair)
+proc addEq(:data BinaryData, pair Pair(_, _))
     rules
-        final = data == BinaryData & pair == Pair(_, _) & pair > Binary
+        final = pair > Binary
     data += pair.first
     data += pair.second
 
-func and(a, b)
+func and(a Pair(_, _), b a) a
     attributes
         alwaysInline
     rules
-        final = a == Pair(_, _) & a > Bits & a == b
-        result = a
+        final = a > Bits
     result:first = a.first & b.first
     result:second = a.second & b.second
 
-func create(pairType, first, second)
+func create(pairType Pair(_, _), first pairType[0], second pairType[1]) pairType
     attributes
         alwaysInline
-    rules
-        final = pairType == Pair(first, second)
-        result = pairType
     result:first = first
     result:second = second
 
-func equal(a, b)
+func equal(a Pair(_, _), b a) Bool
     attributes
         alwaysInline
     rules
-        final = a == Pair(_, _) & a > Equal & a == b
-        result = Bool
+        final = a > Equal
     result = a.first == b.first && a.second == b.second
 
-func getFromBinaryData(pair, data, :position)
+func getFromBinaryData(pair Pair(_, _), data BinaryData, :position UInt64) pair
     rules
-        final = pair == Pair(_, _) & pair > Binary & data == BinaryData & position == UInt64
-        result = pair
+        final = pair > Binary
     result:first = #pair[0].getFromBinaryData(data, position)
     result:second = #pair[1].getFromBinaryData(data, position)
 
-func getHash(pair)
+func getHash(pair Pair(_, _)) UInt64
     attributes
         alwaysInline
     rules
-        final = pair == Pair(_, _) & pair > Hashed
-        result = UInt64
+        final = pair > Hashed
     result = pair.first.getHash()
     result += result << 10
     result ^= result >> 6
@@ -72,64 +65,57 @@ func getHash(pair)
     result ^= result >> 11
     result += result << 15
 
-func getHashSize(pair)
+func getHashSize(pair Pair(_, _)) UInt8
     attributes
         alwaysInline
     rules
-        final = pair == Pair(_, _) & pair > Hashed
-        result = UInt8
+        final = pair > Hashed
     result = 8.convertTo(UInt8)
 
-func not(pair)
+func not(pair Pair(_, _)) pair
     attributes
         alwaysInline
     rules
-        final = pair == Pair(_, _) & pair > Bits
-        result = pair
+        final = pair > Bits
     result:first = pair.first.not()
     result:second = pair.second.not()
 
-func or(a, b)
+func or(a Pair(_, _), b a) a
     attributes
         alwaysInline
     rules
-        final = a == Pair(_, _) & a > Bits & a == b
-        result = a
+        final = a > Bits
     result:first = a.first | b.first
     result:second = a.second | b.second
 
-func shl(pair, shifts)
+func shl(pair Pair(_, _), shifts > BasicUnsignedInteger) pair
     attributes
         alwaysInline
     rules
-        final = pair == Pair(_, _) & pair > Bits & shifts > BasicUnsignedInteger
-        result = pair
+        final = pair > Bits
     result:first = pair.first << shifts
     result:second = pair.second << shifts
 
-func shr(pair, shifts)
+func shr(pair Pair(_, _), shifts > BasicUnsignedInteger) pair
     attributes
         alwaysInline
     rules
-        final = pair == Pair(_, _) & pair > Bits & shifts > BasicUnsignedInteger
-        result = pair
+        final = pair > Bits
     result:first = pair.first >> shifts
     result:second = pair.second >> shifts
 
-func toString(pair)
+func toString(pair Pair(_, _)) [UInt8]
     rules
-        final = pair == Pair(_, _) & pair > StringWriter
-        result = [UInt8]
+        final = pair > StringWriter
     result = "(".join({
         pair.first.toString(), ", ",
         pair.second.toString(), ")")
     }
 
-func xor(a, b)
+func xor(a Pair(_, _), b a) a
     attributes
         alwaysInline
     rules
-        final = a == Pair(_, _) & a > Bits & a == b
-        result = a
+        final = a > Bits
     result:first = a.first ^ b.first
     result:second = a.second ^ b.second

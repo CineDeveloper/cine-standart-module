@@ -2,12 +2,9 @@ rules
     1 = type == UInt8
     join 1 BasicUnsignedInteger
 
-func toSigned(a)
+func toSigned(a UInt8) Int8
     attributes
         alwaysInline
-    rules
-        final = a == UInt8
-        result = Int8
     flag debug is set?
         then debugMessage(a > (#a.maxValue() >> 1), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C

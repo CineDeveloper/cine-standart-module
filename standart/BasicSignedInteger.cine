@@ -6,20 +6,14 @@ rules
     join 1 BasicInteger
     join 1 SignedInteger
 
-func abs(a) #4
+func abs(a > BasicSignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger
-        result = a
     result = select(a < #a, a.neg(), a)
 
-func add(a, b)
+func add(a > BasicSignedInteger, b a) a
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger & b == a
-        result = a
     flag debug is set?
         then
             overflow := false
@@ -32,12 +26,9 @@ func add(a, b)
     C
         result_ = a_ + b_;
 
-func fromString(a, string) #4
+func fromString(a > BasicSignedInteger, string [UInt8]) Box(a) #4
     attributes
         alwaysInline
-    rules
-        final =  a > BasicSignedInteger & string == [UInt8]
-        result = Box(a)
     tenInIndexPower := 1.convertTo(#a).toUnsigned()
     if string.getLength() != 0
         then if signed .= string[0] == '-'; !(signed && string.getLength() == 1)
@@ -63,32 +54,23 @@ func fromString(a, string) #4
                             then result:put(!resultNumber)
                             else result:put(resultNumber)
 
-func maxValue(a) #4
+func maxValue(a > BasicSignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger
-        result = a
     unsignedA := #a.toUnsigned()
     C
         unsignedA_ = -1;
         unsignedA_ >>= 1;
         result_ = unsignedA_;
 
-func minValue(a) #4
+func minValue(a > BasicSignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger
-        result = a
     result = #a.maxValue().not()
 
-func mul(a, b)
+func mul(a > BasicSignedInteger, b a) a
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger & b == a
-        result = a
     flag debug is set?
         then
             overflow := false
@@ -101,23 +83,17 @@ func mul(a, b)
     C
         result_ = a_ * b_;
 
-func neg(a) #4
+func neg(a > BasicSignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger
-        result = a
     flag debug is set?
         then debugMessage(a == #a.minValue(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C
         result_ = 0 - a_;
 
-func power(a, b) #4
+func power(a > BasicSignedInteger, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger & b == a
-        result = a
     if b >= #b
         then
             tmp := a
@@ -131,26 +107,20 @@ func power(a, b) #4
                     then break
                     else tmp *= tmp.clone()
 
-func random(maxValue) #4
+func random(maxValue > BasicSignedInteger) maxValue #4
     attributes
         alwaysInline
     include
         #include <stdlib.h>
-    rules
-        final = maxValue > BasicSignedInteger
-        result = maxValue
     flag debug is set?
         then debugMessage(maxValue <= 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
     C
         uint64_t randomNumber = (UINT64_MAX / RAND_MAX * rand() + rand()) / (UINT64_MAX / maxValue_);
         result_ = randomNumber;
 
-func shl(a, shifts) #4
+func shl(a > BasicSignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger & shifts > BasicUnsignedInteger
-        result = a
     flag debug is set?
         then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     unsignedResult := #a.toUnsigned()
@@ -159,12 +129,9 @@ func shl(a, shifts) #4
         unsignedResult_ <<= shifts_;
         result_ = unsignedResult_;
 
-func shr(a, shifts) #4
+func shr(a > BasicSignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger & shifts > BasicUnsignedInteger
-        result = a
     flag debug is set?
         then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     unsignedResult := #a.toUnsigned()
@@ -173,12 +140,9 @@ func shr(a, shifts) #4
         unsignedResult_ >>= shifts_;
         result_ = unsignedResult_;
 
-func sub(a, b)
+func sub(a > BasicSignedInteger, b a) a
     attributes
         alwaysInline
-    rules
-        final = a > BasicSignedInteger & b == a
-        result = a
     flag debug is set?
         then
             overflow := false
@@ -191,14 +155,11 @@ func sub(a, b)
     C
         result_ = a_ - b_;
 
-func toString(a) #4
+func toString(a > BasicSignedInteger) [UInt8] #4
     attributes
         alwaysInline
     include
         #include <string.h>
-    rules
-        final = a > BasicSignedInteger
-        result = [UInt8]
     length := #a.getTypeSize() * 3 - #a.getTypeSize() / 2 + 1
     index := length
     remain := a

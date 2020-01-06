@@ -6,12 +6,9 @@ rules
     join 1 BasicInteger
     join 1 UnsignedInteger
 
-func fromString(a, string) #4
+func fromString(a > BasicUnsignedInteger, string [UInt8]) Box(a) #4
     attributes
         alwaysInline
-    rules
-        final =  a > BasicUnsignedInteger & string == [UInt8]
-        result = Box(a)
     tenInIndexPower := 1.convertTo(#a)
     if string.getLength() != 0
         then
@@ -27,28 +24,20 @@ func fromString(a, string) #4
                 tenInIndexPower *= 10
             result:put(resultNumber)
 
-func maxValue(a) #4
+func maxValue(a > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicUnsignedInteger
-        result = a
     C
         result_ = - 1;
 
-func minValue(a) #4
+func minValue(a > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicUnsignedInteger
-        result = a
+    result = #a
 
-func power(a, b) #4
+func power(a > BasicUnsignedInteger, b a) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicUnsignedInteger & b == a
-        result = a
     result = 1.convertTo(#a)
     tmp := a
     power := b
@@ -60,50 +49,38 @@ func power(a, b) #4
             then break
             else tmp *= tmp.clone()
 
-func random(maxValue) #4
+func random(maxValue > BasicUnsignedInteger) maxValue #4
     attributes
         alwaysInline
     include
         #include <stdlib.h>
-    rules
-        final = maxValue > BasicUnsignedInteger
-        result = maxValue
     flag debug is set?
         then debugMessage(maxValue == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
     C
         uint64_t randomNumber = (UINT64_MAX / RAND_MAX * rand() + rand()) / (UINT64_MAX / maxValue_);
         result_ = randomNumber;
 
-func shl(a, shifts) #4
+func shl(a > BasicUnsignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicUnsignedInteger & shifts > BasicUnsignedInteger
-        result = a
     flag debug is set?
         then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     C
         result_ = a_ << shifts_;
 
-func shr(a, shifts) #4
+func shr(a > BasicUnsignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    rules
-        final = a > BasicUnsignedInteger & shifts > BasicUnsignedInteger
-        result = a
     flag debug is set?
         then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     C
         result_ = a_ >> shifts_;
 
-func toString(a) #4
+func toString(a > BasicUnsignedInteger) [UInt8] #4
     attributes
         alwaysInline
     include
         #include <string.h>
-    rules
-        final = a > BasicUnsignedInteger
-        result = [UInt8]
     length := #a.getTypeSize() * 3 - #a.getTypeSize() / 2
     index := length
     remain := a
