@@ -1,5 +1,7 @@
 group BasicInteger
 //require
+//countAllSet(a) -> UInt8
+//findFirstSet(a) -> UInt8
 //fromString(a, [UInt8]) -> a
 //maxValue(a) -> a
 //minValue(a) -> a

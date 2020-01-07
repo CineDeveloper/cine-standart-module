@@ -2,6 +2,14 @@ rules
     1 = type == UInt64
     join 1 BasicUnsignedInteger
 
+func countAllSet(a UInt64) UInt8
+    C
+        result_ = __builtin_popcountll(a_);
+
+func findFirstSet(a UInt64) UInt8
+    C
+        result_ = __builtin_ffsll(a_);
+
 func toSigned(a UInt64) Int64
     attributes
         alwaysInline

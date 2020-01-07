@@ -1,4 +1,6 @@
 group BasicUnsignedInteger
+//countAllSet(a) -> UInt8
+//findFirstSet(a) -> UInt8
 //toSigned(a) -> b
 
 rules

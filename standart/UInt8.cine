@@ -2,6 +2,14 @@ rules
     1 = type == UInt8
     join 1 BasicUnsignedInteger
 
+func countAllSet(a UInt8) UInt8
+    C
+        result_ = __builtin_popcount(a_);
+
+func findFirstSet(a UInt8) UInt8
+    C
+        result_ = __builtin_ffs((uint32_t)a_);
+
 func toSigned(a UInt8) Int8
     attributes
         alwaysInline

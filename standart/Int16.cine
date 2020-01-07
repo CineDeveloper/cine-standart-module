@@ -2,6 +2,14 @@ rules
     1 = type == Int16
     join 1 BasicSignedInteger
 
+func countAllSet(a Int16) UInt8
+    C
+        result_ = __builtin_popcount((uint16_t)a_);
+
+func findFirstSet(a Int16) UInt8
+    C
+        result_ = __builtin_ffs((uint32_t)(uint16_t)a_);
+
 func toUnsigned(a Int16) UInt16
     attributes
         alwaysInline
