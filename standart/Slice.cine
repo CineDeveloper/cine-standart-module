@@ -2659,9 +2659,9 @@ proc swap(:slice, first, second)
         slice_->items[first_] = slice_->items[second_];
         slice_->items[second_] = tmp_;
 
-func toString(slice)
+func toString(slice) #6
     rules
-        final = slice == [_] & slice > StringWriter
+        final = slice == [UInt8]
         result = [UInt8]
     if slice.string?()
         then result = slice
@@ -2675,6 +2675,20 @@ func toString(slice)
                     result = result.getAllExceptLastN(2)
             result += ']'
             result:setStringFlag()
+
+func toString(slice)
+    rules
+        final = slice == [_] & slice > StringWriter
+        result = [UInt8]
+    result = "["
+    if slice.getLength() != 0
+        then
+            parse _, item <- slice
+                result += item.toString()
+                result += ", "
+            result = result.getAllExceptLastN(2)
+    result += ']'
+    result:setStringFlag()
 
 proc use(slice)
     rules
