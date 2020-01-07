@@ -3084,19 +3084,21 @@ proc swap(:slice [_], first > BasicUnsignedInteger, second > BasicUnsignedIntege
         slice_->items[first_] = slice_->items[second_];
         slice_->items[second_] = tmp_;
 
+func toString(slice [UInt8]) [UInt8] #6
+    result = select(slice.string?(), slice, builtInCallFunctionByID("to string function (standart module)", slice))
+
 func toString(slice [_]) [UInt8]
+    attributes
+        id = "to string function (standart module)"
     rules
         final = slice > StringWriter
-    if slice.string?()
-        then result = slice
-        else
-            result = "["
-            if slice.getLength() != 0
-                then
-                    parse _, item <- slice
-                        result:join(item.toString(), ", ")
-                    result = result.getAllExceptLastN(2)
-            result += ']'
+    result = "["
+    if slice.getLength() != 0
+        then
+            parse _, item <- slice
+                result:join(item.toString(), ", ")
+            result = result.getAllExceptLastN(2)
+    result += ']'
 
 proc use(slice [_])
     attributes
