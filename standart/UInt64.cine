@@ -3,10 +3,14 @@ rules
     join 1 BasicUnsignedInteger
 
 func countAllSet(a UInt64) UInt8
+    attributes
+        alwaysInline
     C
         result_ = __builtin_popcountll(a_);
 
 func findFirstSet(a UInt64) UInt8
+    attributes
+        alwaysInline
     C
         result_ = __builtin_ffsll(a_);
 

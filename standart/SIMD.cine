@@ -1,0 +1,846 @@
+group SIMDVector
+
+type V8UInt8 C(1, "typedef uint8_t ^^ __attribute__ ((aligned (1), vector_size(8)))", "^^", "#include <inttypes.h>")
+type V16UInt8 C(1, "typedef uint8_t ^^ __attribute__ ((aligned (1), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16UInt16 C(2, "typedef uint16_t ^^ __attribute__ ((aligned (2), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16UInt32 C(4, "typedef uint32_t ^^ __attribute__ ((aligned (4), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16UInt64 C(8, "typedef uint64_t ^^ __attribute__ ((aligned (8), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16Int8 C(1, "typedef int8_t ^^ __attribute__ ((aligned (1), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16Int16 C(2, "typedef int16_t ^^ __attribute__ ((aligned (2), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16Int32 C(4, "typedef int32_t ^^ __attribute__ ((aligned (4), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16Int64 C(8, "typedef int64_t ^^ __attribute__ ((aligned (8), vector_size(16)))", "^^", "#include <inttypes.h>")
+type V16Float32 C(4, "typedef float ^^ __attribute__ ((aligned (4), vector_size(16)))", "^^")
+type V16Float64 C(8, "typedef double ^^ __attribute__ ((aligned (8), vector_size(16)))", "^^")
+type V32UInt8 C(1, "typedef uint8_t ^^ __attribute__ ((aligned (1), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32UInt16 C(2, "typedef uint16_t ^^ __attribute__ ((aligned (2), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32UInt32 C(4, "typedef uint32_t ^^ __attribute__ ((aligned (4), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32UInt64 C(8, "typedef uint64_t ^^ __attribute__ ((aligned (8), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32Int8 C(1, "typedef int8_t ^^ __attribute__ ((aligned (1), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32Int16 C(2, "typedef int16_t ^^ __attribute__ ((aligned (2), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32Int32 C(4, "typedef int32_t ^^ __attribute__ ((aligned (4), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32Int64 C(8, "typedef int64_t ^^ __attribute__ ((aligned (8), vector_size(32)))", "^^", "#include <inttypes.h>")
+type V32Float32 C(4, "typedef float ^^ __attribute__ ((aligned (4), vector_size(32)))", "^^")
+type V32Float64 C(8, "typedef double ^^ __attribute__ ((aligned (8), vector_size(32)))", "^^")
+
+rules
+    1 = type == V32UInt8 | type == V32UInt16 | type == V32UInt32 | type == V32UInt64
+    2 = type == V32Int8 | type == V32Int16 | type == V32Int32 | type == V32Int64
+    3 = type == V16UInt8 | type == V16UInt16 | type == V16UInt32 | type == V16UInt64
+    4 = type == V16Int8 | type == V16Int16 | type == V16Int32 | type == V16Int64
+    5 = type == V32Float32 | type == V32Float64 | type == V16Float32 | type == V16Float64
+    6 = 1 | 2 | 3 | 4 | 5
+    join 6 SIMDVector
+
+func getInnerType(vectorType) UInt8
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32UInt8 | vectorType == V16UInt8
+
+func getInnerType(vectorType) UInt16
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32UInt16 | vectorType == V16UInt16
+
+func getInnerType(vectorType) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32UInt32 | vectorType == V16UInt32
+
+func getInnerType(vectorType) UInt64
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32UInt64 | vectorType == V16UInt64
+
+func getInnerType(vectorType) Int8
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32Int8 | vectorType == V16Int8
+
+func getInnerType(vectorType) Int16
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32Int16 | vectorType == V16Int16
+
+func getInnerType(vectorType) Int32
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32Int32 | vectorType == V16Int32
+
+func getInnerType(vectorType) Int64
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32Int64 | vectorType == V16Int64
+
+func getInnerType(vectorType) Float32
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32Float32 | vectorType == V16Float32
+
+func getInnerType(vectorType) Float64
+    attributes
+        alwaysInline
+    rules
+        final = vectorType == V32Float64 | vectorType == V16Float64
+
+func getVector32Type(innerType UInt8) V32UInt8
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType UInt16) V32UInt16
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType UInt32) V32UInt32
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType UInt64) V32UInt64
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType Int8) V32Int8
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType Int16) V32Int16
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType Int32) V32Int32
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType Int64) V32Int64
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType Float32) V32Float32
+    attributes
+        alwaysInline
+
+func getVector32Type(innerType Float64) V32Float64
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType UInt8) V16UInt8
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType UInt16) V16UInt16
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType UInt32) V16UInt32
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType UInt64) V16UInt64
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType Int8) V16Int8
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType Int16) V16Int16
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType Int32) V16Int32
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType Int64) V16Int64
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType Float32) V16Float32
+    attributes
+        alwaysInline
+
+func getVector16Type(innerType Float64) V16Float64
+    attributes
+        alwaysInline
+
+func getCount(a > SIMDVector) UInt64
+    attributes
+        alwaysInline
+    result = a.getTypeSize() / a.getInnerType().getTypeSize()
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V32UInt8 & value == UInt8
+        2 = vectorType == V32Int8 & value == Int8
+        final = 1 | 2
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V32UInt16 & value == UInt16
+        2 = vectorType == V32Int16 & value == Int16
+        final = 1 | 2
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V32UInt32 & value == UInt32
+        2 = vectorType == V32Int32 & value == Int32
+        3 = vectorType == V32Float32 & value == Float32
+        final = 1 | 2 | 3
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_, value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V32UInt64 & value == UInt64
+        2 = vectorType == V32Int64 & value == Int64
+        3 = vectorType == V32Float64 & value == Float64
+        final = 1 | 2 | 3
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V16UInt8 & value == UInt8
+        2 = vectorType == V16Int8 & value == Int8
+        final = 1 | 2
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V16UInt16 & value == UInt16
+        2 = vectorType == V16Int16 & value == Int16
+        final = 1 | 2
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_, value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V16UInt32 & value == UInt32
+        2 = vectorType == V16Int32 & value == Int32
+        3 = vectorType == V16Float32 & value == Float32
+        final = 1 | 2 | 3
+    C
+        result_ = (##vectorType##){value_, value_, value_, value_};
+
+func fill(vectorType, value) vectorType
+    attributes
+        alwaysInline
+    rules
+        1 = vectorType == V16UInt64 & value == UInt64
+        2 = vectorType == V16Int64 & value == Int64
+        3 = vectorType == V16Float64 & value == Float64
+        final = 1 | 2 | 3
+    C
+        result_ = (##vectorType##){value_, value_};
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt8 | vector1 == V32Int8
+    C
+        ##vector1## const cmp = vector1_ == vector2_;
+        #if __AVX2__ == 1
+        result_ = __builtin_ia32_pmovmskb256(cmp);
+        #elif __SSE2 == 1
+        uint64_t const low = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[0]);
+        uint64_t const high = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[1]);
+        result_ = low | (high << 32);
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768) | \
+            (cmp[16] & 65536) | (cmp[17] & 131072) | (cmp[18] & 262144) | (cmp[19] & 524288) | \
+            (cmp[20] & 1048576) | (cmp[21] & 2097152) | (cmp[22] & 4194304) | (cmp[23] & 8388608) | \
+            (cmp[24] & 16777216) | (cmp[25] & 33554432) | (cmp[26] & 67108864) | (cmp[27] & 134217728) | \
+            (cmp[28] & 268435456) | (cmp[29] & 536870912) | (cmp[30] & 1073741824) | (cmp[31] & 2147483648);
+        #endif
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt16 | vector1 == V32Int16 | vector1 == V16UInt8 | vector1 == V16Int8
+    C
+        ##vector1## const cmp = vector1_ == vector2_;
+        #if __SSE2__ == 1
+        result_ = (uint16_t)__builtin_ia32_pmovmskb128(__builtin_convertvector(cmp, ##V16UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768);
+        #endif
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt32 | vector1 == V32Int32 | vector1 == V16UInt16 | vector1 == V16Int16
+    C
+        ##vector1## const cmp = vector1_ == vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt64 | vector1 == V32Int64 | vector1 == V16UInt32 | vector1 == V16Int32
+    C
+        ##vector1## const cmp = vector1_ == vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16UInt64 | vector1 == V16Int64
+    C
+        ##vector1## const cmp = vector1_ == vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float32 & vector1 == vector2
+    C
+        ##V32UInt32## const cmp = vector1_ == vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float64 & vector1 == vector2
+    C
+        ##V32UInt64## const cmp = vector1_ == vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float32 & vector1 == vector2
+    C
+        ##V16UInt32## const cmp = vector1_ == vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func equal(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float64 & vector1 == vector2
+    C
+        ##V16UInt64## const cmp = vector1_ == vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt8 | vector1 == V32Int8
+    C
+        ##vector1## const cmp = vector1_ > vector2_;
+        #if __AVX2__ == 1
+        result_ = __builtin_ia32_pmovmskb256(cmp);
+        #elif __SSE2 == 1
+        uint64_t const low = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[0]);
+        uint64_t const high = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[1]);
+        result_ = low | (high << 32);
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768) | \
+            (cmp[16] & 65536) | (cmp[17] & 131072) | (cmp[18] & 262144) | (cmp[19] & 524288) | \
+            (cmp[20] & 1048576) | (cmp[21] & 2097152) | (cmp[22] & 4194304) | (cmp[23] & 8388608) | \
+            (cmp[24] & 16777216) | (cmp[25] & 33554432) | (cmp[26] & 67108864) | (cmp[27] & 134217728) | \
+            (cmp[28] & 268435456) | (cmp[29] & 536870912) | (cmp[30] & 1073741824) | (cmp[31] & 2147483648);
+        #endif
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt16 | vector1 == V32Int16 | vector1 == V16UInt8 | vector1 == V16Int8
+    C
+        ##vector1## const cmp = vector1_ > vector2_;
+        #if __SSE2__ == 1
+        result_ = (uint16_t)__builtin_ia32_pmovmskb128(__builtin_convertvector(cmp, ##V16UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768);
+        #endif
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt32 | vector1 == V32Int32 | vector1 == V16UInt16 | vector1 == V16Int16
+    C
+        ##vector1## const cmp = vector1_ > vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt64 | vector1 == V32Int64 | vector1 == V16UInt32 | vector1 == V16Int32
+    C
+        ##vector1## const cmp = vector1_ > vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16UInt64 | vector1 == V16Int64
+    C
+        ##vector1## const cmp = vector1_ > vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float32 & vector1 == vector2
+    C
+        ##V32UInt32## const cmp = vector1_ > vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float64 & vector1 == vector2
+    C
+        ##V32UInt64## const cmp = vector1_ > vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float32 & vector1 == vector2
+    C
+        ##V16UInt32## const cmp = vector1_ > vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func greater(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float64 & vector1 == vector2
+    C
+        ##V16UInt64## const cmp = vector1_ > vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt8 | vector1 == V32Int8
+    C
+        ##vector1## const cmp = vector1_ >= vector2_;
+        #if __AVX2__ == 1
+        result_ = __builtin_ia32_pmovmskb256(cmp);
+        #elif __SSE2 == 1
+        uint64_t const low = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[0]);
+        uint64_t const high = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[1]);
+        result_ = low | (high << 32);
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768) | \
+            (cmp[16] & 65536) | (cmp[17] & 131072) | (cmp[18] & 262144) | (cmp[19] & 524288) | \
+            (cmp[20] & 1048576) | (cmp[21] & 2097152) | (cmp[22] & 4194304) | (cmp[23] & 8388608) | \
+            (cmp[24] & 16777216) | (cmp[25] & 33554432) | (cmp[26] & 67108864) | (cmp[27] & 134217728) | \
+            (cmp[28] & 268435456) | (cmp[29] & 536870912) | (cmp[30] & 1073741824) | (cmp[31] & 2147483648);
+        #endif
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt16 | vector1 == V32Int16 | vector1 == V16UInt8 | vector1 == V16Int8
+    C
+        ##vector1## const cmp = vector1_ >= vector2_;
+        #if __SSE2__ == 1
+        result_ = (uint16_t)__builtin_ia32_pmovmskb128(__builtin_convertvector(cmp, ##V16UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768);
+        #endif
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt32 | vector1 == V32Int32 | vector1 == V16UInt16 | vector1 == V16Int16
+    C
+        ##vector1## const cmp = vector1_ >= vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt64 | vector1 == V32Int64 | vector1 == V16UInt32 | vector1 == V16Int32
+    C
+        ##vector1## const cmp = vector1_ >= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16UInt64 | vector1 == V16Int64
+    C
+        ##vector1## const cmp = vector1_ >= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float32 & vector1 == vector2
+    C
+        ##V32UInt32## const cmp = vector1_ >= vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float64 & vector1 == vector2
+    C
+        ##V32UInt64## const cmp = vector1_ >= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float32 & vector1 == vector2
+    C
+        ##V16UInt32## const cmp = vector1_ >= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func greaterOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float64 & vector1 == vector2
+    C
+        ##V16UInt64## const cmp = vector1_ >= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt8 | vector1 == V32Int8
+    C
+        ##vector1## const cmp = vector1_ < vector2_;
+        #if __AVX2__ == 1
+        result_ = __builtin_ia32_pmovmskb256(cmp);
+        #elif __SSE2 == 1
+        uint64_t const low = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[0]);
+        uint64_t const high = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[1]);
+        result_ = low | (high << 32);
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768) | \
+            (cmp[16] & 65536) | (cmp[17] & 131072) | (cmp[18] & 262144) | (cmp[19] & 524288) | \
+            (cmp[20] & 1048576) | (cmp[21] & 2097152) | (cmp[22] & 4194304) | (cmp[23] & 8388608) | \
+            (cmp[24] & 16777216) | (cmp[25] & 33554432) | (cmp[26] & 67108864) | (cmp[27] & 134217728) | \
+            (cmp[28] & 268435456) | (cmp[29] & 536870912) | (cmp[30] & 1073741824) | (cmp[31] & 2147483648);
+        #endif
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt16 | vector1 == V32Int16 | vector1 == V16UInt8 | vector1 == V16Int8
+    C
+        ##vector1## const cmp = vector1_ < vector2_;
+        #if __SSE2__ == 1
+        result_ = (uint16_t)__builtin_ia32_pmovmskb128(__builtin_convertvector(cmp, ##V16UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768);
+        #endif
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt32 | vector1 == V32Int32 | vector1 == V16UInt16 | vector1 == V16Int16
+    C
+        ##vector1## const cmp = vector1_ < vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt64 | vector1 == V32Int64 | vector1 == V16UInt32 | vector1 == V16Int32
+    C
+        ##vector1## const cmp = vector1_ < vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16UInt64 | vector1 == V16Int64
+    C
+        ##vector1## const cmp = vector1_ < vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float32 & vector1 == vector2
+    C
+        ##V32UInt32## const cmp = vector1_ < vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float64 & vector1 == vector2
+    C
+        ##V32UInt64## const cmp = vector1_ < vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float32 & vector1 == vector2
+    C
+        ##V16UInt32## const cmp = vector1_ < vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func less(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float64 & vector1 == vector2
+    C
+        ##V16UInt64## const cmp = vector1_ < vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt8 | vector1 == V32Int8
+    C
+        ##vector1## const cmp = vector1_ <= vector2_;
+        #if __AVX2__ == 1
+        result_ = __builtin_ia32_pmovmskb256(cmp);
+        #elif __SSE2 == 1
+        uint64_t const low = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[0]);
+        uint64_t const high = (uint16_t)__builtin_ia32_pmovmskb128(((##V16UInt8##*)(&cmp))[1]);
+        result_ = low | (high << 32);
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768) | \
+            (cmp[16] & 65536) | (cmp[17] & 131072) | (cmp[18] & 262144) | (cmp[19] & 524288) | \
+            (cmp[20] & 1048576) | (cmp[21] & 2097152) | (cmp[22] & 4194304) | (cmp[23] & 8388608) | \
+            (cmp[24] & 16777216) | (cmp[25] & 33554432) | (cmp[26] & 67108864) | (cmp[27] & 134217728) | \
+            (cmp[28] & 268435456) | (cmp[29] & 536870912) | (cmp[30] & 1073741824) | (cmp[31] & 2147483648);
+        #endif
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt16 | vector1 == V32Int16 | vector1 == V16UInt8 | vector1 == V16Int8
+    C
+        ##vector1## const cmp = vector1_ <= vector2_;
+        #if __SSE2__ == 1
+        result_ = (uint16_t)__builtin_ia32_pmovmskb128(__builtin_convertvector(cmp, ##V16UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128) | \
+            (cmp[8] & 256) | (cmp[9] & 512) | (cmp[10] & 1024) | (cmp[11] & 2048) | \
+            (cmp[12] & 4096) | (cmp[13] & 8192) | (cmp[14] & 16384) | (cmp[15] & 32768);
+        #endif
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt32 | vector1 == V32Int32 | vector1 == V16UInt16 | vector1 == V16Int16
+    C
+        ##vector1## const cmp = vector1_ <= vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32UInt64 | vector1 == V32Int64 | vector1 == V16UInt32 | vector1 == V16Int32
+    C
+        ##vector1## const cmp = vector1_ <= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16UInt64 | vector1 == V16Int64
+    C
+        ##vector1## const cmp = vector1_ <= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float32 & vector1 == vector2
+    C
+        ##V32UInt32## const cmp = vector1_ <= vector2_;
+        #if __SSE__ == 1
+        result_ = (uint8_t)__builtin_ia32_pmovmskb(__builtin_convertvector(cmp, ##V8UInt8##));
+        #else
+        result_ = \
+            (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8) | \
+            (cmp[4] & 16) | (cmp[5] & 32) | (cmp[6] & 64) | (cmp[7] & 128);
+        #endif
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V32Float64 & vector1 == vector2
+    C
+        ##V32UInt64## const cmp = vector1_ <= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float32 & vector1 == vector2
+    C
+        ##V16UInt32## const cmp = vector1_ <= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2) | (cmp[2] & 4) | (cmp[3] & 8);
+
+func lessOrEqual(vector1, vector2 vector1) UInt32
+    attributes
+        alwaysInline
+    rules
+        final = vector1 == V16Float64 & vector1 == vector2
+    C
+        ##V16UInt64## const cmp = vector1_ <= vector2_;
+        result_ = (cmp[0] & 1) | (cmp[1] & 2);

@@ -358,6 +358,23 @@ func getFromBinaryData(sliceType [_], data BinaryData, :position UInt64) sliceTy
     if isString
         then result:setStringFlag()
 
+func getFromBinaryData(sliceType [_], data BinaryData, :position UInt64) sliceType #6
+    include
+        #include <string.h>
+    rules
+        final = sliceType[0] > BasicNumber | sliceType[0] == Bool
+    isString .= Bool.getFromBinaryData(data, position)
+    length .= UInt64.getFromBinaryData(data, position)
+    if length != 0
+        then
+            result = #sliceType.init(length)
+            C
+                uint64_t const count = length_ * sizeof(##sliceType[0]##);
+                memcpy(result_.items, data_.private_data_.items + *position_, count);
+                *position_ += count;
+    if isString
+        then result:setStringFlag()
+
 func getHash(slice [_]) UInt64
     attributes
         alwaysInline
@@ -3077,12 +3094,10 @@ proc swap(:slice [_], first > BasicUnsignedInteger, second > BasicUnsignedIntege
             debugMessage(second.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - second index is too large.")
     if slice.use?()
         then slice = slice.clone()
-    tmp := #slice[0]
-    enslave(tmp)
     C
-        tmp_ = slice_->items[first_];
+        ##slice[0]## tmp = slice_->items[first_];
         slice_->items[first_] = slice_->items[second_];
-        slice_->items[second_] = tmp_;
+        slice_->items[second_] = tmp;
 
 func toString(slice [UInt8]) [UInt8] #6
     result = select(slice.string?(), slice, builtInCallFunctionByID("to string function (standart module)", slice))

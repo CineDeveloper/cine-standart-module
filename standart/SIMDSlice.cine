@@ -1,0 +1,1459 @@
+func and(slice1 [_], slice2 slice1) slice1 #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicInteger
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    remainLength := slice1.getLength()
+    result = #slice1.init(remainLength)
+    C
+        ##slice1[0]##* remainItems1 = slice1_.items;
+        ##slice1[0]##* remainItems2 = slice2_.items;
+        ##slice1[0]##* remainResult = result_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice1[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainResult = *(##vector32Type##*)remainItems1 & *(##vector32Type##*)remainItems2;
+            remainResult += v32Count_;
+            remainItems1 += v32Count_;
+            remainItems2 += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice1[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainResult = *(##vector16Type##*)remainItems1 & *(##vector16Type##*)remainItems2;
+            remainResult += v16Count_;
+            remainItems1 += v16Count_;
+            remainItems2 += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainResult = *remainItems1 & *remainItems2;
+            remainResult++;
+            remainItems1++;
+            remainItems2++;
+        remainLength--
+    if slice1.string?()
+        then result:setStringFlag()
+
+proc andEq(:slice1 [_], slice2 slice1) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicInteger
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    remainLength := slice1.getLength()
+    C
+        ##slice1[0]##* remainItems1 = slice1_->items;
+        ##slice1[0]##* remainItems2 = slice2_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice1[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainItems1 = *(##vector32Type##*)remainItems1 & *(##vector32Type##*)remainItems2;
+            remainItems1 += v32Count_;
+            remainItems2 += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice1[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainItems1 = *(##vector16Type##*)remainItems1 & *(##vector16Type##*)remainItems2;
+            remainItems1 += v16Count_;
+            remainItems2 += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainItems1 = *remainItems1 & *remainItems2;
+            remainItems1++;
+            remainItems2++;
+        remainLength--
+
+func count(slice [_], item slice[0]) UInt64 #6
+    attributes
+        alwaysInline
+    rules
+        final = item > BasicNumber
+    remainLength := slice.getLength()
+    C
+        ##item##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    items32 .= #item.getVector32Type().fill(item)
+    vector32 := #items32
+    enslave(items32)
+    enslave(vector32)
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        result += (vector32 == items32).countAllSet().convertTo(UInt64)
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    items16 .= #item.getVector16Type().fill(item)
+    vector16 := #items16
+    enslave(items16)
+    enslave(vector16)
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        result += (vector16 == items16).countAllSet().convertTo(UInt64)
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #item
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        if oneItem == item
+            then result++
+        remainLength--
+
+func count(slice [_], itemsList VAList(slice[0])) UInt64 #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicNumber
+    flag debug is set?
+        then debugMessage(itemsList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    remainLength := slice.getLength()
+    C
+        ##slice[0]##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    vector32 := #slice[0].getVector32Type()
+    list32 := VAList(vector32)
+    enslave(list32)
+    enslave(vector32)
+    parse index, item <- itemsList
+        items32 .= #vector32.fill(item)
+        C
+            list32_.items[index_] = items32_;
+    C
+        list32_.length = itemsList_.length;
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        offsets := UInt32
+        parse _, items32 <- list32
+            offsets |= vector32 == items32
+        result += offsets.countAllSet().convertTo(UInt64)
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16 := #slice[0].getVector16Type()
+    list16 := VAList(vector16)
+    enslave(list16)
+    enslave(vector16)
+    parse index, item <- itemsList
+        items16 .= #vector16.fill(item)
+        C
+            list16_.items[index_] = items16_;
+    C
+        list16_.length = itemsList_.length;
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        offsets := UInt32
+        parse _, items16 <- list16
+            offsets |= vector16 == items16
+        result += offsets.countAllSet().convertTo(UInt64)
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #slice[0]
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        parse _, item <- itemsList
+            if oneItem == item
+                then
+                    result++
+                    break
+        remainLength--
+
+func equal(slice1 [_], slice2 slice1) Bool #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicNumber
+    if remainLength := slice1.getLength(); result = remainLength == slice2.getLength(); result && remainLength != 0
+        then
+            C
+                ##slice1[0]##* remainItems1 = slice1_.items;
+                ##slice1[0]##* remainItems2 = slice2_.items;
+                #if __AVX2__ == 1
+            vector32_1 := #slice1[0].getVector32Type()
+            vector32_2 := #vector32_1
+            enslave(vector32_1)
+            enslave(vector32_2)
+            v32Count .= #vector32_1.getCount()
+            for remainLength >= v32Count
+                C
+                    vector32_1_ = *(##vector32_1##*)remainItems1;
+                    vector32_2_ = *(##vector32_1##*)remainItems2;
+                    remainItems1 += v32Count_;
+                    remainItems2 += v32Count_;
+                remainLength -= v32Count
+                if result = (vector32_1 == vector32_2).countAllSet() == v32Count.convertTo(UInt8); !result
+                    then return
+            C
+                #elif __SSE2__ == 1
+            vector16_1 := #slice1[0].getVector16Type()
+            vector16_2 := #vector16_1
+            enslave(vector16_1)
+            enslave(vector16_2)
+            v16Count .= #vector16_1.getCount()
+            for remainLength >= v16Count
+                C
+                    vector16_1_ = *(##vector16_1##*)remainItems1;
+                    vector16_2_ = *(##vector16_1##*)remainItems2;
+                    remainItems1 += v16Count_;
+                    remainItems2 += v16Count_;
+                remainLength -= v16Count
+                if result = (vector16_1 == vector16_2).countAllSet() == v16Count.convertTo(UInt8); !result
+                    then return
+            C
+                #endif
+            for remainLength != 0
+                C
+                    result_ = *remainItems1 == *remainItems2;
+                    remainItems1++;
+                    remainItems2++;
+                if !result
+                    then return
+                remainLength--
+
+func greater(slice1 [_], slice2 slice1) Bool #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicNumber
+    if remainLength := slice1.getLength().min(slice2.getLength()); remainLength != 0
+        then
+            C
+                ##slice1[0]##* remainItems1 = slice1_.items;
+                ##slice1[0]##* remainItems2 = slice2_.items;
+                #if __AVX2__ == 1
+            vector32_1 := #slice1[0].getVector32Type()
+            vector32_2 := #vector32_1
+            enslave(vector32_1)
+            enslave(vector32_2)
+            v32Count .= #vector32_1.getCount()
+            for remainLength >= v32Count
+                C
+                    vector32_1_ = *(##vector32_1##*)remainItems1;
+                    vector32_2_ = *(##vector32_1##*)remainItems2;
+                    remainItems1 += v32Count_;
+                    remainItems2 += v32Count_;
+                ffs32_1 .= (vector32_1 > vector32_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs32_2 .= (vector32_2 > vector32_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs32_1 < ffs32_2
+                        return true
+                    ffs32_2 < ffs32_1
+                        return false
+                remainLength -= v32Count
+            C
+                #elif __SSE2__ == 1
+            vector16_1 := #slice1[0].getVector16Type()
+            vector16_2 := #vector16_1
+            enslave(vector16_1)
+            enslave(vector16_2)
+            v16Count .= #vector16_1.getCount()
+            for remainLength >= v16Count
+                C
+                    vector16_1_ = *(##vector16_1##*)remainItems1;
+                    vector16_2_ = *(##vector16_1##*)remainItems2;
+                    remainItems1 += v16Count_;
+                    remainItems2 += v16Count_;
+                ffs16_1 .= (vector16_1 > vector16_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs16_2 .= (vector16_2 > vector16_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs16_1 < ffs16_2
+                        return true
+                    ffs16_2 < ffs16_1
+                        return false
+                remainLength -= v16Count
+            C
+                #endif
+            for remainLength != 0
+                C
+                    if (*remainItems1 > *remainItems2) {
+                        return true;
+                    } else if (*remainItems2 > *remainItems1) {
+                        return false;
+                    }
+                    remainItems1++;
+                    remainItems2++;
+                remainLength--
+    result = slice1.getLength() > slice2.getLength()
+
+func greaterOrEqual(slice1 [_], slice2 slice1) Bool #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicNumber
+    if remainLength := slice1.getLength().min(slice2.getLength()); remainLength != 0
+        then
+            C
+                ##slice1[0]##* remainItems1 = slice1_.items;
+                ##slice1[0]##* remainItems2 = slice2_.items;
+                #if __AVX2__ == 1
+            vector32_1 := #slice1[0].getVector32Type()
+            vector32_2 := #vector32_1
+            enslave(vector32_1)
+            enslave(vector32_2)
+            v32Count .= #vector32_1.getCount()
+            for remainLength >= v32Count
+                C
+                    vector32_1_ = *(##vector32_1##*)remainItems1;
+                    vector32_2_ = *(##vector32_1##*)remainItems2;
+                    remainItems1 += v32Count_;
+                    remainItems2 += v32Count_;
+                ffs32_1 .= (vector32_1 > vector32_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs32_2 .= (vector32_2 > vector32_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs32_1 < ffs32_2
+                        return true
+                    ffs32_2 < ffs32_1
+                        return false
+                remainLength -= v32Count
+            C
+                #elif __SSE2__ == 1
+            vector16_1 := #slice1[0].getVector16Type()
+            vector16_2 := #vector16_1
+            enslave(vector16_1)
+            enslave(vector16_2)
+            v16Count .= #vector16_1.getCount()
+            for remainLength >= v16Count
+                C
+                    vector16_1_ = *(##vector16_1##*)remainItems1;
+                    vector16_2_ = *(##vector16_1##*)remainItems2;
+                    remainItems1 += v16Count_;
+                    remainItems2 += v16Count_;
+                ffs16_1 .= (vector16_1 > vector16_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs16_2 .= (vector16_2 > vector16_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs16_1 < ffs16_2
+                        return true
+                    ffs16_2 < ffs16_1
+                        return false
+                remainLength -= v16Count
+            C
+                #endif
+            for remainLength != 0
+                C
+                    if (*remainItems1 > *remainItems2) {
+                        return true;
+                    } else if (*remainItems2 > *remainItems1) {
+                        return false;
+                    }
+                    remainItems1++;
+                    remainItems2++;
+                remainLength--
+    result = slice1.getLength() >= slice2.getLength()
+
+func less(slice1 [_], slice2 slice1) Bool #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicNumber
+    if remainLength := slice1.getLength().min(slice2.getLength()); remainLength != 0
+        then
+            C
+                ##slice1[0]##* remainItems1 = slice1_.items;
+                ##slice1[0]##* remainItems2 = slice2_.items;
+                #if __AVX2__ == 1
+            vector32_1 := #slice1[0].getVector32Type()
+            vector32_2 := #vector32_1
+            enslave(vector32_1)
+            enslave(vector32_2)
+            v32Count .= #vector32_1.getCount()
+            for remainLength >= v32Count
+                C
+                    vector32_1_ = *(##vector32_1##*)remainItems1;
+                    vector32_2_ = *(##vector32_1##*)remainItems2;
+                    remainItems1 += v32Count_;
+                    remainItems2 += v32Count_;
+                ffs32_1 .= (vector32_1 < vector32_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs32_2 .= (vector32_2 < vector32_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs32_1 < ffs32_2
+                        return true
+                    ffs32_2 < ffs32_1
+                        return false
+                remainLength -= v32Count
+            C
+                #elif __SSE2__ == 1
+            vector16_1 := #slice1[0].getVector16Type()
+            vector16_2 := #vector16_1
+            enslave(vector16_1)
+            enslave(vector16_2)
+            v16Count .= #vector16_1.getCount()
+            for remainLength >= v16Count
+                C
+                    vector16_1_ = *(##vector16_1##*)remainItems1;
+                    vector16_2_ = *(##vector16_1##*)remainItems2;
+                    remainItems1 += v16Count_;
+                    remainItems2 += v16Count_;
+                ffs16_1 .= (vector16_1 < vector16_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs16_2 .= (vector16_2 < vector16_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs16_1 < ffs16_2
+                        return true
+                    ffs16_2 < ffs16_1
+                        return false
+                remainLength -= v16Count
+            C
+                #endif
+            for remainLength != 0
+                C
+                    if (*remainItems1 < *remainItems2) {
+                        return true;
+                    } else if (*remainItems2 < *remainItems1) {
+                        return false;
+                    }
+                    remainItems1++;
+                    remainItems2++;
+                remainLength--
+    result = slice1.getLength() < slice2.getLength()
+
+func lessOrEqual(slice1 [_], slice2 slice1) Bool #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicNumber
+    if remainLength := slice1.getLength().min(slice2.getLength()); remainLength != 0
+        then
+            C
+                ##slice1[0]##* remainItems1 = slice1_.items;
+                ##slice1[0]##* remainItems2 = slice2_.items;
+                #if __AVX2__ == 1
+            vector32_1 := #slice1[0].getVector32Type()
+            vector32_2 := #vector32_1
+            enslave(vector32_1)
+            enslave(vector32_2)
+            v32Count .= #vector32_1.getCount()
+            for remainLength >= v32Count
+                C
+                    vector32_1_ = *(##vector32_1##*)remainItems1;
+                    vector32_2_ = *(##vector32_1##*)remainItems2;
+                    remainItems1 += v32Count_;
+                    remainItems2 += v32Count_;
+                ffs32_1 .= (vector32_1 < vector32_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs32_2 .= (vector32_2 < vector32_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs32_1 < ffs32_2
+                        return true
+                    ffs32_2 < ffs32_1
+                        return false
+                remainLength -= v32Count
+            C
+                #elif __SSE2__ == 1
+            vector16_1 := #slice1[0].getVector16Type()
+            vector16_2 := #vector16_1
+            enslave(vector16_1)
+            enslave(vector16_2)
+            v16Count .= #vector16_1.getCount()
+            for remainLength >= v16Count
+                C
+                    vector16_1_ = *(##vector16_1##*)remainItems1;
+                    vector16_2_ = *(##vector16_1##*)remainItems2;
+                    remainItems1 += v16Count_;
+                    remainItems2 += v16Count_;
+                ffs16_1 .= (vector16_1 < vector16_2).findFirstSet() - 1.convertTo(UInt8)
+                ffs16_2 .= (vector16_2 < vector16_1).findFirstSet() - 1.convertTo(UInt8)
+                mif
+                    ffs16_1 < ffs16_2
+                        return true
+                    ffs16_2 < ffs16_1
+                        return false
+                remainLength -= v16Count
+            C
+                #endif
+            for remainLength != 0
+                C
+                    if (*remainItems1 < *remainItems2) {
+                        return true;
+                    } else if (*remainItems2 < *remainItems1) {
+                        return false;
+                    }
+                    remainItems1++;
+                    remainItems2++;
+                remainLength--
+    result = slice1.getLength() <= slice2.getLength()
+
+func look(slice [_], lookFor slice[0]) Box(UInt64) #6
+    attributes
+        alwaysInline
+    rules
+        final = lookFor > BasicNumber
+    remainLength := slice.getLength()
+    C
+        ##lookFor##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    items32 .= #lookFor.getVector32Type().fill(lookFor)
+    vector32 := #items32
+    enslave(items32)
+    enslave(vector32)
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        if ffs .= (vector32 == items32).findFirstSet(); ffs != UInt8
+            then
+                result:put(slice.getLength() - remainLength + ffs.convertTo(UInt64) - 1)
+                return
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    items16 .= #lookFor.getVector16Type().fill(lookFor)
+    vector16 := #items16
+    enslave(items16)
+    enslave(vector16)
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        if ffs .= (vector16 == items16).findFirstSet(); ffs != UInt8
+            then
+                result:put(slice.getLength() - remainLength + ffs.convertTo(UInt64) - 1)
+                return
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #lookFor
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        if oneItem == lookFor
+            then
+                result:put(slice.getLength() - remainLength)
+                return
+        remainLength--
+
+func look(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicNumber
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    remainLength := slice.getLength()
+    C
+        ##slice[0]##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    vector32 := #slice[0].getVector32Type()
+    list32 := VAList(vector32)
+    enslave(list32)
+    enslave(vector32)
+    parse index, item <- lookFor
+        items32 .= #vector32.fill(item)
+        C
+            list32_.items[index_] = items32_;
+    C
+        list32_.length = lookFor_.length;
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        minOffset := 255.convertTo(UInt8)
+        parse index, items32 <- list32
+            minOffset = minOffset.min((vector32 == items32).findFirstSet() - 1.convertTo(UInt8))
+        if minOffset != 255.convertTo(UInt8)
+            then
+                index .= slice.getLength() - remainLength + minOffset.convertTo(UInt64)
+                result:put(#result[0].create(slice[index], index))
+                return
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16 := #slice[0].getVector16Type()
+    list16 := VAList(vector16)
+    enslave(list16)
+    enslave(vector16)
+    parse index, item <- lookFor
+        items16 .= #vector16.fill(item)
+        C
+            list16_.items[index_] = items16_;
+    C
+        list16_.length = lookFor_.length;
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        minOffset := 255.convertTo(UInt8)
+        parse _, items16 <- list16
+            minOffset = minOffset.min((vector16 == items16).findFirstSet() - 1.convertTo(UInt8))
+        if minOffset != 255.convertTo(UInt8)
+            then
+                index .= slice.getLength() - remainLength + minOffset.convertTo(UInt64)
+                result:put(#result[0].create(slice[index], index))
+                return
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #slice[0]
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        parse _, item <- lookFor
+            if oneItem == item
+                then
+                    index .= slice.getLength() - remainLength
+                    result:put(#result[0].create(slice[index], index))
+                    return
+        remainLength--
+
+func lookAll(slice [_], lookFor slice[0]) [UInt64] #6
+    attributes
+        alwaysInline
+    rules
+        final = lookFor > BasicNumber
+    remainLength := slice.getLength()
+    C
+        ##lookFor##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    items32 .= #lookFor.getVector32Type().fill(lookFor)
+    vector32 := #items32
+    enslave(items32)
+    enslave(vector32)
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        startIndex .= slice.getLength() - remainLength
+        for offsets := vector32 == items32; offsets != UInt32;
+            ffs .= offsets.findFirstSet() - 1.convertTo(UInt8)
+            result += startIndex + ffs.convertTo(UInt64)
+            offsets ^= 1.convertTo(UInt32) << ffs
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    items16 .= #lookFor.getVector16Type().fill(lookFor)
+    vector16 := #items16
+    enslave(items16)
+    enslave(vector16)
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        startIndex .= slice.getLength() - remainLength
+        for offsets := vector16 == items16; offsets != UInt32;
+            ffs .= offsets.findFirstSet() - 1.convertTo(UInt8)
+            result += startIndex + ffs.convertTo(UInt64)
+            offsets ^= 1.convertTo(UInt32) << ffs
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #lookFor
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        if oneItem == lookFor
+            then result += slice.getLength() - remainLength
+        remainLength--
+
+func lookAll(slice [_], lookFor VAList(slice[0])) [Pair(slice[0], UInt64)] #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicNumber
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    remainLength := slice.getLength()
+    C
+        ##slice[0]##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    vector32 := #slice[0].getVector32Type()
+    list32 := VAList(vector32)
+    enslave(list32)
+    enslave(vector32)
+    parse index, item <- lookFor
+        items32 .= #vector32.fill(item)
+        C
+            list32_.items[index_] = items32_;
+    C
+        list32_.length = lookFor_.length;
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        offsets := UInt32
+        parse _, items32 <- list32
+            offsets |= vector32 == items32
+        startIndex .= slice.getLength() - remainLength
+        for offsets != UInt32
+            ffs .= offsets.findFirstSet() - 1.convertTo(UInt8)
+            index .= startIndex + ffs.convertTo(UInt64)
+            result += #result[0].create(slice[index], index)
+            offsets ^= 1.convertTo(UInt32) << ffs
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16 := #slice[0].getVector16Type()
+    list16 := VAList(vector16)
+    enslave(list16)
+    enslave(vector16)
+    parse index, item <- lookFor
+        items16 .= #vector16.fill(item)
+        C
+            list16_.items[index_] = items16_;
+    C
+        list16_.length = lookFor_.length;
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        offsets := UInt32
+        parse _, items16 <- list16
+            offsets |= vector16 == items16
+        startIndex .= slice.getLength() - remainLength
+        for offsets != UInt32
+            ffs .= offsets.findFirstSet() - 1.convertTo(UInt8)
+            index .= startIndex + ffs.convertTo(UInt64)
+            result += #result[0].create(slice[index], index)
+            offsets ^= 1.convertTo(UInt32) << ffs
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #slice[0]
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        parse _, item <- lookFor
+            if oneItem == item
+                then
+                    index .= slice.getLength() - remainLength
+                    result += #result[0].create(slice[index], index)
+                    break
+        remainLength--
+
+func lookLast(slice [_], lookFor slice[0]) Box(UInt64) #6
+    attributes
+        alwaysInline
+    rules
+        final = lookFor > BasicNumber
+    remainLength := slice.getLength()
+    C
+        ##lookFor##* remainItems = slice_.items + remainLength_;
+        #if __AVX2__ == 1
+    items32 .= #lookFor.getVector32Type().fill(lookFor)
+    vector32 := #items32
+    enslave(items32)
+    enslave(vector32)
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        remainLength -= v32Count
+        C
+            remainItems -= v32Count_;
+            vector32_ = *(##vector32##*)remainItems;
+        if offsets .= vector32 == items32; offsets != UInt32
+            then
+                fls := UInt64
+                C
+                    fls_ = sizeof(unsigned long) * 8 - 1 - __builtin_clzl(offsets_);
+                result:put(remainLength + fls)
+                return
+    C
+        #elif __SSE2__ == 1
+    items16 .= #lookFor.getVector16Type().fill(lookFor)
+    vector16 := #items16
+    enslave(items16)
+    enslave(vector16)
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        remainLength -= v16Count
+        C
+            remainItems -= v16Count_;
+            vector16_ = *(##vector16##*)remainItems;
+        if offsets .= vector16 == items16; offsets != UInt32
+            then
+                fls := UInt64
+                C
+                    fls_ = sizeof(unsigned long) * 8 - 1 - __builtin_clzl(offsets_);
+                result:put(remainLength + fls)
+                return
+    C
+        #endif
+    oneItem := #lookFor
+    for remainLength != 0
+        remainLength--
+        C
+            remainItems--;
+            oneItem_ = *remainItems;
+        if oneItem == lookFor
+            then
+                result:put(remainLength)
+                return
+
+func lookLast(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicNumber
+    flag debug is set?
+        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    remainLength := slice.getLength()
+    C
+        ##slice[0]##* remainItems = slice_.items + remainLength_;
+        #if __AVX2__ == 1
+    vector32 := #slice[0].getVector32Type()
+    list32 := VAList(vector32)
+    enslave(list32)
+    enslave(vector32)
+    parse index, item <- lookFor
+        items32 .= #vector32.fill(item)
+        C
+            list32_.items[index_] = items32_;
+    C
+        list32_.length = lookFor_.length;
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        remainLength -= v32Count
+        C
+            remainItems -= v32Count_;
+            vector32_ = *(##vector32##*)remainItems;
+        maxOffset := Int8.minValue()
+        parse index, items32 <- list32
+            if offsets .= vector32 == items32; offsets != UInt32
+                then
+                    fls := Int8
+                    C
+                        fls_ = sizeof(unsigned long) * 8 - 1 - __builtin_clzl(offsets_);
+                    maxOffset = maxOffset.max(fls)
+        if maxOffset != Int8.minValue()
+            then
+                index .= remainLength + maxOffset.convertTo(UInt64)
+                result:put(#result[0].create(slice[index], index))
+                return
+    C
+        #elif __SSE2__ == 1
+    vector16 := #slice[0].getVector16Type()
+    list16 := VAList(vector16)
+    enslave(list16)
+    enslave(vector16)
+    parse index, item <- lookFor
+        items16 .= #vector16.fill(item)
+        C
+            list16_.items[index_] = items16_;
+    C
+        list16_.length = lookFor_.length;
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        remainLength -= v16Count
+        C
+            remainItems -= v16Count_;
+            vector16_ = *(##vector16##*)remainItems;
+        maxOffset := Int8.minValue()
+        parse index, items16 <- list16
+            if offsets .= vector16 == items16; offsets != UInt32
+                then
+                    fls := Int8
+                    C
+                        fls_ = sizeof(unsigned long) * 8 - 1 - __builtin_clzl(offsets_);
+                    maxOffset = maxOffset.max(fls)
+        if maxOffset != Int8.minValue()
+            then
+                index .= remainLength + maxOffset.convertTo(UInt64)
+                result:put(#result[0].create(slice[index], index))
+                return
+    C
+        #endif
+    oneItem := #slice[0]
+    for remainLength != 0
+        remainLength--
+        C
+            remainItems--;
+            oneItem_ = *remainItems;
+        parse _, item <- lookFor
+            if oneItem == item
+                then
+                    result:put(#result[0].create(slice[remainLength], remainLength))
+                    return
+
+func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64) #6
+    attributes
+        alwaysInline
+    rules
+        final = lookFor > BasicNumber
+    flag debug is set?
+        then debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    remainLength := slice.getLength()
+    C
+        ##lookFor##* remainItems = slice_.items + remainLength_;
+        #if __AVX2__ == 1
+    items32 .= #lookFor.getVector32Type().fill(lookFor)
+    vector32 := #items32
+    enslave(items32)
+    enslave(vector32)
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        remainLength -= v32Count
+        C
+            remainItems -= v32Count_;
+            vector32_ = *(##vector32##*)remainItems;
+        if offsets .= vector32 == items32; offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := v32Count - 1; offset != -1; offset--
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                result:put(remainLength + offset)
+                                return
+                            else mutN--
+    C
+        #elif __SSE2__ == 1
+    items16 .= #lookFor.getVector16Type().fill(lookFor)
+    vector16 := #items16
+    enslave(items16)
+    enslave(vector16)
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        remainLength -= v16Count
+        C
+            remainItems -= v16Count_;
+            vector16_ = *(##vector16##*)remainItems;
+        if offsets .= vector16 == items16; offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := v16Count - 1; offset != -1; offset--
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                result:put(remainLength + offset)
+                                return
+                            else mutN--
+    C
+        #endif
+    oneItem := #lookFor
+    for remainLength != 0
+        remainLength--
+        C
+            remainItems--;
+            oneItem_ = *remainItems;
+        if oneItem == lookFor
+            then if mutN == 1
+                then
+                    result:put(remainLength)
+                    return
+                else mutN--
+
+func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicNumber
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    remainLength := slice.getLength()
+    C
+        ##slice[0]##* remainItems = slice_.items + remainLength_;
+        #if __AVX2__ == 1
+    vector32 := #slice[0].getVector32Type()
+    list32 := VAList(vector32)
+    enslave(list32)
+    enslave(vector32)
+    parse index, item <- lookFor
+        items32 .= #vector32.fill(item)
+        C
+            list32_.items[index_] = items32_;
+    C
+        list32_.length = lookFor_.length;
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        remainLength -= v32Count
+        C
+            remainItems -= v32Count_;
+            vector32_ = *(##vector32##*)remainItems;
+        offsets := UInt32
+        parse _, items32 <- list32
+            offsets |= vector32 == items32
+        if offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := v32Count - 1; offset != -1; offset--
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                index .= remainLength + offset
+                                result:put(#result[0].create(slice[index], index))
+                                return
+                            else mutN--
+    C
+        #elif __SSE2__ == 1
+    vector16 := #slice[0].getVector16Type()
+    list16 := VAList(vector16)
+    enslave(list16)
+    enslave(vector16)
+    parse index, item <- lookFor
+        items16 .= #vector16.fill(item)
+        C
+            list16_.items[index_] = items16_;
+    C
+        list16_.length = lookFor_.length;
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        remainLength -= v16Count
+        C
+            remainItems -= v16Count_;
+            vector16_ = *(##vector16##*)remainItems;
+        offsets := UInt32
+        parse _, items16 <- list16
+            offsets |= vector16 == items16
+        if offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := v16Count - 1; offset != -1; offset--
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                index .= remainLength + offset
+                                result:put(#result[0].create(slice[index], index))
+                                return
+                            else mutN--
+    C
+        #endif
+    oneItem := #slice[0]
+    for remainLength != 0
+        remainLength--
+        C
+            remainItems--;
+            oneItem_ = *remainItems;
+        parse _, item <- lookFor
+            if oneItem == item
+                then if mutN == 1
+                    then
+                        result:put(#result[0].create(slice[remainLength], remainLength))
+                        return
+                    else
+                        mutN--
+                        break
+
+func lookN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64) #6
+    attributes
+        alwaysInline
+    rules
+        final = lookFor > BasicNumber
+    flag debug is set?
+        then debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    remainLength := slice.getLength()
+    C
+        ##lookFor##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    items32 .= #lookFor.getVector32Type().fill(lookFor)
+    vector32 := #items32
+    enslave(items32)
+    enslave(vector32)
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        if offsets .= vector32 == items32; offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := 0; offset < v32Count; offset++
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                result:put(slice.getLength() - remainLength + offset)
+                                return
+                            else mutN--
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    items16 .= #lookFor.getVector16Type().fill(lookFor)
+    vector16 := #items16
+    enslave(items16)
+    enslave(vector16)
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        if offsets .= vector16 == items16; offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := 0; offset < v16Count; offset++
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                result:put(slice.getLength() - remainLength + offset)
+                                return
+                            else mutN--
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #lookFor
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        if oneItem == lookFor
+            then if mutN == 1
+                then
+                    result:put(slice.getLength() - remainLength)
+                    return
+                else mutN--
+        remainLength--
+
+func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicNumber
+    flag debug is set?
+        then
+            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    mutN := n
+    remainLength := slice.getLength()
+    C
+        ##slice[0]##* remainItems = slice_.items;
+        #if __AVX2__ == 1
+    vector32 := #slice[0].getVector32Type()
+    list32 := VAList(vector32)
+    enslave(list32)
+    enslave(vector32)
+    parse index, item <- lookFor
+        items32 .= #vector32.fill(item)
+        C
+            list32_.items[index_] = items32_;
+    C
+        list32_.length = lookFor_.length;
+    v32Count .= #vector32.getCount()
+    for remainLength >= v32Count
+        C
+            vector32_ = *(##vector32##*)remainItems;
+            remainItems += v32Count_;
+        offsets := UInt32
+        parse _, items32 <- list32
+            offsets |= vector32 == items32
+        if offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := 0; offset < v32Count; offset++
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                index .= slice.getLength() - remainLength + offset
+                                result:put(#result[0].create(slice[index], index))
+                                return
+                            else mutN--
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16 := #slice[0].getVector16Type()
+    list16 := VAList(vector16)
+    enslave(list16)
+    enslave(vector16)
+    parse index, item <- lookFor
+        items16 .= #vector16.fill(item)
+        C
+            list16_.items[index_] = items16_;
+    C
+        list16_.length = lookFor_.length;
+    v16Count .= #vector16.getCount()
+    for remainLength >= v16Count
+        C
+            vector16_ = *(##vector16##*)remainItems;
+            remainItems += v16Count_;
+        offsets := UInt32
+        parse _, items16 <- list16
+            offsets |= vector16 == items16
+        if offsets != UInt32
+            then if count .= offsets.countAllSet().convertTo(#n); count < mutN
+                then mutN -= count
+                else for offset := 0; offset < v16Count; offset++
+                    if (offsets & (1.convertTo(UInt32) << offset)) != UInt32
+                        then if mutN == 1
+                            then
+                                index .= slice.getLength() - remainLength + offset
+                                result:put(#result[0].create(slice[index], index))
+                                return
+                            else mutN--
+        remainLength -= v16Count
+    C
+        #endif
+    oneItem := #slice[0]
+    for remainLength != 0
+        C
+            oneItem_ = *remainItems;
+            remainItems++;
+        parse _, item <- lookFor
+            if oneItem == item
+                then if mutN == 1
+                    then
+                        index .= slice.getLength() - remainLength
+                        result:put(#result[0].create(slice[index], index))
+                        return
+                    else
+                        mutN--
+                        break
+        remainLength--
+
+func not(slice [_]) slice #6
+    attributes
+        alwaysInline
+    rules
+        final = slice[0] > BasicInteger
+    remainLength := slice.getLength()
+    result = #slice.init(remainLength)
+    C
+        ##slice[0]##* remainItems = slice_.items;
+        ##slice[0]##* remainResult = result_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainResult = ~(*(##vector32Type##*)remainItems);
+            remainResult += v32Count_;
+            remainItems += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainResult = ~(*(##vector16Type##*)remainItems);
+            remainResult += v16Count_;
+            remainItems += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainResult = ~(*remainItems);
+            remainResult++;
+            remainItems++;
+        remainLength--
+    if slice.string?()
+        then result:setStringFlag()
+
+func or(slice1 [_], slice2 slice1) slice1 #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicInteger
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    remainLength := slice1.getLength()
+    result = #slice1.init(remainLength)
+    C
+        ##slice1[0]##* remainItems1 = slice1_.items;
+        ##slice1[0]##* remainItems2 = slice2_.items;
+        ##slice1[0]##* remainResult = result_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice1[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainResult = *(##vector32Type##*)remainItems1 | *(##vector32Type##*)remainItems2;
+            remainResult += v32Count_;
+            remainItems1 += v32Count_;
+            remainItems2 += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice1[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainResult = *(##vector16Type##*)remainItems1 | *(##vector16Type##*)remainItems2;
+            remainResult += v16Count_;
+            remainItems1 += v16Count_;
+            remainItems2 += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainResult = *remainItems1 | *remainItems2;
+            remainResult++;
+            remainItems1++;
+            remainItems2++;
+        remainLength--
+    if slice1.string?()
+        then result:setStringFlag()
+
+proc orEq(:slice1 [_], slice2 slice1) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicInteger
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    remainLength := slice1.getLength()
+    C
+        ##slice1[0]##* remainItems1 = slice1_->items;
+        ##slice1[0]##* remainItems2 = slice2_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice1[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainItems1 = *(##vector32Type##*)remainItems1 | *(##vector32Type##*)remainItems2;
+            remainItems1 += v32Count_;
+            remainItems2 += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice1[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainItems1 = *(##vector16Type##*)remainItems1 | *(##vector16Type##*)remainItems2;
+            remainItems1 += v16Count_;
+            remainItems2 += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainItems1 = *remainItems1 | *remainItems2;
+            remainItems1++;
+            remainItems2++;
+        remainLength--
+
+func xor(slice1 [_], slice2 slice1) slice1 #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicInteger
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    remainLength := slice1.getLength()
+    result = #slice1.init(remainLength)
+    C
+        ##slice1[0]##* remainItems1 = slice1_.items;
+        ##slice1[0]##* remainItems2 = slice2_.items;
+        ##slice1[0]##* remainResult = result_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice1[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainResult = *(##vector32Type##*)remainItems1 ^ *(##vector32Type##*)remainItems2;
+            remainResult += v32Count_;
+            remainItems1 += v32Count_;
+            remainItems2 += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice1[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainResult = *(##vector16Type##*)remainItems1 ^ *(##vector16Type##*)remainItems2;
+            remainResult += v16Count_;
+            remainItems1 += v16Count_;
+            remainItems2 += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainResult = *remainItems1 ^ *remainItems2;
+            remainResult++;
+            remainItems1++;
+            remainItems2++;
+        remainLength--
+    if slice1.string?()
+        then result:setStringFlag()
+
+proc xorEq(:slice1 [_], slice2 slice1) #6
+    attributes
+        alwaysInline
+    rules
+        final = slice1[0] > BasicInteger
+    flag debug is set?
+        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    remainLength := slice1.getLength()
+    C
+        ##slice1[0]##* remainItems1 = slice1_->items;
+        ##slice1[0]##* remainItems2 = slice2_.items;
+        #if __AVX2__ == 1
+    vector32Type .= #slice1[0].getVector32Type()
+    enslave(vector32Type)
+    v32Count .= #vector32Type.getCount()
+    for remainLength >= v32Count
+        C
+            *(##vector32Type##*)remainItems1 = *(##vector32Type##*)remainItems1 ^ *(##vector32Type##*)remainItems2;
+            remainItems1 += v32Count_;
+            remainItems2 += v32Count_;
+        remainLength -= v32Count
+    C
+        #elif __SSE2__ == 1
+    vector16Type .= #slice1[0].getVector16Type()
+    enslave(vector16Type)
+    v16Count .= #vector16Type.getCount()
+    for remainLength >= v16Count
+        C
+            *(##vector16Type##*)remainItems1 = *(##vector16Type##*)remainItems1 ^ *(##vector16Type##*)remainItems2;
+            remainItems1 += v16Count_;
+            remainItems2 += v16Count_;
+        remainLength -= v16Count
+    C
+        #endif
+    for remainLength != 0
+        C
+            *remainItems1 = *remainItems1 ^ *remainItems2;
+            remainItems1++;
+            remainItems2++;
+        remainLength--

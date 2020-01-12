@@ -3,12 +3,16 @@ rules
     join 1 BasicSignedInteger
 
 func countAllSet(a Int8) UInt8
+    attributes
+        alwaysInline
     C
         result_ = __builtin_popcount((uint8_t)a_);
 
 func findFirstSet(a Int8) UInt8
+    attributes
+        alwaysInline
     C
-        result_ = __builtin_ffs((uint32_t)(uint8_t)a_);
+        result_ = __builtin_ffs(a_);
 
 func toUnsigned(a Int8) UInt8
     attributes
