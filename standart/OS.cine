@@ -68,8 +68,7 @@ func getLineFromSTDIN() [UInt8]
     include
         #include <stdio.h>
         #include <string.h>
-    bufferString := [UInt8]
-    enslave(bufferString)
+    enslave bufferString := [UInt8]
     C
         char buffer[256];
         bufferString_.capacity = 256;

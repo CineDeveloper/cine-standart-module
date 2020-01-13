@@ -220,8 +220,7 @@ func count(slice [_], subSlicesList VAList(slice)) UInt64
     flag debug is set?
         then debugMessage(subSlicesList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
     mutSlice := slice
-    firstsItems := VAList(slice[0])
-    enslave(firstsItems)
+    enslave firstsItems := VAList(slice[0])
     listLength .= subSlicesList.getLength()
     C
         firstsItems_.length = listLength_;
@@ -2183,8 +2182,7 @@ func look(slice [_], lookFor VAList(slice)) Box(Pair(slice, UInt64))
     flag debug is set?
         then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
-    firstsItems := VAList(slice[0])
-    enslave(firstsItems)
+    enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
     C
         firstsItems_.length = listLength_;
@@ -2264,8 +2262,7 @@ func lookAll(slice [_], lookFor VAList(slice)) [Pair(slice, UInt64)]
     flag debug is set?
         then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
-    firstsItems := VAList(slice[0])
-    enslave(firstsItems)
+    enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
     C
         firstsItems_.length = listLength_;
@@ -2381,8 +2378,7 @@ func lookLast(slice [_], lookFor VAList(slice)) Box(Pair(slice, UInt64))
     flag debug is set?
         then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
-    firstsItems := VAList(slice[0])
-    enslave(firstsItems)
+    enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
     C
         firstsItems_.length = listLength_;
@@ -2515,8 +2511,7 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice)) Box(P
         then
             debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
             debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
-    firstsItems := VAList(slice[0])
-    enslave(firstsItems)
+    enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
     C
         firstsItems_.length = listLength_;
@@ -2661,8 +2656,7 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice)) Box(Pair(
             debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
             debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutSlice := slice
-    firstsItems := VAList(slice[0])
-    enslave(firstsItems)
+    enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
     C
         firstsItems_.length = listLength_;

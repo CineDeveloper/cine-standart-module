@@ -6,8 +6,7 @@ proc addEq(:data BinaryData, a > Binary) #4
     include
         #include <string.h>
     length .= #a.getTypeSize()
-    newData := [UInt8]
-    enslave(newData)
+    enslave newData := [UInt8]
     C
         uint8_t newData[length_];
         memcpy(newData, &a_, length_);

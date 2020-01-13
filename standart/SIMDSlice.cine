@@ -13,7 +13,6 @@ func and(slice1 [_], slice2 slice1) slice1 #6
         ##slice1[0]##* remainResult = result_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice1[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -25,7 +24,6 @@ func and(slice1 [_], slice2 slice1) slice1 #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice1[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
@@ -59,7 +57,6 @@ proc andEq(:slice1 [_], slice2 slice1) #6
         ##slice1[0]##* remainItems2 = slice2_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice1[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -70,7 +67,6 @@ proc andEq(:slice1 [_], slice2 slice1) #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice1[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
@@ -98,8 +94,6 @@ func count(slice [_], item slice[0]) UInt64 #6
         #if __AVX2__ == 1
     items32 .= #item.getVector32Type().fill(item)
     vector32 := #items32
-    enslave(items32)
-    enslave(vector32)
     v32Count .= #vector32.getCount()
     for remainLength >= v32Count
         C
@@ -111,8 +105,6 @@ func count(slice [_], item slice[0]) UInt64 #6
         #elif __SSE2__ == 1
     items16 .= #item.getVector16Type().fill(item)
     vector16 := #items16
-    enslave(items16)
-    enslave(vector16)
     v16Count .= #vector16.getCount()
     for remainLength >= v16Count
         C
@@ -143,9 +135,7 @@ func count(slice [_], itemsList VAList(slice[0])) UInt64 #6
         ##slice[0]##* remainItems = slice_.items;
         #if __AVX2__ == 1
     vector32 := #slice[0].getVector32Type()
-    list32 := VAList(vector32)
-    enslave(list32)
-    enslave(vector32)
+    enslave list32 := VAList(vector32)
     parse index, item <- itemsList
         items32 .= #vector32.fill(item)
         C
@@ -165,9 +155,7 @@ func count(slice [_], itemsList VAList(slice[0])) UInt64 #6
     C
         #elif __SSE2__ == 1
     vector16 := #slice[0].getVector16Type()
-    list16 := VAList(vector16)
-    enslave(list16)
-    enslave(vector16)
+    enslave list16 := VAList(vector16)
     parse index, item <- itemsList
         items16 .= #vector16.fill(item)
         C
@@ -211,8 +199,6 @@ func equal(slice1 [_], slice2 slice1) Bool #6
                 #if __AVX2__ == 1
             vector32_1 := #slice1[0].getVector32Type()
             vector32_2 := #vector32_1
-            enslave(vector32_1)
-            enslave(vector32_2)
             v32Count .= #vector32_1.getCount()
             for remainLength >= v32Count
                 C
@@ -227,8 +213,6 @@ func equal(slice1 [_], slice2 slice1) Bool #6
                 #elif __SSE2__ == 1
             vector16_1 := #slice1[0].getVector16Type()
             vector16_2 := #vector16_1
-            enslave(vector16_1)
-            enslave(vector16_2)
             v16Count .= #vector16_1.getCount()
             for remainLength >= v16Count
                 C
@@ -263,8 +247,6 @@ func greater(slice1 [_], slice2 slice1) Bool #6
                 #if __AVX2__ == 1
             vector32_1 := #slice1[0].getVector32Type()
             vector32_2 := #vector32_1
-            enslave(vector32_1)
-            enslave(vector32_2)
             v32Count .= #vector32_1.getCount()
             for remainLength >= v32Count
                 C
@@ -284,8 +266,6 @@ func greater(slice1 [_], slice2 slice1) Bool #6
                 #elif __SSE2__ == 1
             vector16_1 := #slice1[0].getVector16Type()
             vector16_2 := #vector16_1
-            enslave(vector16_1)
-            enslave(vector16_2)
             v16Count .= #vector16_1.getCount()
             for remainLength >= v16Count
                 C
@@ -328,8 +308,6 @@ func greaterOrEqual(slice1 [_], slice2 slice1) Bool #6
                 #if __AVX2__ == 1
             vector32_1 := #slice1[0].getVector32Type()
             vector32_2 := #vector32_1
-            enslave(vector32_1)
-            enslave(vector32_2)
             v32Count .= #vector32_1.getCount()
             for remainLength >= v32Count
                 C
@@ -349,8 +327,6 @@ func greaterOrEqual(slice1 [_], slice2 slice1) Bool #6
                 #elif __SSE2__ == 1
             vector16_1 := #slice1[0].getVector16Type()
             vector16_2 := #vector16_1
-            enslave(vector16_1)
-            enslave(vector16_2)
             v16Count .= #vector16_1.getCount()
             for remainLength >= v16Count
                 C
@@ -393,8 +369,6 @@ func less(slice1 [_], slice2 slice1) Bool #6
                 #if __AVX2__ == 1
             vector32_1 := #slice1[0].getVector32Type()
             vector32_2 := #vector32_1
-            enslave(vector32_1)
-            enslave(vector32_2)
             v32Count .= #vector32_1.getCount()
             for remainLength >= v32Count
                 C
@@ -414,8 +388,6 @@ func less(slice1 [_], slice2 slice1) Bool #6
                 #elif __SSE2__ == 1
             vector16_1 := #slice1[0].getVector16Type()
             vector16_2 := #vector16_1
-            enslave(vector16_1)
-            enslave(vector16_2)
             v16Count .= #vector16_1.getCount()
             for remainLength >= v16Count
                 C
@@ -458,8 +430,6 @@ func lessOrEqual(slice1 [_], slice2 slice1) Bool #6
                 #if __AVX2__ == 1
             vector32_1 := #slice1[0].getVector32Type()
             vector32_2 := #vector32_1
-            enslave(vector32_1)
-            enslave(vector32_2)
             v32Count .= #vector32_1.getCount()
             for remainLength >= v32Count
                 C
@@ -479,8 +449,6 @@ func lessOrEqual(slice1 [_], slice2 slice1) Bool #6
                 #elif __SSE2__ == 1
             vector16_1 := #slice1[0].getVector16Type()
             vector16_2 := #vector16_1
-            enslave(vector16_1)
-            enslave(vector16_2)
             v16Count .= #vector16_1.getCount()
             for remainLength >= v16Count
                 C
@@ -521,8 +489,6 @@ func look(slice [_], lookFor slice[0]) Box(UInt64) #6
         #if __AVX2__ == 1
     items32 .= #lookFor.getVector32Type().fill(lookFor)
     vector32 := #items32
-    enslave(items32)
-    enslave(vector32)
     v32Count .= #vector32.getCount()
     for remainLength >= v32Count
         C
@@ -537,8 +503,6 @@ func look(slice [_], lookFor slice[0]) Box(UInt64) #6
         #elif __SSE2__ == 1
     items16 .= #lookFor.getVector16Type().fill(lookFor)
     vector16 := #items16
-    enslave(items16)
-    enslave(vector16)
     v16Count .= #vector16.getCount()
     for remainLength >= v16Count
         C
@@ -574,9 +538,7 @@ func look(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #6
         ##slice[0]##* remainItems = slice_.items;
         #if __AVX2__ == 1
     vector32 := #slice[0].getVector32Type()
-    list32 := VAList(vector32)
-    enslave(list32)
-    enslave(vector32)
+    enslave list32 := VAList(vector32)
     parse index, item <- lookFor
         items32 .= #vector32.fill(item)
         C
@@ -600,9 +562,7 @@ func look(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #6
     C
         #elif __SSE2__ == 1
     vector16 := #slice[0].getVector16Type()
-    list16 := VAList(vector16)
-    enslave(list16)
-    enslave(vector16)
+    enslave list16 := VAList(vector16)
     parse index, item <- lookFor
         items16 .= #vector16.fill(item)
         C
@@ -649,8 +609,6 @@ func lookAll(slice [_], lookFor slice[0]) [UInt64] #6
         #if __AVX2__ == 1
     items32 .= #lookFor.getVector32Type().fill(lookFor)
     vector32 := #items32
-    enslave(items32)
-    enslave(vector32)
     v32Count .= #vector32.getCount()
     for remainLength >= v32Count
         C
@@ -666,8 +624,6 @@ func lookAll(slice [_], lookFor slice[0]) [UInt64] #6
         #elif __SSE2__ == 1
     items16 .= #lookFor.getVector16Type().fill(lookFor)
     vector16 := #items16
-    enslave(items16)
-    enslave(vector16)
     v16Count .= #vector16.getCount()
     for remainLength >= v16Count
         C
@@ -702,9 +658,7 @@ func lookAll(slice [_], lookFor VAList(slice[0])) [Pair(slice[0], UInt64)] #6
         ##slice[0]##* remainItems = slice_.items;
         #if __AVX2__ == 1
     vector32 := #slice[0].getVector32Type()
-    list32 := VAList(vector32)
-    enslave(list32)
-    enslave(vector32)
+    enslave list32 := VAList(vector32)
     parse index, item <- lookFor
         items32 .= #vector32.fill(item)
         C
@@ -729,9 +683,7 @@ func lookAll(slice [_], lookFor VAList(slice[0])) [Pair(slice[0], UInt64)] #6
     C
         #elif __SSE2__ == 1
     vector16 := #slice[0].getVector16Type()
-    list16 := VAList(vector16)
-    enslave(list16)
-    enslave(vector16)
+    enslave list16 := VAList(vector16)
     parse index, item <- lookFor
         items16 .= #vector16.fill(item)
         C
@@ -779,8 +731,6 @@ func lookLast(slice [_], lookFor slice[0]) Box(UInt64) #6
         #if __AVX2__ == 1
     items32 .= #lookFor.getVector32Type().fill(lookFor)
     vector32 := #items32
-    enslave(items32)
-    enslave(vector32)
     v32Count .= #vector32.getCount()
     for remainLength >= v32Count
         remainLength -= v32Count
@@ -798,8 +748,6 @@ func lookLast(slice [_], lookFor slice[0]) Box(UInt64) #6
         #elif __SSE2__ == 1
     items16 .= #lookFor.getVector16Type().fill(lookFor)
     vector16 := #items16
-    enslave(items16)
-    enslave(vector16)
     v16Count .= #vector16.getCount()
     for remainLength >= v16Count
         remainLength -= v16Count
@@ -838,9 +786,7 @@ func lookLast(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #
         ##slice[0]##* remainItems = slice_.items + remainLength_;
         #if __AVX2__ == 1
     vector32 := #slice[0].getVector32Type()
-    list32 := VAList(vector32)
-    enslave(list32)
-    enslave(vector32)
+    enslave list32 := VAList(vector32)
     parse index, item <- lookFor
         items32 .= #vector32.fill(item)
         C
@@ -869,9 +815,7 @@ func lookLast(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64)) #
     C
         #elif __SSE2__ == 1
     vector16 := #slice[0].getVector16Type()
-    list16 := VAList(vector16)
-    enslave(list16)
-    enslave(vector16)
+    enslave list16 := VAList(vector16)
     parse index, item <- lookFor
         items16 .= #vector16.fill(item)
         C
@@ -925,8 +869,6 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64
         #if __AVX2__ == 1
     items32 .= #lookFor.getVector32Type().fill(lookFor)
     vector32 := #items32
-    enslave(items32)
-    enslave(vector32)
     v32Count .= #vector32.getCount()
     for remainLength >= v32Count
         remainLength -= v32Count
@@ -947,8 +889,6 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64
         #elif __SSE2__ == 1
     items16 .= #lookFor.getVector16Type().fill(lookFor)
     vector16 := #items16
-    enslave(items16)
-    enslave(vector16)
     v16Count .= #vector16.getCount()
     for remainLength >= v16Count
         remainLength -= v16Count
@@ -995,9 +935,7 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Bo
         ##slice[0]##* remainItems = slice_.items + remainLength_;
         #if __AVX2__ == 1
     vector32 := #slice[0].getVector32Type()
-    list32 := VAList(vector32)
-    enslave(list32)
-    enslave(vector32)
+    enslave list32 := VAList(vector32)
     parse index, item <- lookFor
         items32 .= #vector32.fill(item)
         C
@@ -1027,9 +965,7 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Bo
     C
         #elif __SSE2__ == 1
     vector16 := #slice[0].getVector16Type()
-    list16 := VAList(vector16)
-    enslave(list16)
-    enslave(vector16)
+    enslave list16 := VAList(vector16)
     parse index, item <- lookFor
         items16 .= #vector16.fill(item)
         C
@@ -1088,8 +1024,6 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64) #6
         #if __AVX2__ == 1
     items32 .= #lookFor.getVector32Type().fill(lookFor)
     vector32 := #items32
-    enslave(items32)
-    enslave(vector32)
     v32Count .= #vector32.getCount()
     for remainLength >= v32Count
         C
@@ -1110,8 +1044,6 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64) #6
         #elif __SSE2__ == 1
     items16 .= #lookFor.getVector16Type().fill(lookFor)
     vector16 := #items16
-    enslave(items16)
-    enslave(vector16)
     v16Count .= #vector16.getCount()
     for remainLength >= v16Count
         C
@@ -1158,9 +1090,7 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Box(Pa
         ##slice[0]##* remainItems = slice_.items;
         #if __AVX2__ == 1
     vector32 := #slice[0].getVector32Type()
-    list32 := VAList(vector32)
-    enslave(list32)
-    enslave(vector32)
+    enslave list32 := VAList(vector32)
     parse index, item <- lookFor
         items32 .= #vector32.fill(item)
         C
@@ -1190,9 +1120,7 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Box(Pa
     C
         #elif __SSE2__ == 1
     vector16 := #slice[0].getVector16Type()
-    list16 := VAList(vector16)
-    enslave(list16)
-    enslave(vector16)
+    enslave list16 := VAList(vector16)
     parse index, item <- lookFor
         items16 .= #vector16.fill(item)
         C
@@ -1250,7 +1178,6 @@ func not(slice [_]) slice #6
         ##slice[0]##* remainResult = result_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -1261,7 +1188,6 @@ func not(slice [_]) slice #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
@@ -1295,7 +1221,6 @@ func or(slice1 [_], slice2 slice1) slice1 #6
         ##slice1[0]##* remainResult = result_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice1[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -1307,7 +1232,6 @@ func or(slice1 [_], slice2 slice1) slice1 #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice1[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
@@ -1341,7 +1265,6 @@ proc orEq(:slice1 [_], slice2 slice1) #6
         ##slice1[0]##* remainItems2 = slice2_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice1[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -1352,7 +1275,6 @@ proc orEq(:slice1 [_], slice2 slice1) #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice1[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
@@ -1384,7 +1306,6 @@ func xor(slice1 [_], slice2 slice1) slice1 #6
         ##slice1[0]##* remainResult = result_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice1[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -1396,7 +1317,6 @@ func xor(slice1 [_], slice2 slice1) slice1 #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice1[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
@@ -1430,7 +1350,6 @@ proc xorEq(:slice1 [_], slice2 slice1) #6
         ##slice1[0]##* remainItems2 = slice2_.items;
         #if __AVX2__ == 1
     vector32Type .= #slice1[0].getVector32Type()
-    enslave(vector32Type)
     v32Count .= #vector32Type.getCount()
     for remainLength >= v32Count
         C
@@ -1441,7 +1360,6 @@ proc xorEq(:slice1 [_], slice2 slice1) #6
     C
         #elif __SSE2__ == 1
     vector16Type .= #slice1[0].getVector16Type()
-    enslave(vector16Type)
     v16Count .= #vector16Type.getCount()
     for remainLength >= v16Count
         C
