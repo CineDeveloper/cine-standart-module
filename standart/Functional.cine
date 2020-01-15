@@ -1,3 +1,15 @@
+rules
+    1 = type == @func | type == @proc
+    join 1 Equal
+
+func equal(a, b a) Bool
+    attributes
+        alwaysInline
+    rules
+        final = a == @func | a == @proc
+    C
+        result_ = a_ == b_;
+
 func filter(f, slice [_]) slice
     attributes
         alwaysInline
