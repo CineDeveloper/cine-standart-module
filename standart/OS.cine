@@ -1,8 +1,96 @@
+func deleteFile(name [UInt8], ignoreNotExistedFile Bool) Bool
+    attributes
+        noInline
+    include
+        #include <stdio.h>
+        #include <string.h>
+        #include <errno.h>
+    flag debug is set?
+        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    if fileExistBox .= name.file?(); fileExistBox == Box(Bool).create(true)
+        then
+            length .= name.getLength()
+            C
+                char buffer[length_ + 1];
+                memcpy(buffer, name_.items, length_);
+                buffer[length_] = 0;
+                result_ = remove(buffer) == 0;
+        else result = ignoreNotExistedFile && fileExistBox.empty?()
+
+func deleteDirectory(name [UInt8], ignoreNotExistedDirectory Bool) Bool
+    attributes
+        noInline
+    include
+        #include <stdio.h>
+        #include <string.h>
+        #include <dirent.h>
+        #include <errno.h>
+    flag debug is set?
+        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
+    if name.file?() == Box(Bool).create(false)
+        then
+            cName .= select(name.getLast() == '/', select(name == "/", name, name.getAllExceptLast()) , name) + '\000'
+            nameLength .= cName.getLength() - 1
+            item := ""
+            itemLength := 0
+            result = true
+            C
+                DIR* directory = opendir(cName_.items);
+                for (;;) {
+                    struct dirent* directoryEntry = readdir(directory);
+                    if (directoryEntry == NULL) {break;}
+                    itemLength_ = strlen(directoryEntry->d_name);
+                    if (directoryEntry->d_name[0] == '.') {
+                        if (itemLength_ == 1 || (itemLength_ == 2 && directoryEntry->d_name[1] == '.')){continue;};
+                    }
+            item = [UInt8].init(nameLength + itemLength + 1)
+            isDirectory := false
+            C
+                memcpy(item_.items, cName_.items, nameLength_);
+                *(item_.items + nameLength_) = '/';
+                memcpy(item_.items + nameLength_ + 1, directoryEntry->d_name, itemLength_);
+                isDirectory_ = directoryEntry->d_type == DT_DIR;
+                item_.isString = true;
+            if isDirectory
+                then result = deleteDirectory(item, false) && result
+                else result = deleteFile(item, false) && result
+            C
+                }
+                closedir(directory);
+                if (result_){
+                    result_ = remove(cName_.items) == 0;
+                    if (!result_ && ignoreNotExistedDirectory_){
+                        result_ = errno == ENOENT;
+                    }
+                }
+
 proc exit()
     include
         #include <stdlib.h>
     C
         exit(0);
+
+func file?(name [UInt8]) Box(Bool)
+    attributes
+        noInline
+    include
+        #include <sys/stat.h>
+        #include <string.h>
+    flag debug is set?
+        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    C
+        char cName[name_.length + 1];
+        memcpy(cName, name_.items, name_.length);
+        cName[name_.length] = 0;
+        struct stat fileStat;
+        if (stat(cName, &fileStat) != 0){
+    return
+    C
+        }
+    isFile := false
+    C
+        isFile_ = (fileStat.st_mode & S_IFDIR) == 0;
+    result:put(isFile)
 
 func getCMDArgument(index UInt64) Box([UInt8])
     attributes
@@ -33,6 +121,51 @@ func getCMDArgumetsCount() UInt64
         alwaysInline
     C
         result_ = __argc - 1;
+
+func getDirectoryItems(directoryName [UInt8]) Box([Pair([UInt8], Bool)])
+    attributes
+        noInline
+    include
+        #include <dirent.h>
+        #include <string.h>
+    flag debug is set?
+        then debugMessage(directoryName.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
+    cDirectoryName .= select(directoryName.getLast() == '/', select(directoryName == "/", directoryName, directoryName.getAllExceptLast()) , directoryName) + '\000'
+    directoryNameLength .= cDirectoryName.getLength() - 1
+    resultSlice := #result[0]
+    error := false
+    C
+        DIR* directory = opendir(cDirectoryName_.items);
+        error_ = directory == NULL;
+    if error
+        then return
+    item := ""
+    itemLength := 0
+    C
+        for (;;) {
+            struct dirent* directoryEntry = readdir(directory);
+            if (directoryEntry == NULL) {break;}
+            itemLength_ = strlen(directoryEntry->d_name);
+            if (directoryEntry->d_name[0] == '.') {
+                if (itemLength_ == 1 || (itemLength_ == 2 && directoryEntry->d_name[1] == '.')){continue;};
+            }
+    item = [UInt8].init(directoryNameLength + itemLength + 1)
+    isDirectory := false
+    C
+        memcpy(item_.items, cDirectoryName_.items, directoryNameLength_);
+        *(item_.items + directoryNameLength_) = '/';
+        memcpy(item_.items + directoryNameLength_ + 1, directoryEntry->d_name, itemLength_);
+        isDirectory_ = directoryEntry->d_type == DT_DIR;
+        item_.isString = true;
+    resultSlice += #result[0][0].create(item, isDirectory)
+    if isDirectory
+        then if subDirectoryItems .= getDirectoryItems(item); subDirectoryItems.item?()
+            then resultSlice += subDirectoryItems[]
+            else return
+    C
+        }
+        closedir(directory);
+    result:put(resultSlice)
 
 func getEnvironmentVariable(name [UInt8]) Box([UInt8])
     attributes
@@ -88,6 +221,103 @@ func getLineFromSTDIN() [UInt8]
                 break
     result:setStringFlag()
 
+func getWithoutPath(name [UInt8]) [UInt8]
+    attributes
+        alwaysInline
+    edge := -1
+    previousChar := UInt8
+    flag debug is set?
+        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file or directory name is empty.")
+    result = ""
+    parse index, char <- name
+        mif
+            char != '/'
+                if previousChar == '/'
+                    then edge = result.getLength()
+                fallthrough
+            previousChar != '/'
+                result += char
+        previousChar = char
+    if edge != -1
+        then result = result.getAllExceptFirstN(edge)
+
+func getPath(name [UInt8]) [UInt8]
+    attributes
+        alwaysInline
+    edge := -1
+    previousChar := UInt8
+    flag debug is set?
+        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file or directory name is empty.")
+    result = ""
+    parse index, char <- name
+        mif
+            char != '/'
+                if previousChar == '/'
+                    then edge = result.getLength()
+                fallthrough
+            previousChar != '/'
+                result += char
+        previousChar = char
+    if edge != -1
+        then result = result.getFirstN(edge)
+        else if result != "/"
+            then result = "./"
+
+func loadFile(fileName [UInt8]) Box(BinaryData)
+    include
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <stddef.h>
+        #include <string.h>
+    fileNameLength .= fileName.getLength()
+    flag debug is set?
+        then debugMessage(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    error := false
+    C
+        char zeroEndedFileName[fileNameLength_ + 1];
+        memcpy(zeroEndedFileName, fileName_.items, fileNameLength_);
+        zeroEndedFileName[fileNameLength_] = 0;
+        FILE* file = fopen(zeroEndedFileName, "r");
+        error_ = file == NULL;
+    if !error
+        then
+            fileSize := 0
+            C
+                fseek(file, 0L, SEEK_END);
+                fileSize_ = ftell(file);
+            if fileSize == 0
+                then result:put(BinaryData)
+                else
+                    binaryData := BinaryData
+                    binaryData:private_data = [UInt8].init(fileSize)
+                    readedLength := 0
+                    C
+                        rewind(file);
+                        readedLength_ = fread(binaryData_.private_data_.items, 1, fileSize_, file);
+                    if readedLength == fileSize
+                        then result:put(binaryData)
+            C
+                fclose(file);
+
+func makeDirectory(directory [UInt8], ignoreExistedDirectory Bool) Bool
+    attributes
+        noInline
+    include
+        #include <sys/stat.h>
+        #include <string.h>
+        #include <errno.h>
+    flag debug is set?
+        then debugMessage(directory.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
+    directoryNameLength .= directory.getLength()
+    C
+        char zeroEndedDirectoryName[directoryNameLength_ + 1];
+        memcpy(zeroEndedDirectoryName, directory_.items, directoryNameLength_);
+        zeroEndedDirectoryName[directoryNameLength_] = 0;
+        result_ = mkdir(zeroEndedDirectoryName, S_IFDIR | S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+        if (!result_ && ignoreExistedDirectory_){
+            result_ = errno == EEXIST;
+        }
+
 proc panic(message [UInt8])
     attributes
         noInline
@@ -97,6 +327,18 @@ proc panic(message [UInt8])
     C
         fprintf(stderr, "%.*s\n", (int)(message_.length), (char*)(message_.items));
         exit(1);
+
+proc panic(predicate Bool, message [UInt8])
+    attributes
+        noInline
+    include
+        #include <stdio.h>
+        #include <stdlib.h>
+    if < predicate
+        then
+            C
+                fprintf(stderr, "%.*s\n", (int)(message_.length), (char*)(message_.items));
+                exit(1);
 
 proc print(a1 > StringWriter)
     include
@@ -1537,3 +1779,17 @@ proc printLn(a1 > StringWriter, a2 > StringWriter, a3 > StringWriter, a4 > Strin
     str32 .= a32.toString()
     C
         printf("%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s%.*s\n", (int)(str1_.length), (char*)(str1_.items), (int)(str2_.length), (char*)(str2_.items), (int)(str3_.length), (char*)(str3_.items), (int)(str4_.length), (char*)(str4_.items), (int)(str5_.length), (char*)(str5_.items), (int)(str6_.length), (char*)(str6_.items), (int)(str7_.length), (char*)(str7_.items), (int)(str8_.length), (char*)(str8_.items), (int)(str9_.length), (char*)(str9_.items), (int)(str10_.length), (char*)(str10_.items), (int)(str11_.length), (char*)(str11_.items), (int)(str12_.length), (char*)(str12_.items), (int)(str13_.length), (char*)(str13_.items), (int)(str14_.length), (char*)(str14_.items), (int)(str15_.length), (char*)(str15_.items), (int)(str16_.length), (char*)(str16_.items), (int)(str17_.length), (char*)(str17_.items), (int)(str18_.length), (char*)(str18_.items), (int)(str19_.length), (char*)(str19_.items), (int)(str20_.length), (char*)(str20_.items), (int)(str21_.length), (char*)(str21_.items), (int)(str22_.length), (char*)(str22_.items), (int)(str23_.length), (char*)(str23_.items), (int)(str24_.length), (char*)(str24_.items), (int)(str25_.length), (char*)(str25_.items), (int)(str26_.length), (char*)(str26_.items), (int)(str27_.length), (char*)(str27_.items), (int)(str28_.length), (char*)(str28_.items), (int)(str29_.length), (char*)(str29_.items), (int)(str30_.length), (char*)(str30_.items), (int)(str31_.length), (char*)(str31_.items), (int)(str32_.length), (char*)(str32_.items));
+
+func systemExecute(command [UInt8]) Bool
+    attributes
+        noInline
+    include
+        #include <stdlib.h>
+        #include <string.h>
+    flag debug is set?
+        then debugMessage(command.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - command is empty.")
+    C
+        char cCommand[command_.length + 1];
+        memcpy(cCommand, command_.items, command_.length);
+        cCommand[command_.length] = 0;
+        result_ = system(cCommand) == 0;
