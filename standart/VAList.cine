@@ -353,8 +353,9 @@ proc free(list VAList(_))
 func getItem(list VAList(_), index > BasicUnsignedInteger) list[0]
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(index.convertTo(UInt8) >= list.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
+    flag debug is
+        "enable"
+            panic(index.convertTo(UInt8) >= list.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
     C
         result_ = list_.items[index_];
     result.use()

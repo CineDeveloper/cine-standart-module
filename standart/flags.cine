@@ -1,2 +1,5 @@
 flags
     debug "Enable debug."
+        "disable"
+        "enable"
+

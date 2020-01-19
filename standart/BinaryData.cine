@@ -23,8 +23,9 @@ func writeToFile(data BinaryData, fileName [UInt8]) Bool
         #include <stddef.h>
         #include <string.h>
     fileNameLength .= fileName.getLength()
-    flag debug is set?
-        then debugMessage(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    flag debug is
+        "enable"
+            panic(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
     C
         char zeroEndedFileName[fileNameLength_ + 1];
         memcpy(zeroEndedFileName, fileName_.items, fileNameLength_);

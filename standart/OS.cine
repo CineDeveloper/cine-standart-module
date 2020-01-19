@@ -5,8 +5,9 @@ func deleteFile(name [UInt8], ignoreNotExistedFile Bool) Bool
         #include <stdio.h>
         #include <string.h>
         #include <errno.h>
-    flag debug is set?
-        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
     if fileExistBox .= name.file?(); fileExistBox == Box(Bool).create(true)
         then
             length .= name.getLength()
@@ -25,8 +26,9 @@ func deleteDirectory(name [UInt8], ignoreNotExistedDirectory Bool) Bool
         #include <string.h>
         #include <dirent.h>
         #include <errno.h>
-    flag debug is set?
-        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
     if name.file?() == Box(Bool).create(false)
         then
             cName .= select(name.getLast() == '/', select(name == "/", name, name.getAllExceptLast()) , name) + '\000'
@@ -76,8 +78,9 @@ func file?(name [UInt8]) Box(Bool)
     include
         #include <sys/stat.h>
         #include <string.h>
-    flag debug is set?
-        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
     C
         char cName[name_.length + 1];
         memcpy(cName, name_.items, name_.length);
@@ -128,8 +131,9 @@ func getDirectoryItems(directoryName [UInt8]) Box([Pair([UInt8], Bool)])
     include
         #include <dirent.h>
         #include <string.h>
-    flag debug is set?
-        then debugMessage(directoryName.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
+    flag debug is
+        "enable"
+            panic(directoryName.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
     cDirectoryName .= select(directoryName.getLast() == '/', select(directoryName == "/", directoryName, directoryName.getAllExceptLast()) , directoryName) + '\000'
     directoryNameLength .= cDirectoryName.getLength() - 1
     resultSlice := #result[0]
@@ -174,8 +178,9 @@ func getEnvironmentVariable(name [UInt8]) Box([UInt8])
         #include <stdlib.h>
         #include <string.h>
     length .= name.getLength()
-    flag debug is set?
-        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - variable name is empty.")
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - variable name is empty.")
     C
         char zeroEndedName[length_ + 1];
         memcpy(zeroEndedName, name_.items, length_ * sizeof(char));
@@ -226,8 +231,9 @@ func getWithoutPath(name [UInt8]) [UInt8]
         alwaysInline
     edge := -1
     previousChar := UInt8
-    flag debug is set?
-        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file or directory name is empty.")
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file or directory name is empty.")
     result = ""
     parse index, char <- name
         mif
@@ -246,8 +252,9 @@ func getPath(name [UInt8]) [UInt8]
         alwaysInline
     edge := -1
     previousChar := UInt8
-    flag debug is set?
-        then debugMessage(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file or directory name is empty.")
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file or directory name is empty.")
     result = ""
     parse index, char <- name
         mif
@@ -270,8 +277,9 @@ func loadFile(fileName [UInt8]) Box(BinaryData)
         #include <stddef.h>
         #include <string.h>
     fileNameLength .= fileName.getLength()
-    flag debug is set?
-        then debugMessage(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
+    flag debug is
+        "enable"
+            panic(fileNameLength == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - file name is empty.")
     error := false
     C
         char zeroEndedFileName[fileNameLength_ + 1];
@@ -306,8 +314,9 @@ func makeDirectory(directory [UInt8], ignoreExistedDirectory Bool) Bool
         #include <sys/stat.h>
         #include <string.h>
         #include <errno.h>
-    flag debug is set?
-        then debugMessage(directory.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
+    flag debug is
+        "enable"
+            panic(directory.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
     directoryNameLength .= directory.getLength()
     C
         char zeroEndedDirectoryName[directoryNameLength_ + 1];
@@ -1786,8 +1795,9 @@ func systemExecute(command [UInt8]) Bool
     include
         #include <stdlib.h>
         #include <string.h>
-    flag debug is set?
-        then debugMessage(command.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - command is empty.")
+    flag debug is
+        "enable"
+            panic(command.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - command is empty.")
     C
         char cCommand[command_.length + 1];
         memcpy(cCommand, command_.items, command_.length);

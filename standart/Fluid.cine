@@ -36,8 +36,9 @@ func getInnerTypeNumber(a Fluid) UInt64
 func getItem(fluid Fluid, innerType) innerType
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(fluid.getInnerTypeNumber() != #innerType.getTypeNumber(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the inner type does not match the type being extracted.")
+    flag debug is
+        "enable"
+            panic(fluid.getInnerTypeNumber() != #innerType.getTypeNumber(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the inner type does not match the type being extracted.")
     C
         result_ = *(##innerType##*)(fluid_.object);
     result.use()

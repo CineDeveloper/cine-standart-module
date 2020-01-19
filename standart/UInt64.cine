@@ -17,7 +17,8 @@ func findFirstSet(a UInt64) UInt8
 func toSigned(a UInt64) Int64
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(a > (#a.maxValue() >> 1), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    flag debug is
+        "enable"
+            panic(a > (#a.maxValue() >> 1), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C
         result_ = a_;

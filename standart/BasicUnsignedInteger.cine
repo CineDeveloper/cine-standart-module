@@ -56,8 +56,9 @@ func random(maxValue > BasicUnsignedInteger) maxValue #4
         alwaysInline
     include
         #include <stdlib.h>
-    flag debug is set?
-        then debugMessage(maxValue == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
+    flag debug is
+        "enable"
+            panic(maxValue == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
     C
         uint64_t randomNumber = (UINT64_MAX / RAND_MAX * rand() + rand()) / (UINT64_MAX / maxValue_);
         result_ = randomNumber;
@@ -65,16 +66,18 @@ func random(maxValue > BasicUnsignedInteger) maxValue #4
 func shl(a > BasicUnsignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    flag debug is
+        "enable"
+            panic(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     C
         result_ = a_ << shifts_;
 
 func shr(a > BasicUnsignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    flag debug is
+        "enable"
+            panic(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     C
         result_ = a_ >> shifts_;
 

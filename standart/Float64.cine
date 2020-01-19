@@ -15,8 +15,9 @@ func arcCos(a Float64) a
         alwaysInline
     include
         #include <math.h>
-    flag debug is set?
-        then debugMessage(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
+    flag debug is
+        "enable"
+            panic(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
     C
         result_ = acos(a_);
 
@@ -33,8 +34,9 @@ func arcSin(a Float64) a
         alwaysInline
     include
         #include <math.h>
-    flag debug is set?
-        then debugMessage(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
+    flag debug is
+        "enable"
+            panic(!a.inRange?(-1.0, 1.0), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong value.")
     C
         result_ = asin(a_);
 
@@ -143,8 +145,9 @@ func mod(a Float64, b a) a
         #include <math.h>
     C
         result_ = fmod(a_, b_);
-    flag debug is set?
-        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+    flag debug is
+        "enable"
+            panic(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 func power(a Float64, b a) a
     attributes
@@ -153,8 +156,9 @@ func power(a Float64, b a) a
         #include <math.h>
     C
         result_ = pow(a_, b_);
-    flag debug is set?
-        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+    flag debug is
+        "enable"
+            panic(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 func sin(a Float64) a
     attributes
@@ -171,8 +175,9 @@ func sqrt(a Float64) a
         #include <math.h>
     C
         result_ = sqrt(a_);
-    flag debug is set?
-        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+    flag debug is
+        "enable"
+            panic(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 func tg(a Float64) a
     attributes

@@ -22,8 +22,9 @@ func add(a > BasicNumber, b a) a #4
 func div(a > BasicNumber, b a) a #4
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(b == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - division by zero.")
+    flag debug is
+        "enable"
+            panic(b == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - division by zero.")
     C
         result_ = a_ / b_;
 

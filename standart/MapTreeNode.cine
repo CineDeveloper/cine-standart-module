@@ -4,8 +4,9 @@ type MapTreeNode C(2, "struct ^^ {uint16_t nodes[30] __attribute__((aligned(2)))
 func getItem(mtn MapTreeNode, nodeIndex UInt8) UInt64
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(nodeIndex > 15.convertTo(UInt8), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node index is to big.")
+    flag debug is
+        "enable"
+            panic(nodeIndex > 15.convertTo(UInt8), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node index is to big.")
     C
         if (nodeIndex_ % 2 == 0){
             uint8_t const firstRealIndex = nodeIndex_ / 2 * 3;
@@ -30,10 +31,10 @@ func getNodeIndexWithOtherItemIndex(mtn MapTreeNode) UInt64
 proc setItem(:mtn MapTreeNode, nodeIndex UInt8, nodeItem UInt64)
     attributes
         alwaysInline
-    flag debug is set?
-        then
-            debugMessage(nodeIndex > 15.convertTo(UInt8), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node index is to big.")
-            debugMessage(nodeItem > 16777215, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node item is to big.")
+    flag debug is
+        "enable"
+            panic(nodeIndex > 15.convertTo(UInt8), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node index is to big.")
+            panic(nodeItem > 16777215, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the node item is to big.")
     C
         if (nodeIndex_ % 2 == 0){
             uint8_t const firstRealIndex = nodeIndex_ / 2 * 3;

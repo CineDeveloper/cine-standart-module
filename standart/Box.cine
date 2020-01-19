@@ -59,8 +59,9 @@ func getFromBinaryData(a Box(_), data BinaryData, :position UInt64) a
 func getItem(a Box(_)) a[0]
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(a.empty?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - get the value from the empty box.")
+    flag debug is
+        "enable"
+            panic(a.empty?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - get the value from the empty box.")
     if !a.empty?()
         then result = a.private_item
 

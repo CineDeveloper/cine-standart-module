@@ -71,8 +71,9 @@ func and(slice1 [_], slice2 slice1) slice1
         alwaysInline
     rules
         final = slice1 > Bits
-    flag debug is set?
-        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    flag debug is
+        "enable"
+            panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
     result = #slice1.init(slice1.getLength())
     parse index, item <- slice1
         result:setItem(index, item & slice2[index])
@@ -84,8 +85,9 @@ proc andEq(:slice1 [_], slice2 slice1)
         alwaysInline
     rules
         final = slice1 > Bits
-    flag debug is set?
-        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    flag debug is
+        "enable"
+            panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
     parse index, item <- slice2
         slice1:setItem(index, slice1[index] & item)
 
@@ -145,12 +147,12 @@ func contain?(slice [_], subSlicesList VAList(slice)) Bool
 proc copy(:slice [_], from > BasicUnsignedInteger, to > BasicUnsignedInteger, source slice)
     include
         #include <string.h>
-    flag debug is set?
-        then
-            debugMessage(from.convertTo(UInt64) > to.convertTo(UInt64), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is greater than the last index.")
-            debugMessage(from.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is too large.")
-            debugMessage(to.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the last index is too large.")
-            debugMessage(to.convertTo(UInt64) - from.convertTo(UInt64) > source.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the source is too short.")
+    flag debug is
+        "enable"
+            panic(from.convertTo(UInt64) > to.convertTo(UInt64), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is greater than the last index.")
+            panic(from.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is too large.")
+            panic(to.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the last index is too large.")
+            panic(to.convertTo(UInt64) - from.convertTo(UInt64) > source.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the source is too short.")
     if length .= to - from; length != 0
         then haveLink? slice[0]
             then
@@ -183,8 +185,9 @@ func count(slice [_], itemsList VAList(slice[0])) UInt64
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(itemsList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    flag debug is
+        "enable"
+            panic(itemsList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
     parse _, sliceItem <- slice
         parse _, listItem <- itemsList
             if sliceItem == listItem
@@ -197,8 +200,9 @@ func count(slice [_], subSlice slice) UInt64
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(subSlice.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    flag debug is
+        "enable"
+            panic(subSlice.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
     mutSlice := slice
     firstItem .= subSlice[0]
     for mutSlice.getLength() >= subSlice.getLength()
@@ -217,8 +221,9 @@ func count(slice [_], subSlicesList VAList(slice)) UInt64
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(subSlicesList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+    flag debug is
+        "enable"
+            panic(subSlicesList.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
     mutSlice := slice
     enslave firstsItems := VAList(slice[0])
     listLength .= subSlicesList.getLength()
@@ -226,8 +231,9 @@ func count(slice [_], subSlicesList VAList(slice)) UInt64
         firstsItems_.length = listLength_;
     minLength := UInt64.maxValue()
     parse index, item <- subSlicesList
-        flag debug is set?
-            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        flag debug is
+            "enable"
+                panic(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
         minLength = minLength.min(item.getLength())
         C
             firstsItems_.items[index_] = item_.items[0];
@@ -407,8 +413,9 @@ func getInitCapacity(slice [_]) UInt64
 func getItem(slice [_], index > BasicUnsignedInteger) slice[0]
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(index.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
+    flag debug is
+        "enable"
+            panic(index.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
     C
         result_ = slice_.items[index_];
     result.use()
@@ -434,11 +441,11 @@ func getSlice(slice [_], from > BasicUnsignedInteger, to > BasicUnsignedInteger)
         alwaysInline
     include
         #include <string.h>
-    flag debug is set?
-        then
-            debugMessage(from.convertTo(UInt64) > to.convertTo(UInt64), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is greater than the last index.")
-            debugMessage(from.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is too large.")
-            debugMessage(to.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the last index is too large.")
+    flag debug is
+        "enable"
+            panic(from.convertTo(UInt64) > to.convertTo(UInt64), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is greater than the last index.")
+            panic(from.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the first index is too large.")
+            panic(to.convertTo(UInt64) > slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the last index is too large.")
     newLength .= to - from
     if newLength != 0
         then
@@ -490,8 +497,9 @@ func hasPrefix?(slice [_], prefix slice) Bool
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(prefix.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - prefix is empty.")
+    flag debug is
+        "enable"
+            panic(prefix.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - prefix is empty.")
     if result = slice.getLength() >= prefix.getLength(); result
         then result = slice.getFirstN(prefix.getLength()) == prefix
 
@@ -500,8 +508,9 @@ func hasSuffix?(slice [_], suffix slice) Bool
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(suffix.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - suffix is empty.")
+    flag debug is
+        "enable"
+            panic(suffix.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - suffix is empty.")
     if result = slice.getLength() >= suffix.getLength(); result
         then result = slice.getLastN(suffix.getLength()) == suffix
 
@@ -2141,8 +2150,9 @@ func look(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64))
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     parse sliceIndex, sliceItem <- slice
         parse _, lookForItem <- lookFor
             if sliceItem == lookForItem
@@ -2155,8 +2165,9 @@ func look(slice [_], lookFor slice) Box(UInt64)
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
     firstItem .= lookFor[0]
     resultIndex := 0
@@ -2179,8 +2190,9 @@ func look(slice [_], lookFor VAList(slice)) Box(Pair(slice, UInt64))
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
     enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
@@ -2188,8 +2200,9 @@ func look(slice [_], lookFor VAList(slice)) Box(Pair(slice, UInt64))
         firstsItems_.length = listLength_;
     minLength := UInt64.maxValue()
     parse index, item <- lookFor
-        flag debug is set?
-            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        flag debug is
+            "enable"
+                panic(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
         minLength = minLength.min(item.getLength())
         C
             firstsItems_.items[index_] = item_.items[0];
@@ -2221,8 +2234,9 @@ func lookAll(slice [_], lookFor VAList(slice[0])) [Pair(slice[0], UInt64)]
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     parse sliceIndex, sliceItem <- slice
         parse _, lookForItem <- lookFor
             if sliceItem == lookForItem
@@ -2235,8 +2249,9 @@ func lookAll(slice [_], lookFor slice) [UInt64]
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
     firstItem .= lookFor[0]
     offset := 0
@@ -2259,8 +2274,9 @@ func lookAll(slice [_], lookFor VAList(slice)) [Pair(slice, UInt64)]
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
     enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
@@ -2268,8 +2284,9 @@ func lookAll(slice [_], lookFor VAList(slice)) [Pair(slice, UInt64)]
         firstsItems_.length = listLength_;
     minLength := UInt64.maxValue()
     parse index, item <- lookFor
-        flag debug is set?
-            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        flag debug is
+            "enable"
+                panic(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
         minLength = minLength.min(item.getLength())
         C
             firstsItems_.items[index_] = item_.items[0];
@@ -2342,8 +2359,9 @@ func lookLast(slice [_], lookFor VAList(slice[0])) Box(Pair(slice[0], UInt64))
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     for sliceIndex := slice.getLength() - 1; sliceIndex != UInt64.maxValue(); sliceIndex--
         parse _, lookForItem <- lookFor
             if slice[sliceIndex] == lookForItem
@@ -2356,8 +2374,9 @@ func lookLast(slice [_], lookFor slice) Box(UInt64)
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
     firstItem .= lookFor[0]
     resultIndex := 0
@@ -2375,8 +2394,9 @@ func lookLast(slice [_], lookFor VAList(slice)) Box(Pair(slice, UInt64))
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
     mutSlice := slice
     enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
@@ -2384,8 +2404,9 @@ func lookLast(slice [_], lookFor VAList(slice)) Box(Pair(slice, UInt64))
         firstsItems_.length = listLength_;
     minLength := UInt64.maxValue()
     parse index, item <- lookFor
-        flag debug is set?
-            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        flag debug is
+            "enable"
+                panic(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
         minLength = minLength.min(item.getLength())
         C
             firstsItems_.items[index_] = item_.items[0];
@@ -2443,8 +2464,9 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutN := n
     for index := slice.getLength() - 1; index != UInt64.maxValue(); index--
         if slice[index] == lookFor
@@ -2459,10 +2481,10 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Bo
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then
-            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
-            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutN := n
     for sliceIndex := slice.getLength() - 1; sliceIndex != UInt64.maxValue(); sliceIndex--
         parse _, lookForItem <- lookFor
@@ -2480,10 +2502,10 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor slice) Box(UInt64)
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then
-            debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
-            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     sliceContainFirstChar := slice
     sliceContainLookFor := slice
     mutN := n
@@ -2507,18 +2529,19 @@ func lookLastN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice)) Box(P
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then
-            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
-            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
     C
         firstsItems_.length = listLength_;
     minLength := UInt64.maxValue()
     parse index, item <- lookFor
-        flag debug is set?
-            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        flag debug is
+            "enable"
+                panic(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
         minLength = minLength.min(item.getLength())
         C
             firstsItems_.items[index_] = item_.items[0];
@@ -2583,8 +2606,9 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor slice[0]) Box(UInt64)
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutN := n
     parse index, item <- slice
         if item == lookFor
@@ -2599,10 +2623,10 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice[0])) Box(Pa
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then
-            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
-            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutN := n
     parse sliceIndex, sliceItem <- slice
         parse _, lookForItem <- lookFor
@@ -2620,10 +2644,10 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor slice) Box(UInt64)
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then
-            debugMessage(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
-            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutSlice := slice
     mutN := n
     firstItem .= lookFor[0]
@@ -2651,10 +2675,10 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice)) Box(Pair(
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then
-            debugMessage(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
-            debugMessage(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
+    flag debug is
+        "enable"
+            panic(lookFor.getLength() == UInt8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to look for.")
+            panic(n == #n, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - \042N\042 is zero.")
     mutSlice := slice
     enslave firstsItems := VAList(slice[0])
     listLength .= lookFor.getLength()
@@ -2662,8 +2686,9 @@ func lookN(slice [_], n > BasicUnsignedInteger, lookFor VAList(slice)) Box(Pair(
         firstsItems_.length = listLength_;
     minLength := UInt64.maxValue()
     parse index, item <- lookFor
-        flag debug is set?
-            then debugMessage(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
+        flag debug is
+            "enable"
+                panic(item.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to count.")
         minLength = minLength.min(item.getLength())
         C
             firstsItems_.items[index_] = item_.items[0];
@@ -2741,8 +2766,9 @@ func or(slice1 [_], slice2 slice1) slice1
         alwaysInline
     rules
         final = slice1 > Bits
-    flag debug is set?
-        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    flag debug is
+        "enable"
+            panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
     result = #slice1.init(slice1.getLength())
     parse index, item <- slice1
         result:setItem(index, item | slice2[index])
@@ -2754,8 +2780,9 @@ proc orEq(:slice1 [_], slice2 slice1)
         alwaysInline
     rules
         final = slice1 > Bits
-    flag debug is set?
-        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    flag debug is
+        "enable"
+            panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
     parse index, item <- slice2
         slice1:setItem(index, slice1[index] | item)
 
@@ -2805,8 +2832,9 @@ func replace(slice [_], old slice, new slice) slice
         alwaysInline
     rules
         final = slice > Equal
-    flag debug is set?
-        then debugMessage(old.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to replace.")
+    flag debug is
+        "enable"
+            panic(old.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - there is nothing to replace.")
     if slice.getLength() != 0
         then
             parts .= slice.split(old)
@@ -2826,8 +2854,9 @@ proc setFirst(:slice [_], newItem slice[0])
 proc setItem(:slice [_], index > BasicUnsignedInteger, newItem slice[0])
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(index.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
+    flag debug is
+        "enable"
+            panic(index.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the index is too large.")
     if slice.use?()
         then slice = slice.clone()
     oldItem := #slice[0]
@@ -3082,10 +3111,10 @@ func string?(slice [_]) Bool
 proc swap(:slice [_], first > BasicUnsignedInteger, second > BasicUnsignedInteger)
     attributes
         alwaysInline
-    flag debug is set?
-        then
-            debugMessage(first.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - first index is too large.")
-            debugMessage(second.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - second index is too large.")
+    flag debug is
+        "enable"
+            panic(first.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - first index is too large.")
+            panic(second.convertTo(UInt64) >= slice.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - second index is too large.")
     if slice.use?()
         then slice = slice.clone()
     C
@@ -3131,8 +3160,9 @@ func xor(slice1 [_], slice2 slice1) slice1
         alwaysInline
     rules
         final = slice1 > Bits
-    flag debug is set?
-        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    flag debug is
+        "enable"
+            panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
     result = #slice1.init(slice1.getLength())
     parse index, item <- slice1
         result:setItem(index, item ^ slice2[index])
@@ -3144,7 +3174,8 @@ proc xorEq(:slice1 [_], slice2 slice1)
         alwaysInline
     rules
         final = slice1 > Bits
-    flag debug is set?
-        then debugMessage(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    flag debug is
+        "enable"
+            panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
     parse index, item <- slice2
         slice1:setItem(index, slice1[index] ^ item)

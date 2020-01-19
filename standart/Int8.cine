@@ -17,7 +17,8 @@ func findFirstSet(a Int8) UInt8
 func toUnsigned(a Int8) UInt8
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(a < #a, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - assign a negative number to the unsigned variable.")
+    flag debug is
+        "enable"
+            panic(a < #a, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - assign a negative number to the unsigned variable.")
     C
         result_ = a_;

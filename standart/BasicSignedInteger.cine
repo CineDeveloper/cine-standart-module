@@ -16,15 +16,15 @@ func abs(a > BasicSignedInteger) a #4
 func add(a > BasicSignedInteger, b a) a
     attributes
         alwaysInline
-    flag debug is set?
-        then
+    flag debug is
+        "enable"
             overflow := false
             min .= #a.minValue()
             max .= #a.maxValue()
             C
                 __int128 tmp = (__int128)a_ + (__int128)b_;
                 overflow_ = tmp < (__int128)min_ || tmp > (__int128)max_;
-            debugMessage(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+            panic(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C
         result_ = a_ + b_;
 
@@ -73,23 +73,24 @@ func minValue(a > BasicSignedInteger) a #4
 func mul(a > BasicSignedInteger, b a) a
     attributes
         alwaysInline
-    flag debug is set?
-        then
+    flag debug is
+        "enable"
             overflow := false
             min .= #a.minValue()
             max .= #a.maxValue()
             C
                 __int128 tmp = (__int128)a_ * (__int128)b_;
                 overflow_ = tmp < (__int128)min_ || tmp > (__int128)max_;
-            debugMessage(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+            panic(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C
         result_ = a_ * b_;
 
 func neg(a > BasicSignedInteger) a #4
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(a == #a.minValue(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+    flag debug is
+        "enable"
+            panic(a == #a.minValue(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C
         result_ = 0 - a_;
 
@@ -114,8 +115,9 @@ func random(maxValue > BasicSignedInteger) maxValue #4
         alwaysInline
     include
         #include <stdlib.h>
-    flag debug is set?
-        then debugMessage(maxValue <= 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
+    flag debug is
+        "enable"
+            panic(maxValue <= 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - wrong max value.")
     C
         uint64_t randomNumber = (UINT64_MAX / RAND_MAX * rand() + rand()) / (UINT64_MAX / maxValue_);
         result_ = randomNumber;
@@ -123,8 +125,9 @@ func random(maxValue > BasicSignedInteger) maxValue #4
 func shl(a > BasicSignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    flag debug is
+        "enable"
+            panic(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     unsignedResult := #a.toUnsigned()
     C
         unsignedResult_ = a_;
@@ -134,8 +137,9 @@ func shl(a > BasicSignedInteger, shifts > BasicUnsignedInteger) a #4
 func shr(a > BasicSignedInteger, shifts > BasicUnsignedInteger) a #4
     attributes
         alwaysInline
-    flag debug is set?
-        then debugMessage(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
+    flag debug is
+        "enable"
+            panic(shifts.convertTo(UInt64) >= #a.getTypeSize() * 8, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - too many shifts.")
     unsignedResult := #a.toUnsigned()
     C
         unsignedResult_ = a_;
@@ -145,15 +149,15 @@ func shr(a > BasicSignedInteger, shifts > BasicUnsignedInteger) a #4
 func sub(a > BasicSignedInteger, b a) a
     attributes
         alwaysInline
-    flag debug is set?
-        then
+    flag debug is
+        "enable"
             overflow := false
             min .= #a.minValue()
             max .= #a.maxValue()
             C
                 __int128 tmp = (__int128)a_ - (__int128)b_;
                 overflow_ = tmp < (__int128)min_ || tmp > (__int128)max_;
-            debugMessage(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
+            panic(overflow, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - signed number overflow.")
     C
         result_ = a_ - b_;
 

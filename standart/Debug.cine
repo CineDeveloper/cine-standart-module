@@ -1,12 +1,14 @@
 proc debugMessage(predicate Bool, message [UInt8])
     attributes
         noInline
-    flag debug is set?
-        then if predicate
-            then printLn("DEBUG: ", message)
+    flag debug is
+        "enable"
+            if predicate
+                then printLn("DEBUG: ", message)
 
 proc debugMessage(message [UInt8])
     attributes
         noInline
-    flag debug is set?
-        then printLn("DEBUG: ", message)
+    flag debug is
+        "enable"
+            printLn("DEBUG: ", message)

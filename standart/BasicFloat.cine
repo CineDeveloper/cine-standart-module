@@ -45,8 +45,9 @@ func div(a > BasicFloat, b a) a
         alwaysInline
     C
         result_ = a_ / b_;
-    flag debug is set?
-        then debugMessage(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
+    flag debug is
+        "enable"
+            panic(result.nan?(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - result is NaN.")
 
 proc inc(:a > BasicFloat) #4
     attributes
