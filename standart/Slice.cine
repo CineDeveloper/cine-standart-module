@@ -372,11 +372,12 @@ func getFromBinaryData(sliceType [_], data BinaryData, :position UInt64) sliceTy
     length .= UInt64.getFromBinaryData(data, position)
     if length != 0
         then
+            count .= length * #sliceType[0].getTypeSize()
+            panic(data.getLength() - position < count, "Reading non-existing data from 'BinaryData'.")
             result = #sliceType.init(length)
             C
-                uint64_t const count = length_ * sizeof(##sliceType[0]##);
-                memcpy(result_.items, data_.private_data_.items + *position_, count);
-                *position_ += count;
+                memcpy(result_.items, data_.private_data_.items + *position_, count_);
+                *position_ += count_;
     if isString
         then result:setStringFlag()
 

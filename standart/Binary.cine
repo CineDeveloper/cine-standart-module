@@ -21,6 +21,7 @@ func getFromBinaryData(a > Binary, data BinaryData, :position UInt64) a #4
     include
         #include <string.h>
     length .= #a.getTypeSize()
+    panic(data.getLength() - position < length, "Reading non-existing data from 'BinaryData'.")
     C
         memcpy(&result_, data_.private_data_.items + *position_, length_);
     position += length
