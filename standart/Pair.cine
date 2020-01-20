@@ -107,8 +107,8 @@ func shr(pair Pair(_, _), shifts > BasicUnsignedInteger) pair
 func toString(pair Pair(_, _)) [UInt8]
     rules
         final = pair > StringWriter
-    result = "(".join({
-        pair.first.toString(), ", ",
+    result = "(".join{
+        (pair.first.toString(), ", ",
         pair.second.toString(), ")")
     }
 

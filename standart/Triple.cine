@@ -119,8 +119,8 @@ func shr(triple Triple(_, _, _), shifts > BasicUnsignedInteger) triple
 func toString(triple Triple(_, _, _)) [UInt8]
     rules
         final = triple > StringWriter
-    result = "(".join({
-        triple.first.toString(), ", ",
+    result = "(".join{
+        (triple.first.toString(), ", ",
         triple.second.toString(), ", " ,
         triple.third.toString(), ")")
     }

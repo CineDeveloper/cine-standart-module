@@ -58,6 +58,22 @@ func testFunc_1(a UInt64) a
 func testFunc_2(a > BasicUnsignedInteger) a
     result = 2.convertTo(#a)
 
+func testSingleRun1(a) a
+    attributes
+        singleRun
+    result = a
+
+func testSingleRun2(a) a
+    attributes
+        singleRun
+    return a
+
+func testSingleRun3(a) a
+    attributes
+        singleRun
+    result = a
+    return
+
 proc testBuiltIn(:results)
     rules
         final = results == TestResults
@@ -467,3 +483,13 @@ proc testBuiltIn(:results)
     results:test(testFunc_1(UInt64) == 1, builtIn_currentFile, builtIn_currentLine)
     results:test(testFunc_2(UInt64) == 2, builtIn_currentFile, builtIn_currentLine)
     results:test(testFunc_2(UInt8) == 2.convertTo(UInt8), builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun1("abc") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun1("abc") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun1("gh") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun2("abc") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun2("abc") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun2("gh") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun3("abc") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun3("abc") == "abc", builtIn_currentFile, builtIn_currentLine)
+    results:test(testSingleRun3("gh") == "abc", builtIn_currentFile, builtIn_currentLine)
+
