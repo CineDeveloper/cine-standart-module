@@ -53,6 +53,8 @@ proc andEq(:slice1 [_], slice2 slice1) #6
     flag debug is
         "enable"
             panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    if slice1.use?()
+        then slice1 = slice1.clone()
     remainLength := slice1.getLength()
     C
         ##slice1[0]##* remainItems1 = slice1_->items;
@@ -1269,6 +1271,8 @@ proc orEq(:slice1 [_], slice2 slice1) #6
     flag debug is
         "enable"
             panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    if slice1.use?()
+        then slice1 = slice1.clone()
     remainLength := slice1.getLength()
     C
         ##slice1[0]##* remainItems1 = slice1_->items;
@@ -1356,6 +1360,8 @@ proc xorEq(:slice1 [_], slice2 slice1) #6
     flag debug is
         "enable"
             panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
+    if slice1.use?()
+        then slice1 = slice1.clone()
     remainLength := slice1.getLength()
     C
         ##slice1[0]##* remainItems1 = slice1_->items;
