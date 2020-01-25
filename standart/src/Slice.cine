@@ -88,8 +88,11 @@ proc andEq(:slice1 [_], slice2 slice1)
     flag debug is
         "enable"
             panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
-    parse index, item <- slice2
-        slice1:setItem(index, slice1[index] & item)
+    parse index, item2 <- slice2
+        enslave item1 := slice1[index]
+        item1.free()
+        item1 &= item2
+        slice1:setItem(index, item1)
 
 func asSlice(slice [_]) slice
     attributes
@@ -2784,8 +2787,11 @@ proc orEq(:slice1 [_], slice2 slice1)
     flag debug is
         "enable"
             panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
-    parse index, item <- slice2
-        slice1:setItem(index, slice1[index] | item)
+    parse index, item2 <- slice2
+        enslave item1 := slice1[index]
+        item1.free()
+        item1 |= item2
+        slice1:setItem(index, item1)
 
 func parse_first(slice [_]) UInt64
     attributes
@@ -2888,7 +2894,10 @@ proc shlEq(:slice [_], shifts > BasicUnsignedInteger)
     rules
         final = slice > Bits
     for index := 0; index < slice.getLength(); index++
-        slice:setItem(index, slice[index] << shifts)
+        enslave item := slice[index]
+        item.free()
+        item <<= shifts
+        slice:setItem(index, item)
 
 func shr(slice [_], shifts > BasicUnsignedInteger) slice
     attributes
@@ -2907,7 +2916,10 @@ proc shrEq(:slice [_], shifts > BasicUnsignedInteger)
     rules
         final = slice > Bits
     for index := 0; index < slice.getLength(); index++
-        slice:setItem(index, slice[index] >> shifts)
+        enslave item := slice[index]
+        item.free()
+        item >>= shifts
+        slice:setItem(index, item)
 
 func sort(slice [_], rise Bool) slice
     rules
@@ -3178,5 +3190,8 @@ proc xorEq(:slice1 [_], slice2 slice1)
     flag debug is
         "enable"
             panic(slice1.getLength() != slice2.getLength(), "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - the size of the first slice is different from the size of the second.")
-    parse index, item <- slice2
-        slice1:setItem(index, slice1[index] ^ item)
+    parse index, item2 <- slice2
+        enslave item1 := slice1[index]
+        item1.free()
+        item1 ^= item2
+        slice1:setItem(index, item1)
