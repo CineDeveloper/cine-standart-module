@@ -29,7 +29,7 @@ func deleteDirectory(name [UInt8], ignoreNotExistedDirectory Bool) Bool
     flag debug is
         "enable"
             panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - directory name is empty.")
-    if name.file?() == Box(Bool).create(false)
+    if fileExistBox .= name.file?(); fileExistBox == Box(Bool).create(false)
         then
             cName .= select(name.getLast() == '/', select(name == "/", name, name.getAllExceptLast()) , name) + '\000'
             nameLength .= cName.getLength() - 1
@@ -61,10 +61,8 @@ func deleteDirectory(name [UInt8], ignoreNotExistedDirectory Bool) Bool
                 closedir(directory);
                 if (result_){
                     result_ = remove((const char*)cName_.items) == 0;
-                    if (!result_ && ignoreNotExistedDirectory_){
-                        result_ = errno == ENOENT;
-                    }
                 }
+        else result = ignoreNotExistedDirectory && fileExistBox.empty?()
 
 proc exit()
     include
@@ -193,6 +191,46 @@ func getEnvironmentVariable(name [UInt8]) Box([UInt8])
             result_.private_item_.isString = true;
             result_.private_haveItem_ = true;
         }
+
+func getProgramName() [UInt8]
+    attributes
+        alwaysInline
+    include
+        #include <string.h>
+    C
+        result_.length = strlen(__argv[0]);
+        result_.capacity = result_.length;
+        result_.items = (uint8_t*)__argv[0];
+        result_.isString = true;
+    if lastSeparator .= result.lookLast('/'); lastSeparator.item?()
+        then result = result.getAllExceptFirstN(lastSeparator[] + 1)
+
+func getResource(resource [UInt8]) Box(BinaryData)
+    attributes
+        alwaysInline
+    flag debug is
+        "enable"
+            panic(resource.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - resource name is empty.")
+    if resourcesPath .= getEnvironmentVariable("FEI_RESOURCES"); resourcesPath.item?()
+        then result = loadFile(resourcesPath[].join(select(resourcesPath[].hasSuffix?("/"), "", "/"), getProgramName(), "/", resource))
+
+func readConfig(name [UInt8]) Box(BinaryData)
+    attributes
+        alwaysInline
+    flag debug is
+        "enable"
+            panic(name.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - config name is empty.")
+    if configPath .= getEnvironmentVariable("FEI_CONFIGS"); configPath.item?()
+        then result = loadFile(configPath[].join(select(configPath[].hasSuffix?("/"), "", "/"), getProgramName(), "/", name))
+
+func writeConfig(name [UInt8], config BinaryData) Bool
+    attributes
+        alwaysInline
+    flag debug is
+        "enable"
+            panic(resource.getLength() == 0, "File: " builtIn_currentFile ", line: " builtIn_currentLine ". UB - config name is empty.")
+    if configPath .= getEnvironmentVariable("FEI_CONFIGS"); configPath.item?()
+        then result = config.writeToFile(configPath[].join(select(configPath[].hasSuffix?("/"), "", "/"), getProgramName(), "/", name))
 
 func getStaticRandomNumber() UInt64
     attributes
